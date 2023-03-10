@@ -98,8 +98,17 @@ static void event_handler(void* arg, esp_event_base_t event_base,
         /* Signal main application to continue execution */
         xEventGroupSetBits(wifi_event_group, WIFI_CONNECTED_EVENT);
     } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
-        ESP_LOGI(TAG, "Disconnected. Connecting to the AP again...");
-        esp_wifi_connect();
+       
+        if (retries < CONFIG_EXAMPLE_PROV_MGR_MAX_RETRY_CNT) {
+            retries++;
+            ESP_LOGI(TAG, "Disconnected. Connecting to the AP again...");
+            esp_wifi_connect();
+        }
+        else{
+            wifi_prov_mgr_reset_provisioning();
+            esp_restart();
+        }
+        
     }
 }
 
