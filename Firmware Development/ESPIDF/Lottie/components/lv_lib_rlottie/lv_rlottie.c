@@ -110,9 +110,9 @@ static void lv_rlottie_constructor(const lv_obj_class_t * class_p, lv_obj_t * ob
 
     lv_obj_t * parent = lv_obj_get_parent(obj);
 
-    rlottie->scanline_width = create_width * LV_COLOR_DEPTH / 8;
+    rlottie->scanline_width = create_width * 32 / 8;
 
-    size_t allocaled_buf_size = (create_width * create_height * LV_COLOR_DEPTH / 8);
+    size_t allocaled_buf_size = (create_width * create_height * 32 / 8);
 
     printf("Scanline Width: %d\n", rlottie->scanline_width);
     printf("WIDTH: %d\n", create_width);
@@ -136,7 +136,7 @@ static void lv_rlottie_constructor(const lv_obj_class_t * class_p, lv_obj_t * ob
     rlottie->imgdsc.data_size = allocaled_buf_size;
 
     lv_img_set_src(obj, &rlottie->imgdsc);
-    lv_img_set_offset_x(obj, create_width/2);
+    lv_img_set_offset_x(obj, 0);
 
     rlottie->task = lv_timer_create(next_frame_task_cb, 1000 / rlottie->framerate, obj);
 

@@ -22,6 +22,8 @@
 #include "esp_system.h"
 #include "esp_spi_flash.h"
 #include "driver/gpio.h"
+#include "esp_log.h"
+#include "esp_flash.h"
 
 #include "lv_rlottie.h"
 // #include "lv_gif.h"
@@ -72,8 +74,11 @@ void app_main() {
     /* If you want to use a task to create the graphic, you NEED to create a Pinned task
      * Otherwise there can be problem such as memory corruption and so on.
      * NOTE: When not using Wi-Fi nor Bluetooth you can pin the guiTask to core 0 */
-    printf("Pinning guitask to core 0\n");
+    // printf("Pinning guitask to core 0\n");
     xTaskCreatePinnedToCore(guiTask, "gui", 1000*50, NULL, 0, NULL, 0);
+    // uint32_t size_flash_chip;
+    // esp_flash_get_size(NULL, &size_flash_chip);
+    // ESP_LOGI(TAG, "%d", size_flash_chip);
 }
 
 SemaphoreHandle_t xGuiSemaphore;
@@ -103,7 +108,7 @@ static void guiTask(void *pvParameter) {
     disp_drv.flush_cb = disp_driver_flush;
 
     disp_drv.draw_buf = &disp_buf1;
-    disp_drv.hor_res = 320;
+    disp_drv.hor_res = 240;
     disp_drv.ver_res = 240;
     // disp_drv.rotated = LV_DISP_ROT_90;
     // disp_drv.sw_rotate = 1;
@@ -143,27 +148,25 @@ static void create_demo_application(void)
 
 void lv_hello_world(void)
 {
-    printf("lv_hello_world entry\n");
+    // printf("lv_hello_world entry\n");
 
-    static lv_style_t style;
-    lv_style_init(&style);
-    lv_style_set_flex_flow(&style, LV_FLEX_FLOW_ROW_WRAP);
-    lv_style_set_flex_main_place(&style, LV_FLEX_ALIGN_SPACE_EVENLY);
-    lv_style_set_layout(&style, LV_LAYOUT_FLEX);
+    // static lv_style_t style;
+    // lv_style_init(&style);
+    // lv_style_set_flex_flow(&style, LV_FLEX_FLOW_ROW_WRAP);
+    // lv_style_set_flex_main_place(&style, LV_FLEX_ALIGN_SPACE_EVENLY);
+    // lv_style_set_layout(&style, LV_LAYOUT_FLEX);
 
-    lv_obj_t * cont = lv_obj_create(lv_scr_act());
-    lv_obj_set_size(cont, 300, 220);
-    lv_obj_center(cont);
-    lv_obj_add_style(cont, &style, 0);
+    // lv_obj_t * cont = lv_obj_create(lv_scr_act());
+    // lv_obj_center(cont);
+    // lv_obj_set_size(cont, 240, 240);
+    // lv_obj_add_style(cont, &style, 0);
 
-
+    
+    lv_obj_clean(lv_scr_act());
     extern const char FingerprintRaw[];
-    lv_obj_t* r2 = lv_rlottie_create_from_raw(cont, 100, 75, FingerprintRaw);
-
-
-
+    lv_obj_t * r2 = lv_rlottie_create_from_raw(lv_scr_act(), 100, 100, (const void *)FingerprintRaw);
+    lv_obj_center(r2);
 }
-
 
 static void lv_tick_task(void *arg) {
     (void) arg;
