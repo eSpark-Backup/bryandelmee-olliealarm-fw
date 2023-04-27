@@ -12,4 +12,5 @@ idf_component_register(
     esp_lcd
     lcd
     fatfs
-    sdmmc)
+    sdmmc
+    pwm)

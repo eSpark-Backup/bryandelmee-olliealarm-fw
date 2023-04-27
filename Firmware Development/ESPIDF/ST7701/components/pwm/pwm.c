@@ -18,7 +18,7 @@ esp_err_t pwm_init(void)
     mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM0A, GPIO_LCD_BL);
 
     mcpwm_config_t pwm_config = {
-        .frequency = 1000, // frequency
+        .frequency = 100000, // frequency
         .cmpr_a = 50,     // duty cycle of PWMxA = 50%
         .counter_mode = MCPWM_UP_COUNTER,
         .duty_mode = MCPWM_DUTY_MODE_0,

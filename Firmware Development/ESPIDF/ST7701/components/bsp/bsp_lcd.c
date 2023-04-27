@@ -20,6 +20,7 @@
  */
 
 #include "bsp_lcd.h"
+#include "pwm.h"
 
 static const char *TAG = "bsp_lcd";
 
@@ -80,7 +81,8 @@ esp_err_t bsp_lcd_init(void)
     // esp_lcd_panel_mirror(lcd_panel, true, false);
 
     ESP_LOGI(TAG, "Turn on LCD backlight");
-    gpio_set_level(GPIO_LCD_BL, 1);
+    // gpio_set_level(GPIO_LCD_BL, 1);
+    // pwm_init();
 
     lcd_clear_fast(panel_handle, COLOR_WHITE);
     // lcd_clear_fast(panel_handle, COLOR_RED);

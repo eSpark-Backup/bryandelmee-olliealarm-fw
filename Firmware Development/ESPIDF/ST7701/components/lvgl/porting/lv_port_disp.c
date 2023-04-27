@@ -11,6 +11,7 @@
  *********************/
 #include "lv_port_disp.h"
 #include "../../lvgl.h"
+#include "pwm.h"
 
 /*********************
  *      DEFINES
@@ -91,6 +92,7 @@ void lv_port_disp_init(void)
 
     ESP_LOGI(TAG, "Turn on LCD backlight");
     gpio_set_level(GPIO_LCD_BL, 1);
+    // pwm_init();
 
     /* initialize LVGL draw buffers */
     static lv_disp_draw_buf_t draw_buf; 
