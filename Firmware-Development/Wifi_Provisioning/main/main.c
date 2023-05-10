@@ -12,25 +12,59 @@
 #include "lwip/sys.h"
 #include "esp_event_loop.h"
 
+#include <wifi_provisioning/manager.h>
+#include <wifi_provisioning/scheme_ble.h>
+
+#define PROV_QR_VERSION         "v1"
+#define PROV_TRANSPORT_SOFTAP   "softap"
+#define PROV_TRANSPORT_BLE      "ble"
 #define NVS_NAMESPACE "wifi_config"
+nvs_handle_t nvsHandle;
+wifi_config_t wifi_config;
 
 static const char *TAG = "MainAPP";
 
 /* FreeRTOS event group to signal when we are connected*/
-static EventGroupHandle_t s_wifi_event_group;
+static EventGroupHandle_t wifi_event_group;
 static const int WIFI_CONNECTED_BIT = BIT0;
+static const int WIFI_CRED_RECV_BIT = BIT1;
 
+esp_err_t wifi_set_credentials(const char * ssid, const char * password );
 static void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data);
+esp_err_t custom_prov_data_handler(uint32_t session_id, const uint8_t *inbuf, ssize_t inlen,
+                                          uint8_t **outbuf, ssize_t *outlen, void *priv_data);
+static void get_device_service_name(char *service_name, size_t max);
 
 void wifi_init_sta()
 {
-    s_wifi_event_group = xEventGroupCreate();
+    // wifi_event_group = xEventGroupCreate();
 
-    tcpip_adapter_init();
+    /* Initialize NVS partition */
+    esp_err_t ret = nvs_flash_init();
+    ESP_LOGE(TAG, "nvs_flash_init : %s", esp_err_to_name(ret));
+    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+        /* NVS partition was truncated
+         * and needs to be erased */
+        ESP_ERROR_CHECK(nvs_flash_erase());
 
+        /* Retry nvs_flash_init */
+        ESP_ERROR_CHECK(nvs_flash_init());
+    }
+
+    /* Initialize TCP/IP */
+    ESP_ERROR_CHECK(esp_netif_init());
+
+    /* Initialize the event loop */
     ESP_ERROR_CHECK(esp_event_loop_create_default());
+    wifi_event_group = xEventGroupCreate();
+
+    /* Register our event handler for Wi-Fi, IP and Provisioning related events */
+    ESP_ERROR_CHECK(esp_event_handler_register(WIFI_PROV_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler, NULL));
     ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler, NULL));
     ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &wifi_event_handler, NULL));
+
+    /* Initialize Wi-Fi including netif with default config */
+    esp_netif_create_default_wifi_sta();
 
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
@@ -41,10 +75,9 @@ void wifi_init_sta()
         - check if there is any namespace, if not, then create it.
         - if there is a namespace already present, it'll open it.
     */
-    nvs_handle_t nvs_handle;
-    ESP_ERROR_CHECK(nvs_open(NVS_NAMESPACE, NVS_READWRITE, &nvs_handle));
+    ESP_ERROR_CHECK(nvs_open(NVS_NAMESPACE, NVS_READWRITE, &nvsHandle));
 
-    wifi_config_t wifi_config;
+    // wifi_config_t wifi_config;
     size_t size = sizeof(wifi_config);
 
     /*
@@ -54,38 +87,74 @@ void wifi_init_sta()
                 (means startup condition, the user haven't input any wifi-credentials yet).
             
     */
-    esp_err_t err = nvs_get_blob(nvs_handle, "wifi_config", &wifi_config, &size);
+    esp_err_t err = nvs_get_blob(nvsHandle, "wifi_config", &wifi_config, &size);
+    ESP_LOGE(TAG,"nvs_get_blob = %s", esp_err_to_name(err));
     if(err == ESP_ERR_NVS_NOT_FOUND){
-        ESP_LOGI(TAG, "JUMP TO BLE TO SET WIFI CRED");
-        memset(&wifi_config, 0, sizeof(wifi_config));
-        strcpy((char*)wifi_config.sta.ssid, "HEHE");
-        strcpy((char*)wifi_config.sta.password, "vision1999");
-        wifi_config.sta.threshold.authmode = WIFI_AUTH_WPA2_PSK;
-        wifi_config.sta.pmf_cfg.capable = true;
-        wifi_config.sta.pmf_cfg.required = false;
-        nvs_set_blob(nvs_handle, "wifi_config", &wifi_config, sizeof(wifi_config));
-        nvs_commit(nvs_handle);
+
+        ESP_LOGI(TAG, "BLE SERVICE START");
+        /* Configuration for the provisioning manager */
+        wifi_prov_mgr_config_t config = {
+            .scheme = wifi_prov_scheme_ble,
+            .scheme_event_handler = WIFI_PROV_SCHEME_BLE_EVENT_HANDLER_FREE_BTDM
+        };
+        /* Initialize provisioning manager with the
+         * configuration parameters set above */
+        ESP_ERROR_CHECK(wifi_prov_mgr_init(config));
+
+        bool provisioned = false;
+        /* Let's find out if the device is provisioned */
+        ESP_ERROR_CHECK(wifi_prov_mgr_is_provisioned(&provisioned));
+
+        /* If device is not yet provisioned start provisioning service */
+        if (!provisioned) {
+            ESP_LOGI(TAG, "Starting provisioning");
+
+            char service_name[12];
+            get_device_service_name(service_name, sizeof(service_name));
+            wifi_prov_security_t security = WIFI_PROV_SECURITY_1;
+            const char *pop = "abcd1234";
+            const char *service_key = NULL;
+
+            uint8_t custom_service_uuid[] = {
+                /* LSB <---------------------------------------
+                 * ---------------------------------------> MSB */
+                0xb4, 0xdf, 0x5a, 0x1c, 0x3f, 0x6b, 0xf4, 0xbf,
+                0xea, 0x4a, 0x82, 0x03, 0x04, 0x90, 0x1a, 0x02,
+            };
+            wifi_prov_scheme_ble_set_service_uuid(custom_service_uuid);
+            wifi_prov_mgr_endpoint_create("custom-data");
+            /* Start provisioning service */
+            ESP_ERROR_CHECK(wifi_prov_mgr_start_provisioning(security, pop, service_name, service_key));
+            wifi_prov_mgr_endpoint_register("custom-data", custom_prov_data_handler, NULL);
+
+            ESP_LOGE(TAG,"Wait for the Wi-Fi Credentials to be recieved");
+            // Wait for the Wi-Fi Credentials to be recieved
+            xEventGroupWaitBits(wifi_event_group, WIFI_CRED_RECV_BIT, false, true, portMAX_DELAY);    
+            ESP_LOGE(TAG,"Wi-Fi Credentials Recieved (xEventGroupWaitBits)");    
+        }
     }
 
     
-    else if (err == ESP_OK) {
-        ESP_LOGI(TAG, "Wifi Cred Found!");
-        ESP_LOGI(TAG, "SSID = %s , PASS = %s", wifi_config.sta.ssid , wifi_config.sta.password);
-    }
-
+        else if (err == ESP_OK) {
+            ESP_LOGI(TAG, "Wifi Cred Found!");
+            ESP_LOGI(TAG, "SSID = %s , PASS = %s", wifi_config.sta.ssid , wifi_config.sta.password);
+        }
+    
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
     ESP_ERROR_CHECK(esp_wifi_start());
 
+    ESP_LOGE(TAG,"Wait for the Wi-Fi to be connected");
     // Wait for the Wi-Fi to be connected
-    xEventGroupWaitBits(s_wifi_event_group, WIFI_CONNECTED_BIT, false, true, portMAX_DELAY);
-    nvs_close(nvs_handle);
+    xEventGroupWaitBits(wifi_event_group, WIFI_CONNECTED_BIT, false, true, portMAX_DELAY);
+    ESP_LOGE(TAG,"Wifi Connected (xEventGroupWaitBits)");
+    nvs_close(nvsHandle);
 }
 
 void app_main()
 {
     ESP_LOGI(TAG, "Initializing Wi-Fi");
-    nvs_flash_init();
+    // nvs_flash_init();
     wifi_init_sta();
     ESP_LOGI(TAG, "Wi-Fi connected");
 
@@ -97,6 +166,137 @@ void app_main()
     
 }
 
+esp_err_t wifi_set_credentials(const char * ssid, const char * password )
+{
+    strcpy((char*)wifi_config.sta.ssid, ssid);
+    strcpy((char*)wifi_config.sta.password, password);
+    wifi_config.sta.threshold.authmode = WIFI_AUTH_WPA2_PSK;
+    wifi_config.sta.pmf_cfg.capable = true;
+    wifi_config.sta.pmf_cfg.required = false;
+
+    esp_err_t err = nvs_set_blob(nvsHandle, "wifi_config", &wifi_config, sizeof(wifi_config));
+    err = nvs_commit(nvsHandle);
+
+    return err;
+}
+
+static void wifi_event_handler(void* arg, esp_event_base_t event_base,
+                                int32_t event_id, void* event_data)
+{
+    static int retries;
+    if(event_base == IP_EVENT){
+        switch (event_id)
+        {
+        case IP_EVENT_STA_GOT_IP:
+            xEventGroupSetBits(wifi_event_group, WIFI_CONNECTED_BIT);
+            ESP_LOGI(TAG, "Wi-Fi connected");
+            break;
+        
+        default:
+            break;
+        }
+    }
+    if (event_base == WIFI_PROV_EVENT) {
+
+        switch (event_id) {
+
+            case WIFI_PROV_START:
+                ESP_LOGI(TAG, "Provisioning started");
+                break;
+
+            case WIFI_PROV_CRED_RECV: {
+                wifi_sta_config_t *wifi_sta_cfg = (wifi_sta_config_t *)event_data;
+                wifi_set_credentials((const char *)wifi_sta_cfg->ssid, (const char *)wifi_sta_cfg->password);
+                ESP_LOGI(TAG, "Received Wi-Fi credentials"
+                         "\n\tSSID     : %s\n\tPassword : %s",
+                         (const char *) wifi_sta_cfg->ssid,
+                         (const char *) wifi_sta_cfg->password);
+                break;
+            }
+
+            case WIFI_PROV_CRED_FAIL: {
+                wifi_prov_sta_fail_reason_t *reason = (wifi_prov_sta_fail_reason_t *)event_data;
+                ESP_LOGE(TAG, "Provisioning failed!\n\tReason : %s"
+                         "\n\tPlease reset to factory and retry provisioning",
+                         (*reason == WIFI_PROV_STA_AUTH_ERROR) ?
+                         "Wi-Fi station authentication failed" : "Wi-Fi access-point not found");
+                retries++;
+                if (retries >= CONFIG_EXAMPLE_PROV_MGR_MAX_RETRY_CNT) {
+                    ESP_LOGI(TAG, "Failed to connect with provisioned AP, reseting provisioned credentials");
+                    wifi_prov_mgr_reset_sm_state_on_failure();
+                    retries = 0;
+                }
+                break;
+            }
+
+            case WIFI_PROV_CRED_SUCCESS:
+                ESP_LOGI(TAG, "Provisioning successful");
+                retries = 0;
+                xEventGroupSetBits(wifi_event_group, WIFI_CRED_RECV_BIT);
+                break;
+            
+            case WIFI_PROV_END:
+                /* De-initialize manager once provisioning is finished */
+                wifi_prov_mgr_deinit();
+                ESP_LOGE(TAG,"wifi_prov_mgr_deinit");
+                break;
+                
+            default:
+                break;
+        }
+    }
+
+    if(event_base == WIFI_EVENT){
+
+        switch (event_id)
+        {
+            case WIFI_EVENT_STA_START:
+                esp_wifi_connect();
+                ESP_LOGI(TAG, "WIFI_EVENT_STA_START");
+                break;
+
+            case WIFI_EVENT_STA_DISCONNECTED:
+                ESP_LOGI(TAG, "Wi-Fi disconnected");
+                xEventGroupClearBits(wifi_event_group, WIFI_CONNECTED_BIT);
+                esp_wifi_connect();
+                break;
+
+            default:
+                break;
+        }
+    }
+}
+static void get_device_service_name(char *service_name, size_t max)
+{
+    uint8_t eth_mac[6];
+    const char *ssid_prefix = "PROV_";
+    esp_wifi_get_mac(WIFI_IF_STA, eth_mac);
+    snprintf(service_name, max, "%s%02X%02X%02X",
+             ssid_prefix, eth_mac[3], eth_mac[4], eth_mac[5]);
+}
+
+/* Handler for the optional provisioning endpoint registered by the application.
+ * The data format can be chosen by applications. Here, we are using plain ascii text.
+ * Applications can choose to use other formats like protobuf, JSON, XML, etc.
+ */
+esp_err_t custom_prov_data_handler(uint32_t session_id, const uint8_t *inbuf, ssize_t inlen,
+                                          uint8_t **outbuf, ssize_t *outlen, void *priv_data)
+{
+    if (inbuf) {
+        ESP_LOGI(TAG, "Received data: %.*s", inlen, (char *)inbuf);
+    }
+    char response[] = "SUCCESS";
+    *outbuf = (uint8_t *)strdup(response);
+    if (*outbuf == NULL) {
+        ESP_LOGE(TAG, "System out of memory");
+        return ESP_ERR_NO_MEM;
+    }
+    *outlen = strlen(response) + 1; /* +1 for NULL terminating byte */
+
+    return ESP_OK;
+}
+
+/*
 static void wifi_event_handler(void* arg, esp_event_base_t event_base,
                                 int32_t event_id, void* event_data)
 {
@@ -109,7 +309,7 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
 
             case WIFI_EVENT_STA_DISCONNECTED:
                 ESP_LOGI(TAG, "Wi-Fi disconnected");
-                xEventGroupClearBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
+                xEventGroupClearBits(wifi_event_group, WIFI_CONNECTED_BIT);
                 esp_wifi_connect();
                 break;
 
@@ -122,7 +322,7 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
         switch (event_id)
         {
         case IP_EVENT_STA_GOT_IP:
-            xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
+            xEventGroupSetBits(wifi_event_group, WIFI_CONNECTED_BIT);
             ESP_LOGI(TAG, "Wi-Fi connected");
             break;
         
@@ -131,3 +331,4 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
         }
     }
 }
+*/
