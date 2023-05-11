@@ -1,47 +1,33 @@
 #include <stdio.h>
 #include <string.h>
+#include "esp_system.h"
+#include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "freertos/event_groups.h"
-#include "esp_system.h"
-#include "esp_wifi.h"
-#include "esp_event.h"
-#include "esp_log.h"
-#include "lwip/err.h"
-#include "lwip/sys.h"
-#include "esp_event_loop.h"
-#include <wifi_provisioning/manager.h>
-#include <wifi_provisioning/scheme_ble.h>
 
-static const char* TAG = "MainAPP";
-
+#include "wifi_module.h"
 #include "nvs_module.h"
-extern nvs_handle_t nvsHandle;
+static const char *TAG = "MainAPP";
 
 void app_main()
 {
-    int var = 5;
-    int temp;
-    size_t size = sizeof(temp);
-    esp_err_t ret;
+    nvs_init();
+    wifi_config_t wifi_config = {
+        .sta = {
+            .ssid = "eSpark Wifi",
+            .password = "47356880",
+            .threshold.authmode = WIFI_AUTH_WPA2_PSK,
+            .pmf_cfg.capable = true,
+            .pmf_cfg.required = false,
+        },
+    };
+    wifi_sta_setup(&wifi_config);
+    wifi_connction_wait();   
 
-    ret = nvs_init();
-    ESP_LOGI(TAG,"%s", esp_err_to_name(ret));
-
-    ret = nvs_open_namespace_rw("wificonf");
-    ESP_LOGI(TAG,"%s", esp_err_to_name(ret));
-
-    ret = nvs_write_key_value("config", &var, size);
-    ESP_LOGI(TAG,"%s", esp_err_to_name(ret));
-
-    nvs_close_handle();
-
-    ret = nvs_read_key_value("config", &var);
-    ESP_LOGI(TAG,"%s", esp_err_to_name(ret));
-
-
-    while(1)
+    while (1)
     {
+        ESP_LOGI(TAG, "HEHE : MAIN LOOP WORKING");
         vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
+    
 }
