@@ -47,6 +47,18 @@ esp_err_t wifi_sta_setup(wifi_config_t* wifi_config)
     return ret;
 }
 
+esp_err_t wifi_set_credentials(const char * ssid, const char * password )
+{
+    wifi_config_t wifi_config;
+    strcpy((char*)wifi_config.sta.ssid, ssid);
+    strcpy((char*)wifi_config.sta.password, password);
+    wifi_config.sta.threshold.authmode = WIFI_AUTH_WPA2_PSK;
+    wifi_config.sta.pmf_cfg.capable = true;
+    wifi_config.sta.pmf_cfg.required = false;
+
+    return esp_wifi_set_config(WIFI_IF_STA, &wifi_config);
+}
+
 esp_err_t wifi_connction_wait()
 {
     // Wait for the Wi-Fi to be connected
