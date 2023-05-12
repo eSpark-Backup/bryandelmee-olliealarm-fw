@@ -105,7 +105,7 @@ static void ble_event_handler(void* arg, esp_event_base_t event_base, int32_t ev
 
             case WIFI_PROV_CRED_RECV: {
                 wifi_sta_config_t *wifi_sta_cfg = (wifi_sta_config_t *)event_data;
-                // wifi_set_credentials((const char *)wifi_sta_cfg->ssid, (const char *)wifi_sta_cfg->password);
+                wifi_save_credentials_nvs((const char *)wifi_sta_cfg->ssid, (const char *)wifi_sta_cfg->password, WIFI_KEY);
                 ESP_LOGI(TAG, "Received Wi-Fi credentials"
                          "\n\tSSID     : %s\n\tPassword : %s",
                          (const char *) wifi_sta_cfg->ssid,

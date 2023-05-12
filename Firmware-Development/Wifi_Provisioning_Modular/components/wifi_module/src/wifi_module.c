@@ -8,6 +8,7 @@ static const int WIFI_CONNECTED_BIT = BIT0;
 static void wifi_event_handler(void* arg, esp_event_base_t event_base,
                                 int32_t event_id, void* event_data);
 
+
 esp_err_t wifi_init()
 {
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
@@ -26,28 +27,30 @@ esp_err_t wifi_create_event_group()
 esp_err_t wifi_register_events()
 {
     esp_err_t ret = ESP_OK;
-    ret |= esp_event_loop_create_default(); /* Creates a default Event Loop to handle Wifi/IP Events */
     ret |= esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler, NULL);
     ret |= esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &wifi_event_handler, NULL);
 
     return ret;
 }
-
+/* Function To Test Wifi Module Individually */
 esp_err_t wifi_sta_setup(wifi_config_t* wifi_config)
 {
-    esp_err_t ret = 0;
-    ret |= wifi_create_event_group();  /* Create a Wifi Event Group To Wait For the Wifi Connection Before Executing MainApp*/
+    esp_err_t ret = ESP_OK;
+    nvs_init();
     tcpip_adapter_init();       /* It is depricated, however code isn't working with esp_netif_init()*/
+    ret |= esp_event_loop_create_default(); /* Creates a default Event Loop to handle Wifi/IP Events */
+    ret |= wifi_create_event_group();  /* Create a Wifi Event Group To Wait For the Wifi Connection Before Executing MainApp*/
     ret |= wifi_register_events();
     ret |= wifi_init();                /* Initialize WiFi Allocate resource for WiFi driver with default settings */
     ret |= esp_wifi_set_mode(WIFI_MODE_STA);   
     ret |= esp_wifi_set_config(WIFI_IF_STA, wifi_config); /*Sets the Wifi Configurations retrieved from NVS*/
     ret |= esp_wifi_start();
+    ret |= wifi_connction_wait();   
 
     return ret;
 }
 
-esp_err_t wifi_set_credentials(const char * ssid, const char * password )
+esp_err_t wifi_save_credentials_nvs(const char * ssid, const char * password, const char* key) //wifi_save_credentials_nvs
 {
     wifi_config_t wifi_config;
     strcpy((char*)wifi_config.sta.ssid, ssid);
@@ -56,7 +59,14 @@ esp_err_t wifi_set_credentials(const char * ssid, const char * password )
     wifi_config.sta.pmf_cfg.capable = true;
     wifi_config.sta.pmf_cfg.required = false;
 
-    return esp_wifi_set_config(WIFI_IF_STA, &wifi_config);
+    size_t size = sizeof(wifi_config);
+    esp_err_t err = nvs_write_key_value(key, &wifi_config, size);
+    return err;
+}
+
+esp_err_t wifi_get_credetianls_nvs(wifi_config_t* wifi_config, const char *key)
+{
+    return nvs_read_key_value(key, wifi_config);
 }
 
 esp_err_t wifi_connction_wait()

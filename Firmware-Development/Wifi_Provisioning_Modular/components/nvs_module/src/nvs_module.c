@@ -83,7 +83,7 @@ esp_err_t nvs_write_key_value(const char* key, void *value, size_t size)
     if(ret != ESP_OK)
         return ret;
 
-    ret = nvs_update();
+    ret |= nvs_update();
     return ret;
 }
 

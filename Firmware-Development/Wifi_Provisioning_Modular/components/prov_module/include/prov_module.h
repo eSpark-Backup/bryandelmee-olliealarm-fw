@@ -7,6 +7,8 @@
 #include <wifi_provisioning/scheme_ble.h>
 
 #define WIFI_PROV_SECURITY_LEVEL  WIFI_PROV_SECURITY_1
+#define WIFI_NAMESPACE  "WIFI_PROV"
+#define WIFI_KEY        "wifi_config"
 
 typedef struct{
     char service_name[12];
