@@ -79,6 +79,7 @@ esp_err_t wifi_connction_wait()
 static void wifi_event_handler(void* arg, esp_event_base_t event_base,
                                 int32_t event_id, void* event_data)
 {
+    static int retry = 0; 
     if(event_base == WIFI_EVENT){
         switch (event_id)
         {
@@ -87,9 +88,16 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
                 break;
 
             case WIFI_EVENT_STA_DISCONNECTED:
-                ESP_LOGI(TAG, "Wi-Fi disconnected");
+                ESP_LOGI(TAG, "Wi-Fi disconnected, Retry %d", retry);
                 xEventGroupClearBits(wifi_event_group, WIFI_CONNECTED_BIT);
                 esp_wifi_connect();
+                if(retry == 5){  
+                    prov_mgr_init();
+                    prov_mgr_setup();
+                    retry=0;
+                    break;
+                }
+                retry++;
                 break;
 
             default:
@@ -103,6 +111,7 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
         case IP_EVENT_STA_GOT_IP:
             xEventGroupSetBits(wifi_event_group, WIFI_CONNECTED_BIT);
             ESP_LOGI(TAG, "Wi-Fi connected");
+            retry=0;
             break;
         
         default:

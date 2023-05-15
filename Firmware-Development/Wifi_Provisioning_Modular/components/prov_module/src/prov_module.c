@@ -10,7 +10,7 @@ esp_err_t prov_mgr_init(){
         /* Configuration for the provisioning manager */
         wifi_prov_mgr_config_t config = {
             .scheme = wifi_prov_scheme_ble,
-            .scheme_event_handler = WIFI_PROV_SCHEME_BLE_EVENT_HANDLER_FREE_BTDM
+            .scheme_event_handler = WIFI_PROV_SCHEME_BLE_EVENT_HANDLER_FREE_BT 
         };
     /* Initialize provisioning manager with the configuration parameters set above */
     return wifi_prov_mgr_init(config);
@@ -119,12 +119,9 @@ static void ble_event_handler(void* arg, esp_event_base_t event_base, int32_t ev
                          "\n\tPlease reset to factory and retry provisioning",
                          (*reason == WIFI_PROV_STA_AUTH_ERROR) ?
                          "Wi-Fi station authentication failed" : "Wi-Fi access-point not found");
-                retries++;
-                if (retries >= 5) {
-                    ESP_LOGI(TAG, "Failed to connect with provisioned AP, reseting provisioned credentials");
-                    wifi_prov_mgr_reset_sm_state_on_failure();
-                    retries = 0;
-                }
+
+                ESP_LOGI(TAG, "Failed to connect with provisioned AP, reseting provisioned credentials");
+                wifi_prov_mgr_reset_sm_state_on_failure();
                 break;
             }
 

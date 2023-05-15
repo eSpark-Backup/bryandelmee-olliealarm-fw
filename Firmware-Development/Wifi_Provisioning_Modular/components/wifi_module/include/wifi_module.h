@@ -11,6 +11,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/event_groups.h"
 #include "nvs_module.h"
+#include "prov_module.h"
 
 esp_err_t wifi_init(); 
 esp_err_t wifi_create_event_group(); 
