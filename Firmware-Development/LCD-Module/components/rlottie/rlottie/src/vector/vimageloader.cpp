@@ -6,7 +6,7 @@
 #ifdef _WIN32
 # include <windows.h>
 #else
-# include <dlfcn.h>
+// # include <dlfcn.h> //Does not work on ESP-IDF
 #endif  // _WIN32
 
 using lottie_image_load_f = unsigned char *(*)(const char *filename, int *x,
@@ -61,22 +61,25 @@ struct VImageLoader::Impl {
     void *dl_handle{nullptr};
     void  init()
     {
-        imageLoad = reinterpret_cast<lottie_image_load_f>(
-                    dlsym(dl_handle, "lottie_image_load"));
-        imageFree = reinterpret_cast<lottie_image_free_f>(
-                    dlsym(dl_handle, "lottie_image_free"));
-        imageFromData = reinterpret_cast<lottie_image_load_data_f>(
-                    dlsym(dl_handle, "lottie_image_load_from_data"));
+        // No sym links in ESP-iDF
+        // imageLoad = reinterpret_cast<lottie_image_load_f>(
+        //             dlsym(dl_handle, "lottie_image_load"));
+        // imageFree = reinterpret_cast<lottie_image_free_f>(
+        //             dlsym(dl_handle, "lottie_image_free"));
+        // imageFromData = reinterpret_cast<lottie_image_load_data_f>(
+        //             dlsym(dl_handle, "lottie_image_load_from_data"));
     }
 
     void moduleFree()
     {
-        if (dl_handle) dlclose(dl_handle);
+        // if (dl_handle) dlclose(dl_handle); // No sym links in ESP-iDF
     }
     bool moduleLoad()
     {
-        dl_handle = dlopen(LOTTIE_IMAGE_MODULE_PLUGIN, RTLD_LAZY);
-        return (dl_handle == nullptr);
+        // No sym links in ESP idf
+        // dl_handle = dlopen(LOTTIE_IMAGE_MODULE_PLUGIN, RTLD_LAZY);
+        // return (dl_handle == nullptr);
+        return true;
     }
 # endif  // _WIN32
 #else  // LOTTIE_IMAGE_MODULE_SUPPORT
