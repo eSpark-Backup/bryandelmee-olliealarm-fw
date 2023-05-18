@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "lvgl.h" /*LVGL*/
 #include "lv_port_disp.h" /* LVGL Porting for ST7701*/
+#include "rlottie_capi.h"
 
 void create_button();
 
