@@ -5,22 +5,36 @@
 #include "lvgl.h"
 #include "lv_examples.h"
 #include "lv_port_disp.h"
+/*SPIFFS*/
+#include "esp_spiffs.h"
 
 void create_button();
 
 void app_main(void)
 {
+    esp_vfs_spiffs_conf_t config = {
+      .base_path = "/spiffs",
+      .partition_label = NULL,
+      .max_files = 5,
+      .format_if_mount_failed = true,
+  };
+  esp_vfs_spiffs_register(&config);
+
     lv_init();                 
     lv_port_disp_init();	      
     lv_port_tick_init();
 
-    lv_example_rlottie_1();
+    // lv_example_rlottie_1();
     // lv_example_rlottie_2();
     // lv_example_animimg_1();
+    /*The rlottie library uses STDIO file API, so there is no driver letter for LVGL*/
+    lv_obj_t * lottie = lv_rlottie_create_from_file(lv_scr_act(), 100, 100,
+                                                    "/spiffs/lottie.json");
+    lv_obj_center(lottie);
     while (1)
     {
         lv_task_handler();
-        vTaskDelay(20 / portTICK_PERIOD_MS);
+        vTaskDelay(10 / portTICK_PERIOD_MS);
     }
     
 }
