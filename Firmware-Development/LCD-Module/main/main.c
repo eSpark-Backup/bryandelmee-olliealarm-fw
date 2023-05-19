@@ -16,11 +16,11 @@ void app_main(void)
 
     lv_example_rlottie_1();
     // lv_example_rlottie_2();
-
+    // lv_example_animimg_1();
     while (1)
     {
         lv_task_handler();
-        vTaskDelay(50 / portTICK_PERIOD_MS);
+        vTaskDelay(20 / portTICK_PERIOD_MS);
     }
     
 }

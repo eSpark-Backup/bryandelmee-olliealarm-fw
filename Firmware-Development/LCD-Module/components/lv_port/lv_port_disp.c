@@ -68,7 +68,7 @@ void lv_port_disp_init(void)
             GPIO_LCD_R0, GPIO_LCD_R1, GPIO_LCD_R2, GPIO_LCD_R3, GPIO_LCD_R4,
         },
         .timings = {
-            .pclk_hz = 10 * 1000 * 1000,
+            .pclk_hz = 7000000, 
             .h_res = LCD_WIDTH,
             .v_res = LCD_HEIGHT,
             // The following parameters should refer to LCD spec
@@ -98,9 +98,9 @@ void lv_port_disp_init(void)
     
     /* initialize LVGL draw buffers */
     static lv_disp_draw_buf_t draw_buf; 
-    lv_color_t *buf1 = heap_caps_malloc(LCD_WIDTH * 120 * sizeof(lv_color_t), MALLOC_CAP_SPIRAM);   /* MALLOC_CAP_SPIRAM  MALLOC_CAP_DMA  MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT */
+    lv_color_t *buf1 = heap_caps_aligned_alloc(64,LCD_WIDTH * LCD_HEIGHT * sizeof(lv_color_t), MALLOC_CAP_SPIRAM);   /* MALLOC_CAP_SPIRAM  MALLOC_CAP_DMA  MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT */
     assert(buf1);
-#if 1
+#if 0
     lv_color_t *buf2 = heap_caps_malloc(LCD_WIDTH * 120 * sizeof(lv_color_t), MALLOC_CAP_SPIRAM);
     assert(buf2);
     lv_disp_draw_buf_init(&draw_buf, buf1, buf2, LCD_WIDTH * 120);
@@ -122,7 +122,7 @@ void lv_port_disp_init(void)
 
     disp_drv.sw_rotate = 1;
     disp_drv.rotated = LV_DISP_ROT_180;
-
+    disp_drv.direct_mode = 1;
     /*Finally register the driver*/
     lv_disp_drv_register(&disp_drv);
 }
