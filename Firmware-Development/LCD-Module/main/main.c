@@ -1,19 +1,26 @@
 #include <stdio.h>
-#include "lvgl.h" /*LVGL*/
-#include "lv_port_disp.h" /* LVGL Porting for ST7701*/
-#include "rlottie_capi.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+/*LVGL*/
+#include "lvgl.h"
+#include "lv_examples.h"
+#include "lv_port_disp.h"
 
 void create_button();
 
 void app_main(void)
 {
-    lv_init();
-    lv_port_disp_init();
-    create_button();
+    lv_init();                 
+    lv_port_disp_init();	      
+    lv_port_tick_init();
+
+    lv_example_rlottie_1();
+    // lv_example_rlottie_2();
+
     while (1)
     {
-        lv_task_handler();    
-        vTaskDelay(10 / portTICK_PERIOD_MS);
+        lv_task_handler();
+        vTaskDelay(50 / portTICK_PERIOD_MS);
     }
     
 }
