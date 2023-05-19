@@ -24,11 +24,9 @@ void app_main(void)
     lv_port_disp_init();	      
     lv_port_tick_init();
 
-    // lv_example_rlottie_1();
-    // lv_example_rlottie_2();
-    // lv_example_animimg_1();
+
     /*The rlottie library uses STDIO file API, so there is no driver letter for LVGL*/
-    lv_obj_t * lottie = lv_rlottie_create_from_file(lv_scr_act(), 100, 100,
+    lv_obj_t * lottie = lv_rlottie_create_from_file(lv_scr_act(), 200, 200,
                                                     "/spiffs/lottie.json");
     lv_obj_center(lottie);
     while (1)

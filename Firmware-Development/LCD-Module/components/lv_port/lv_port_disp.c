@@ -68,16 +68,16 @@ void lv_port_disp_init(void)
             GPIO_LCD_R0, GPIO_LCD_R1, GPIO_LCD_R2, GPIO_LCD_R3, GPIO_LCD_R4,
         },
         .timings = {
-            .pclk_hz = 7000000, 
+            .pclk_hz = 7910360, 
             .h_res = LCD_WIDTH,
             .v_res = LCD_HEIGHT,
             // The following parameters should refer to LCD spec
-            .hsync_back_porch = 50,
-            .hsync_front_porch = 10,
-            .hsync_pulse_width = 8,
-            .vsync_back_porch = 20,
-            .vsync_front_porch = 10,
-            .vsync_pulse_width = 8,
+            .hsync_back_porch = 24,
+            .hsync_front_porch = 26,
+            .hsync_pulse_width = 4,
+            .vsync_back_porch = 15,
+            .vsync_front_porch = 60,
+            .vsync_pulse_width = 4,
             .flags.pclk_active_neg = 0, // RGB data is clocked out on falling edge
             // .flags.hsync_idle_low = true,
         },

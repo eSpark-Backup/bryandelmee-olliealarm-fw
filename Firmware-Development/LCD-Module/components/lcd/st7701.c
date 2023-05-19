@@ -232,6 +232,7 @@ st7701_write_data(0x78);
 // 
 st7701_write_cmd(0xC2);     
 st7701_write_data(0x78);   
+// st7701_write_data(0x1F); /*new*/
 // 
 st7701_write_cmd(0xD0);     
 st7701_write_data(0x88);   
