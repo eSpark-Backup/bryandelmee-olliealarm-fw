@@ -78,6 +78,7 @@ static bool example_on_vsync_event(esp_lcd_panel_handle_t panel, const esp_lcd_r
 
 static void example_lvgl_flush_cb(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_map)
 {
+    // ESP_LOGI(TAG, "start : lvgl_flush_cb()");
     esp_lcd_panel_handle_t panel_handle = (esp_lcd_panel_handle_t) drv->user_data;
     int offsetx1 = area->x1;
     int offsetx2 = area->x2;
@@ -87,9 +88,11 @@ static void example_lvgl_flush_cb(lv_disp_drv_t *drv, const lv_area_t *area, lv_
     xSemaphoreGive(sem_gui_ready);
     xSemaphoreTake(sem_vsync_end, portMAX_DELAY);
 #endif
+
     // pass the draw buffer to the driver
     esp_lcd_panel_draw_bitmap(panel_handle, offsetx1, offsety1, offsetx2 + 1, offsety2 + 1, color_map);
     lv_disp_flush_ready(drv);
+    // ESP_LOGI(TAG, "end : lvgl_flush_cb()");
 }
 
 static void example_increase_lvgl_tick(void *arg)
@@ -224,9 +227,9 @@ void app_main(void)
     disp_drv.flush_cb = example_lvgl_flush_cb;
     disp_drv.draw_buf = &disp_buf;
     disp_drv.user_data = panel_handle;
-    // disp_drv.sw_rotate = 1;
-    // disp_drv.rotated = LV_DISP_ROT_180;
-    // disp_drv.direct_mode = 1;
+    disp_drv.sw_rotate = 1;
+    disp_drv.rotated = LV_DISP_ROT_180;
+    disp_drv.direct_mode = 1;
 #if CONFIG_EXAMPLE_DOUBLE_FB
     disp_drv.full_refresh = true; // the full_refresh mode can maintain the synchronization between the two frame buffers
 #endif
@@ -242,18 +245,12 @@ void app_main(void)
     ESP_ERROR_CHECK(esp_timer_create(&lvgl_tick_timer_args, &lvgl_tick_timer));
     ESP_ERROR_CHECK(esp_timer_start_periodic(lvgl_tick_timer, EXAMPLE_LVGL_TICK_PERIOD_MS * 1000));
 
-    ESP_LOGI(TAG, "Display LVGL Scatter Chart");
-    // example_lvgl_demo_ui(disp);
-
-    lv_obj_clean(lv_scr_act());
-    
     lv_obj_t *lottie = lv_rlottie_create_from_file(lv_scr_act(), 400, 400, "/spiffs/lottie.json");
     lv_obj_align(lottie, LV_ALIGN_CENTER, 0, 0);
-
+    lv_rlottie_set_current_frame(lottie, 650);
     while (1) {
-        // raise the task priority of LVGL and/or reduce the handler period can improve the performance
-        // vTaskDelay(pdMS_TO_TICKS(1));
-        // The task running lv_timer_handler should have lower priority than that running `lv_tick_inc`
         lv_timer_handler(); /*~600ms execution time*/
+        /* Get the current frame index */
+        ESP_LOGI(TAG,"Current Frame = %d",lv_rlottie_get_current_frame(lottie));
     }
 }

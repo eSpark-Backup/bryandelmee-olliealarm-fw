@@ -63,7 +63,7 @@ lv_obj_t * lv_rlottie_create_from_file(lv_obj_t * parent, lv_coord_t width, lv_c
 
     LV_LOG_INFO("begin");
     lv_obj_t * obj = lv_obj_class_create_obj(MY_CLASS, parent);
-    lv_obj_class_init_obj(obj);
+    lv_obj_class_init_obj(obj);    
 
     return obj;
 
@@ -99,6 +99,11 @@ void lv_rlottie_set_current_frame(lv_obj_t * obj, const size_t goto_frame)
 {
     lv_rlottie_t * rlottie = (lv_rlottie_t *) obj;
     rlottie->current_frame = goto_frame < rlottie->total_frames ? goto_frame : rlottie->total_frames - 1;
+}
+
+const size_t lv_rlottie_get_current_frame(lv_obj_t * obj){
+    lv_rlottie_t * rlottie = (lv_rlottie_t *) obj;
+    return rlottie->current_frame;
 }
 
 /**********************

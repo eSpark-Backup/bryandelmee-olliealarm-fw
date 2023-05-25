@@ -61,6 +61,7 @@ lv_obj_t * lv_rlottie_create_from_raw(lv_obj_t * parent, lv_coord_t width, lv_co
 
 void lv_rlottie_set_play_mode(lv_obj_t * rlottie, const lv_rlottie_ctrl_t ctrl);
 void lv_rlottie_set_current_frame(lv_obj_t * rlottie, const size_t goto_frame);
+const size_t lv_rlottie_get_current_frame(lv_obj_t * obj);
 
 /**********************
  *      MACROS
