@@ -215,7 +215,10 @@ static void convert_to_rgba5658(uint32_t * pix, const size_t width, const size_t
             uint16_t r = (uint16_t)(((in & 0xF80000) >> 16) | ((in & 0xFC00) >> 13) | ((in & 0x1C00) << 3) | ((in & 0xF8) << 5));
 #endif
 
-            lv_memcpy(dest, &r, sizeof(r));
+            // lv_memcpy(dest, &r, sizeof(r));
+            dest[0] = (uint8_t)(r & 0xFF);
+            dest[1] = (uint8_t)((r >> 8) & 0xFF);
+            
             dest[sizeof(r)] = (uint8_t)(in >> 24);
             dest += LV_IMG_PX_SIZE_ALPHA_BYTE;
         }

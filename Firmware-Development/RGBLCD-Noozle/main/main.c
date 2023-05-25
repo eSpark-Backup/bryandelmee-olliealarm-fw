@@ -20,6 +20,7 @@
 #include "st7701.h"
 /*SPIFFS*/
 #include "esp_spiffs.h"
+#include "freertos/timers.h"
 
 static const char *TAG = "example";
 
@@ -54,7 +55,7 @@ static const char *TAG = "example";
 #define EXAMPLE_LCD_H_RES              480
 #define EXAMPLE_LCD_V_RES              480
 
-#define EXAMPLE_LVGL_TICK_PERIOD_MS    2
+#define EXAMPLE_LVGL_TICK_PERIOD_MS    1
 
 // we use two semaphores to sync the VSYNC event and the LVGL task, to avoid potential tearing effect
 #if CONFIG_EXAMPLE_AVOID_TEAR_EFFECT_WITH_SEM
@@ -210,6 +211,7 @@ void app_main(void)
     buf1 = heap_caps_malloc(EXAMPLE_LCD_H_RES * EXAMPLE_LCD_V_RES * sizeof(lv_color_t), MALLOC_CAP_SPIRAM);
     assert(buf1);
     buf2 = heap_caps_malloc(EXAMPLE_LCD_H_RES * EXAMPLE_LCD_V_RES * sizeof(lv_color_t), MALLOC_CAP_SPIRAM);
+     
     assert(buf2);
     // initialize LVGL draw buffers
     lv_disp_draw_buf_init(&disp_buf, buf1, buf2, EXAMPLE_LCD_V_RES* EXAMPLE_LCD_H_RES );
@@ -222,8 +224,8 @@ void app_main(void)
     disp_drv.flush_cb = example_lvgl_flush_cb;
     disp_drv.draw_buf = &disp_buf;
     disp_drv.user_data = panel_handle;
-    disp_drv.sw_rotate = 1;
-    disp_drv.rotated = LV_DISP_ROT_180;
+    // disp_drv.sw_rotate = 1;
+    // disp_drv.rotated = LV_DISP_ROT_180;
     // disp_drv.direct_mode = 1;
 #if CONFIG_EXAMPLE_DOUBLE_FB
     disp_drv.full_refresh = true; // the full_refresh mode can maintain the synchronization between the two frame buffers
@@ -250,8 +252,8 @@ void app_main(void)
 
     while (1) {
         // raise the task priority of LVGL and/or reduce the handler period can improve the performance
-        vTaskDelay(pdMS_TO_TICKS(1));
+        // vTaskDelay(pdMS_TO_TICKS(1));
         // The task running lv_timer_handler should have lower priority than that running `lv_tick_inc`
-        lv_timer_handler();
+        lv_timer_handler(); /*~600ms execution time*/
     }
 }
