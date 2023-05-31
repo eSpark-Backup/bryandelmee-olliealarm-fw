@@ -7,12 +7,12 @@ static const char* TAG = "mainApp";
 
 void app_main(void)
 {
-    char* c = (char *)calloc(51, sizeof(char));
+    char c[51];
     setenv("TZ","GMT-5",1);
-    setTime(27, 49, 18, 31, 5, 2023, 0);
+    setEpochTime(1685540967, 0);
     while (1)
     {
-        getDateTime(c);
+        getDateTime(c, false);
         ESP_LOGI(TAG,"%s", c);   // (String) returns time with specified format 
         vTaskDelay(1000/portTICK_PERIOD_MS);
     }
