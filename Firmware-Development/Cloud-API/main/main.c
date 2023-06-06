@@ -1,6 +1,3 @@
-/****  For more information visit this link:
-https://esp32tutorials.com/esp32-esp-idf-openweathermap-api-sensorless-weather-station/ *****/
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -8,7 +5,6 @@ https://esp32tutorials.com/esp32-esp-idf-openweathermap-api-sensorless-weather-s
 #include "nvs_flash.h"
 #include "esp_event.h"
 #include "esp_netif.h"
-
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_system.h"
@@ -19,36 +15,41 @@ https://esp32tutorials.com/esp32-esp-idf-openweathermap-api-sensorless-weather-s
 
 static const char *TAG = "HTTP_CLIENT";
 
-// API key from OpenWeatherMap 
-// char open_weather_map_api_key[] = "ca2dcab32a32d9395c527b9f996271fc";
-
-const char* api = "http://dev.noozle.nl:3000/scenes/getRepeatedAlarmsByOllieID?ollie_id=64688d9f53f1cb253ffb67a2";
-
-// char city[] = "Karachi";
-// char country_code[] = "PK";
-
 #define HTTP_RESPONSE_BUFFER_SIZE 1024
-
 char *response_data = NULL;
 size_t response_len = 0;
 bool all_chunks_received = false;
+const char* api = "http://dev.noozle.nl:3000/scenes/getRepeatedAlarmsByOllieID?ollie_id=64688d9f53f1cb253ffb67a2";
 
+void parseJson(const char* jsonString) {
 
-void get_temp_pressure_humidity(const char *json_string)
-{
-   
-    cJSON *root = cJSON_Parse(json_string);
-    cJSON *obj = cJSON_GetObjectItemCaseSensitive(root, "main");
+    cJSON* root = cJSON_Parse(jsonString);
+    if (root == NULL) {
+        cJSON_Delete(root);
+        return;
+    }
 
-    float temp = cJSON_GetObjectItemCaseSensitive(obj, "temp")->valuedouble;
-    temp -= 273.15; //convert To Centigrage
-    int pressure = cJSON_GetObjectItemCaseSensitive(obj, "pressure")->valueint;
-    int humidity = cJSON_GetObjectItemCaseSensitive(obj, "humidity")->valueint;
-    printf("Temperature: %0.00f°C\nPressure: %d hPa\nHumidity: %d%%\n", temp, pressure, humidity);
-    
+    cJSON* data = cJSON_GetObjectItemCaseSensitive(root, "data");
+    if (cJSON_IsArray(data)) {
+        cJSON* scene = cJSON_GetArrayItem(data, 0);
+        cJSON* sceneSleepTimes = cJSON_GetObjectItemCaseSensitive(scene, "scene_sleep_time");
+        if (cJSON_IsArray(sceneSleepTimes)) {
+            int sceneSleepTimeCount = cJSON_GetArraySize(sceneSleepTimes);
+            for (int i = 0; i < sceneSleepTimeCount; i++) {
+                cJSON* sceneSleepTime = cJSON_GetArrayItem(sceneSleepTimes, i);
+                const char* name = cJSON_GetObjectItemCaseSensitive(sceneSleepTime, "scene_sleep_time_name")->valuestring;
+                const char* time = cJSON_GetObjectItemCaseSensitive(sceneSleepTime, "time")->valuestring;
+                const char* str_brightness = cJSON_GetObjectItemCaseSensitive(sceneSleepTime, "brightness")->valuestring;
+                double brightness = atof(str_brightness);
+                printf("Scene: %s, time: %s, brightness: %lf \n", name, time, brightness);
+            }
+        }
+    }
+
     cJSON_Delete(root);
-    free(response_data);
+    free(jsonString);
 }
+
 
 esp_err_t _http_event_handler(esp_http_client_event_t *evt)
 {
@@ -61,8 +62,8 @@ esp_err_t _http_event_handler(esp_http_client_event_t *evt)
             break;
         case HTTP_EVENT_ON_FINISH:
             all_chunks_received = true;
-            ESP_LOGI("OpenWeatherAPI", "Received data: %s", response_data);
-            // get_temp_pressure_humidity(response_data);
+            ESP_LOGI("Noozle-API", "Received data: %s", response_data);
+            parseJson(response_data);
             break;
         default:
             break;
@@ -70,20 +71,8 @@ esp_err_t _http_event_handler(esp_http_client_event_t *evt)
     return ESP_OK;
 }
 
-
-void openweather_api_http(void *pvParameters)
+void noozle_api_http(void *pvParameters)
 {
-    // char open_weather_map_url[200];
-    // snprintf(open_weather_map_url,
-    //          sizeof(open_weather_map_url),
-    //          "%s%s%s%s%s%s",
-    //          "http://api.openweathermap.org/data/2.5/weather?q=",
-    //          city,
-    //          ",",
-    //          country_code,
-    //          "&APPID=",
-    //          open_weather_map_api_key);
-
     esp_http_client_config_t config = {
         .url = api,
         .method = HTTP_METHOD_POST,
@@ -132,6 +121,6 @@ void app_main(void)
 	connect_wifi();
 	if (wifi_connect_status)
 	{
-		xTaskCreate(&openweather_api_http, "openweather_api_http", 8192, NULL, 6, NULL);
+		xTaskCreate(&noozle_api_http, "noozle_api_http", 8192, NULL, 6, NULL);
 	}
 }
