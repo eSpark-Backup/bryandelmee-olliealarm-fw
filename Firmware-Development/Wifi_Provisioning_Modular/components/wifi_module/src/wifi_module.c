@@ -8,7 +8,6 @@ static const int WIFI_CONNECTED_BIT = BIT0;
 static void wifi_event_handler(void* arg, esp_event_base_t event_base,
                                 int32_t event_id, void* event_data);
 
-
 esp_err_t wifi_init()
 {
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
@@ -37,7 +36,7 @@ esp_err_t wifi_sta_setup(wifi_config_t* wifi_config)
 {
     esp_err_t ret = ESP_OK;
     nvs_init();
-    tcpip_adapter_init();       /* It is depricated, however code isn't working with esp_netif_init()*/
+    esp_netif_init();       /* It is depricated, however code isn't working with tcpip_adapter_init()*/
     ret |= esp_event_loop_create_default(); /* Creates a default Event Loop to handle Wifi/IP Events */
     ret |= wifi_create_event_group();  /* Create a Wifi Event Group To Wait For the Wifi Connection Before Executing MainApp*/
     ret |= wifi_register_events();
@@ -76,6 +75,14 @@ esp_err_t wifi_connction_wait()
     return ESP_OK;
 }
 
+void prov_reinit(void* args)
+{
+    prov_mgr_init();
+    prov_mgr_setup();
+    prov_mgr_credential_recv_wait();
+    vTaskDelete(NULL);
+}
+
 static void wifi_event_handler(void* arg, esp_event_base_t event_base,
                                 int32_t event_id, void* event_data)
 {
@@ -92,8 +99,7 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
                 xEventGroupClearBits(wifi_event_group, WIFI_CONNECTED_BIT);
                 esp_wifi_connect();
                 if(retry == 5){  
-                    prov_mgr_init();
-                    prov_mgr_setup();
+                    xTaskCreate(prov_reinit,"prov_reinit_task", 2*2048, NULL, 10, NULL);
                     retry=0;
                     break;
                 }
