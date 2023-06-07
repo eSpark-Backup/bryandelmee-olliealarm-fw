@@ -16,6 +16,11 @@
 /* RTC */
 #include "rtc_module.h"
 
+/* Deep Sleep */
+#include "esp_timer.h"
+#include "esp_sleep.h"
+void setAlarmTime();
+
 static const char *TAG = "MainAPP";
 
 void app_main()
@@ -32,13 +37,28 @@ void app_main()
     char c[51];
     setenv("TZ","GMT-5",1);
     setEpochTime(current_time, 0);
-
-    while (1)
-    {
-        getDateTime(c, false);
-        ESP_LOGI(TAG,"%s", c); 
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
-    }
     
+    getDateTime(c, false);
+    ESP_LOGI(TAG,"%s", c);
+
+    setAlarmTime();
+    esp_deep_sleep_start();
+    
+}
+
+void setAlarmTime()
+{
+    // Function to set up the RTC and calculate the wakeup time
+  // Set the current time
+  struct timeval now;
+  gettimeofday(&now, NULL);
+
+  // Calculate the desired wakeup time (30 seconds from the current time)
+  struct timeval wakeup;
+  wakeup.tv_sec = now.tv_sec + 30;
+  wakeup.tv_usec = now.tv_usec;
+
+  // Set the wakeup time in the RTC alarm
+  esp_sleep_enable_timer_wakeup((wakeup.tv_sec - now.tv_sec) * 1000000 + (wakeup.tv_usec - now.tv_usec));
 }
 
