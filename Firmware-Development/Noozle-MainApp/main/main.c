@@ -21,7 +21,11 @@ void app_main()
     uint64_t current_time = 0;
 
     wifi_prov_app_setup();
+
+    cloud_api_create_event_group();
     xTaskCreate(cloud_api_current_time_task, "cloud_api_current_time_task", 8192, (void*)&current_time, 6, NULL);
+    cloud_api_wait_current_time_event();
+    
     while (1)
         {
         ESP_LOGI(TAG, "%lld", current_time);

@@ -9,6 +9,8 @@
 #include "esp_system.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "freertos/semphr.h"
+#include "freertos/event_groups.h"
 
 /* Cloud-API */
 #include "esp_http_client.h"
@@ -26,7 +28,10 @@ typedef enum {
     TO_GET_UP
 }alarmtime_enum;
 
+esp_err_t cloud_api_create_event_group();
+esp_err_t cloud_api_wait_current_time_event();
 void cloud_api_current_time_task(void *user_data);
 esp_err_t time_http_event_handler(esp_http_client_event_t *evt);
-void cloud_api_parse_current_time(const char* jsonString, uint64_t* time);
+esp_err_t cloud_api_parse_current_time(const char* jsonString, uint64_t* time);
+
 #endif
