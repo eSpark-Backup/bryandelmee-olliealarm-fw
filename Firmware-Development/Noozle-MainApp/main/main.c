@@ -13,6 +13,9 @@
 /* Cloud-API */
 #include "cloud_api_module.h"
 
+/* RTC */
+#include "rtc_module.h"
+
 static const char *TAG = "MainAPP";
 
 void app_main()
@@ -25,12 +28,17 @@ void app_main()
     cloud_api_create_event_group();
     xTaskCreate(cloud_api_current_time_task, "cloud_api_current_time_task", 8192, (void*)&current_time, 6, NULL);
     cloud_api_wait_current_time_event();
-    
+
+    char c[51];
+    setenv("TZ","GMT-5",1);
+    setEpochTime(current_time, 0);
+
     while (1)
-        {
-        ESP_LOGI(TAG, "%lld", current_time);
+    {
+        getDateTime(c, false);
+        ESP_LOGI(TAG,"%s", c); 
         vTaskDelay(1000 / portTICK_PERIOD_MS);
-        }
+    }
     
 }
 
