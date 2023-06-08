@@ -17,7 +17,7 @@
 #include <cJSON.h>
 
 typedef struct{
-    uint32_t epoch_time;
+    uint64_t epoch_time;
     float brightness;
 } alarmtime_t;
 

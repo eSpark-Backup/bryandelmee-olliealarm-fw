@@ -27,7 +27,7 @@ alarmtime_t alarmTimeData[4];   /* Variable to hold Alarm Data's: [ (Almost Slee
 void app_main()
 {
     vTaskDelay(1000/portTICK_PERIOD_MS);
-    alarmTimeData[ALMOST_SLEEP]         = (alarmtime_t){.epoch_time = 1686143350, .brightness=0.0};
+    // alarmTimeData[ALMOST_SLEEP]         = (alarmtime_t){.epoch_time = 1686143350, .brightness=0.0};
     // alarmTimeData[TO_SLEEP]             = (alarmtime_t){.epoch_time = 1686142472+30+50, .brightness=0.0};
     // alarmTimeData[ALMOST_GETTING_UP]    = (alarmtime_t){.epoch_time = 1686142472+30+120, .brightness=0.0};
     // alarmTimeData[TO_GET_UP]            = (alarmtime_t){.epoch_time = 1686142472+30+50, .brightness=0.0};
@@ -39,6 +39,8 @@ void app_main()
     xTaskCreate(cloud_api_current_time_task, "cloud_api_current_time_task", 8192, (void*)&current_time, 6, NULL);
     cloud_api_wait_current_time_event();
 
+    alarmTimeData[ALMOST_SLEEP]         = (alarmtime_t){.epoch_time = (current_time/1000)+60, .brightness=0.0};
+
     char c[51];
     setenv("TZ","GMT-5",1);
     setEpochTime(current_time, 0);
@@ -47,7 +49,7 @@ void app_main()
     ESP_LOGI(TAG,"%s", c);
 
     setAlarmTime();
-    // esp_deep_sleep_start();
+    esp_deep_sleep_start();
     
 }
 
@@ -60,12 +62,11 @@ void setAlarmTime()
   ESP_LOGI(TAG,"%lld", now.tv_sec);
 
   // Calculate the desired wakeup time (30 seconds from the current time)
-  struct timeval wakeup;
-  wakeup.tv_sec = (alarmTimeData[ALMOST_SLEEP].epoch_time / 1000);
-
+  struct timeval wakeup,wakeup2;
+  wakeup.tv_sec = (alarmTimeData[ALMOST_SLEEP].epoch_time);
+  ESP_LOGI(TAG, "%lld",(wakeup.tv_sec - now.tv_sec) * 1000000);
+  
   // Set the wakeup time in the RTC alarm
-  ESP_LOGI(TAG,"%lld",(wakeup.tv_sec - now.tv_sec) * 1000000 );
   esp_sleep_enable_timer_wakeup((wakeup.tv_sec - now.tv_sec) * 1000000);
-//   esp_sleep_enable_timer_wakeup((wakeup.tv_sec - now.tv_sec) * 1000000 + (wakeup.tv_usec - now.tv_usec));
 }
 
