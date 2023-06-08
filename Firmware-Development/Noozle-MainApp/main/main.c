@@ -30,14 +30,16 @@ void app_main()
     uint64_t current_time = 0;
     wifi_prov_app_setup();
     
-
     cloud_api_create_event_group();
+    xTaskCreate(cloud_api_repeated_alarm_task, "cloud_api_task", 8192, alarmTimeData, 7, NULL);
+    cloud_api_wait_repeated_alarm_event();
+    vTaskDelay(500/portTICK_PERIOD_MS);
     xTaskCreate(cloud_api_current_time_task, "cloud_api_current_time_task", 8192, (void*)&current_time, 6, NULL);
     cloud_api_wait_current_time_event();
 
     /*hardcode alarm values*/
-    // alarmTimeData[ALMOST_SLEEP]         = (alarmtime_t){.epoch_time = (current_time/1000)+20, .brightness=0.0};
-    // alarmTimeData[ALMOST_GETTING_UP]    = (alarmtime_t){.epoch_time = (current_time/1000)-50, .brightness=0.0};
+    alarmTimeData[ALMOST_SLEEP]         = (alarmtime_t){.epoch_time = (current_time/1000)+20, .brightness=0.0};
+    alarmTimeData[ALMOST_GETTING_UP]    = (alarmtime_t){.epoch_time = (current_time/1000)-50, .brightness=0.0};
     // alarmTimeData[ALMOST_GETTING_UP]    = (alarmtime_t){.epoch_time = 1686142472+30+120, .brightness=0.0};
     // alarmTimeData[TO_GET_UP]            = (alarmtime_t){.epoch_time = 1686142472+30+50, .brightness=0.0};
 
@@ -48,7 +50,7 @@ void app_main()
     ESP_LOGI(TAG,"%s", c);
 
     setAlarmTime();
-    esp_deep_sleep_start();
+    // esp_deep_sleep_start();
     
 }
 

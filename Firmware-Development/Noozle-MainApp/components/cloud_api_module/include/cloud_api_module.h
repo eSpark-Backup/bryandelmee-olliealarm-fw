@@ -29,6 +29,7 @@ typedef enum {
 }alarmtime_enum;
 
 esp_err_t cloud_api_create_event_group();
+esp_err_t cloud_api_wait_repeated_alarm_event();
 esp_err_t cloud_api_wait_current_time_event();
 void cloud_api_repeated_alarm_task(void* user_data);
 void cloud_api_current_time_task(void *user_data);
