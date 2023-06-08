@@ -36,8 +36,8 @@ void app_main()
     cloud_api_wait_current_time_event();
 
     /*hardcode alarm values*/
-    alarmTimeData[ALMOST_SLEEP]         = (alarmtime_t){.epoch_time = (current_time/1000)+20, .brightness=0.0};
-    alarmTimeData[ALMOST_GETTING_UP]    = (alarmtime_t){.epoch_time = (current_time/1000)-50, .brightness=0.0};
+    // alarmTimeData[ALMOST_SLEEP]         = (alarmtime_t){.epoch_time = (current_time/1000)+20, .brightness=0.0};
+    // alarmTimeData[ALMOST_GETTING_UP]    = (alarmtime_t){.epoch_time = (current_time/1000)-50, .brightness=0.0};
     // alarmTimeData[ALMOST_GETTING_UP]    = (alarmtime_t){.epoch_time = 1686142472+30+120, .brightness=0.0};
     // alarmTimeData[TO_GET_UP]            = (alarmtime_t){.epoch_time = 1686142472+30+50, .brightness=0.0};
 

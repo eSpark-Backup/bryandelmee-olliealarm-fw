@@ -30,8 +30,11 @@ typedef enum {
 
 esp_err_t cloud_api_create_event_group();
 esp_err_t cloud_api_wait_current_time_event();
+void cloud_api_repeated_alarm_task(void* user_data);
 void cloud_api_current_time_task(void *user_data);
+esp_err_t alarm_http_event_handler(esp_http_client_event_t *evt);
 esp_err_t time_http_event_handler(esp_http_client_event_t *evt);
 esp_err_t cloud_api_parse_current_time(const char* jsonString, uint64_t* time);
+void cloud_api_parse_time_and_brightness(const char* jsonString, alarmtime_t* alarmTime);
 
 #endif
