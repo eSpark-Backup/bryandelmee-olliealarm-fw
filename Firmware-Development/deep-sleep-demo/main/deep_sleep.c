@@ -50,6 +50,15 @@ alarmtime_t alarmTimeData[4];   /* Variable to hold Alarm Data's: [ (Almost Slee
 
 void app_main(void)
 {
+    /*LCD*/
+    esp_vfs_spiffs_conf_t config = {
+      .base_path = "/spiffs",
+      .partition_label = NULL,
+      .max_files = 5,
+      .format_if_mount_failed = true,
+    };
+    esp_vfs_spiffs_register(&config);
+    
     uint64_t current_time = 0;
     wifi_prov_app_setup();
     
@@ -61,24 +70,15 @@ void app_main(void)
     cloud_api_wait_current_time_event();
 
     /*hardcode alarm values*/
-    alarmTimeData[ALMOST_SLEEP]         = (alarmtime_t){.epoch_time = (current_time/1000)+120, .brightness=0.0};
-    alarmTimeData[ALMOST_GETTING_UP]    = (alarmtime_t){.epoch_time = (current_time/1000)+150, .brightness=0.0};
+    alarmTimeData[ALMOST_SLEEP]         = (alarmtime_t){.epoch_time = (current_time/1000)+60, .brightness=0.0};
+    alarmTimeData[ALMOST_GETTING_UP]    = (alarmtime_t){.epoch_time = (current_time/1000)+90, .brightness=0.0};
 
     char c[51];
     setenv("TZ","GMT-5",1);
     setEpochTime(current_time, 0);
     getDateTime(c, false);
     ESP_LOGI(TAG,"%s", c);
-    setAlarmTime();
-
-    /*LCD*/
-    esp_vfs_spiffs_conf_t config = {
-      .base_path = "/spiffs",
-      .partition_label = NULL,
-      .max_files = 5,
-      .format_if_mount_failed = true,
-    };
-    esp_vfs_spiffs_register(&config);
+    // setAlarmTime();
     
     lv_port_disp_init();
     lv_port_tick_init();
@@ -105,6 +105,7 @@ void app_main(void)
             ESP_LOGI(TAG,"Active Time Ends");
             printf("Entering deep sleep\n");
             gettimeofday(&sleep_enter_time, NULL);
+            setAlarmTime();
             esp_deep_sleep_start();
             // ESP_LOGI(TAG,"20Sec Passed!");
         }
@@ -145,7 +146,6 @@ void setAlarmTime()
     alarmSelect = 1;
   else if( (time2_us < time1_us) )
     alarmSelect = 0;
-  
   
   // Set the wakeup time in the RTC alarm
   if(alarmSelect == 0)
