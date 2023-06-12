@@ -15,6 +15,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
+#include "sdkconfig.h"
 
 /*LCD*/
 #include "esp_lcd_panel_ops.h"
@@ -42,6 +43,9 @@
 #include "esp_timer.h"
 #include "esp_sleep.h"
 
+/* GIF */
+// #include "gif/lv_gif.h"
+
 void setAlarmTime();
 
 static RTC_DATA_ATTR struct timeval sleep_enter_time;
@@ -58,7 +62,16 @@ void app_main(void)
       .format_if_mount_failed = true,
     };
     esp_vfs_spiffs_register(&config);
+
+    // Initialize LittlevGL's filesystem interface
+    // static lv_fs_if_t fs_if;
+    // lv_fs_if_init(&fs_if);
+    // lv_fs_if_spiffs(&fs_if, "/spiffs");
+
+    // // Set LittlevGL's default filesystem interface
+    // lv_fs_if_set_default(&fs_if);
     
+    /*
     uint64_t current_time = 0;
     wifi_prov_app_setup();
     
@@ -69,7 +82,7 @@ void app_main(void)
     xTaskCreate(cloud_api_current_time_task, "cloud_api_current_time_task", 8192, (void*)&current_time, 6, NULL);
     cloud_api_wait_current_time_event();
 
-    /*hardcode alarm values*/
+    //hardcode alarm values
     alarmTimeData[ALMOST_SLEEP]         = (alarmtime_t){.epoch_time = (current_time/1000)+60, .brightness=0.0};
     alarmTimeData[ALMOST_GETTING_UP]    = (alarmtime_t){.epoch_time = (current_time/1000)+90, .brightness=0.0};
 
@@ -78,17 +91,29 @@ void app_main(void)
     setEpochTime(current_time, 0);
     getDateTime(c, false);
     ESP_LOGI(TAG,"%s", c);
-    // setAlarmTime();
+    */
     
     lv_port_disp_init();
     lv_port_tick_init();
 
+    /*
     lv_obj_t *lottie = lv_rlottie_create_from_file(lv_scr_act(), 400, 400, "/spiffs/lottie.json");
     lv_obj_align(lottie, LV_ALIGN_CENTER, 0, 0);
     lv_rlottie_set_current_frame(lottie, 10);
-    /*LCD*/
+    */
+    // Create a screen object
+    lv_obj_t *scr = lv_obj_create(NULL);
+    lv_scr_load(scr);
+
+    // Create an image object for the GIF
+    
+    lv_obj_t *img = lv_gif_create(lv_scr_act());
+    lv_gif_set_src(img, "A:/spiffs/pokemon.gif");
+    // lv_obj_set_size(img, 200, 200);
+    lv_obj_align(img, LV_ALIGN_CENTER, 0, 0);
     vTaskDelay(3000 / portTICK_PERIOD_MS);
 
+    /*
     struct timeval now;
     uint64_t active_time;
     while (1)
@@ -104,13 +129,19 @@ void app_main(void)
             lv_port_disp_del();
             ESP_LOGI(TAG,"Active Time Ends");
             printf("Entering deep sleep\n");
+            esp_wifi_stop();
             gettimeofday(&sleep_enter_time, NULL);
             setAlarmTime();
             esp_deep_sleep_start();
             // ESP_LOGI(TAG,"20Sec Passed!");
-        }
+          }
         lv_timer_handler();
         vTaskDelay(10/portTICK_PERIOD_MS);
+    }*/
+     while (1)
+    {
+        lv_timer_handler();
+        // vTaskDelay(10/portTICK_PERIOD_MS);
     }
 }
 
