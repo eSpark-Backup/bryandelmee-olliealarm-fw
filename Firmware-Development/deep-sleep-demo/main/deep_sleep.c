@@ -47,6 +47,8 @@
 // #include "gif/lv_gif.h"
 
 void setAlarmTime();
+void deepSleepTask(void* args);
+volatile bool deepSleep = true;
 
 static RTC_DATA_ATTR struct timeval sleep_enter_time;
 static const char *TAG = "MainAPP";
@@ -62,16 +64,7 @@ void app_main(void)
       .format_if_mount_failed = true,
     };
     esp_vfs_spiffs_register(&config);
-
-    // Initialize LittlevGL's filesystem interface
-    // static lv_fs_if_t fs_if;
-    // lv_fs_if_init(&fs_if);
-    // lv_fs_if_spiffs(&fs_if, "/spiffs");
-
-    // // Set LittlevGL's default filesystem interface
-    // lv_fs_if_set_default(&fs_if);
     
-    /*
     uint64_t current_time = 0;
     wifi_prov_app_setup();
     
@@ -91,29 +84,26 @@ void app_main(void)
     setEpochTime(current_time, 0);
     getDateTime(c, false);
     ESP_LOGI(TAG,"%s", c);
-    */
     
     lv_port_disp_init();
     lv_port_tick_init();
-
-    /*
-    lv_obj_t *lottie = lv_rlottie_create_from_file(lv_scr_act(), 400, 400, "/spiffs/lottie.json");
-    lv_obj_align(lottie, LV_ALIGN_CENTER, 0, 0);
-    lv_rlottie_set_current_frame(lottie, 10);
-    */
+    
+    lv_obj_t *lottie = lv_rlottie_create_from_file(lv_scr_act(), 700, 700, "/spiffs/lottie.json");
+    lv_obj_align(lottie, LV_ALIGN_CENTER, -12, -15);
+    // lv_rlottie_set_current_frame(lottie, 10);
+    
     // Create a screen object
-    lv_obj_t *scr = lv_obj_create(NULL);
-    lv_scr_load(scr);
+    // lv_obj_t *scr = lv_obj_create(NULL);
+    // lv_scr_load(scr);
 
     // Create an image object for the GIF
     
-    lv_obj_t *img = lv_gif_create(lv_scr_act());
-    lv_gif_set_src(img, "A:/spiffs/pokemon.gif");
-    // lv_obj_set_size(img, 200, 200);
-    lv_obj_align(img, LV_ALIGN_CENTER, 0, 0);
-    vTaskDelay(3000 / portTICK_PERIOD_MS);
+    // lv_obj_t *img = lv_gif_create(lv_scr_act());
+    // lv_gif_set_src(img, "A:/spiffs/R6Yv.gif");
+    // lv_obj_align(img, LV_ALIGN_CENTER, 0, 0);
+    // vTaskDelay(3000 / portTICK_PERIOD_MS);
 
-    /*
+    
     struct timeval now;
     uint64_t active_time;
     while (1)
@@ -137,14 +127,25 @@ void app_main(void)
           }
         lv_timer_handler();
         vTaskDelay(10/portTICK_PERIOD_MS);
-    }*/
-     while (1)
-    {
-        lv_timer_handler();
-        // vTaskDelay(10/portTICK_PERIOD_MS);
     }
+    // vTaskDelay(5000/portTICK_PERIOD_MS);
+    // esp_sleep_enable_timer_wakeup(5 * 1000000);
+    // esp_deep_sleep_start();
+    //  while (1)
+    // {
+    //   if(deepSleep)
+    //     lv_timer_handler();
+    // }
 }
 
+void deepSleepTask(void* args)
+{
+  vTaskDelay(10000/portTICK_PERIOD_MS);
+  deepSleep = false;
+  esp_sleep_enable_timer_wakeup(5 * 1000000);
+  esp_deep_sleep_start();
+  vTaskDelete(NULL);
+}
 
 /* Function to set up the RTC and calculate the wakeup time */
 void setAlarmTime()
@@ -156,7 +157,7 @@ void setAlarmTime()
 
   // Calculate the desired wakeup time (30 seconds from the current time)
   struct timeval wakeup1,wakeup2;
-  wakeup1.tv_sec = (alarmTimeData[ALMOST_SLEEP].epoch_time);
+  wakeup1.tv_sec = now.tv_sec+30; //(alarmTimeData[ALMOST_SLEEP].epoch_time);
   ESP_LOGI(TAG, "%lld",(wakeup1.tv_sec - now.tv_sec) * 1000000);
 
   wakeup2.tv_sec = (alarmTimeData[ALMOST_GETTING_UP].epoch_time);

@@ -201,7 +201,7 @@ typedef struct _lv_obj_t {
  */
 void lv_init(void);
 
-#if LV_ENABLE_GC || !LV_MEM_CUSTOM
+// #if LV_ENABLE_GC || !LV_MEM_CUSTOM
 
 /**
  * Deinit the 'lv' library
@@ -209,7 +209,7 @@ void lv_init(void);
  */
 void lv_deinit(void);
 
-#endif
+// #endif
 
 /**
  * Returns whether the 'lv' library is currently initialized

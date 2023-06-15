@@ -67,7 +67,7 @@ void lv_port_disp_init(void)
     esp_lcd_rgb_panel_config_t panel_config = {
         .data_width = 16, // RGB565 in parallel mode, thus 16bit in width
         .psram_trans_align = 64,
-        .clk_src = LCD_CLK_SRC_PLL160M,
+        .clk_src = LCD_CLK_SRC_PLL240M,
         .disp_gpio_num = EXAMPLE_PIN_NUM_DISP_EN,
         .pclk_gpio_num = EXAMPLE_PIN_NUM_PCLK,
         .vsync_gpio_num = EXAMPLE_PIN_NUM_VSYNC,
@@ -104,6 +104,7 @@ void lv_port_disp_init(void)
             .vsync_pulse_width = 4,
             .flags.pclk_active_neg = 0,
         },
+        .num_fbs = 2,
         .flags.fb_in_psram = true, // allocate frame buffer in PSRAM
         // .bb_invalidate_cache = 1,
     };
@@ -126,13 +127,14 @@ void lv_port_disp_init(void)
     lv_init();
 
     ESP_LOGI(TAG, "Allocate separate LVGL draw buffers from PSRAM");
+    ESP_LOGI(TAG,"sizeof(lv_color_t) = %u", sizeof(lv_color_t));
     buf1 = heap_caps_malloc(EXAMPLE_LCD_H_RES * EXAMPLE_LCD_V_RES * sizeof(lv_color_t), MALLOC_CAP_SPIRAM);
     assert(buf1);
     buf2 = heap_caps_malloc(EXAMPLE_LCD_H_RES * EXAMPLE_LCD_V_RES * sizeof(lv_color_t), MALLOC_CAP_SPIRAM);
      
     assert(buf2);
     // initialize LVGL draw buffers
-    lv_disp_draw_buf_init(&disp_buf, buf1, buf2, EXAMPLE_LCD_V_RES* EXAMPLE_LCD_H_RES );
+    lv_disp_draw_buf_init(&disp_buf, buf1, buf2, 300*300 );
 
     ESP_LOGI(TAG, "Register display driver to LVGL");
     lv_disp_drv_init(&disp_drv);
@@ -141,6 +143,8 @@ void lv_port_disp_init(void)
     disp_drv.flush_cb = example_lvgl_flush_cb;
     disp_drv.draw_buf = &disp_buf;
     disp_drv.user_data = panel_handle;
+    disp_drv.full_refresh = 0;
+    disp_drv.dpi = 160;
     // disp_drv.sw_rotate = 1;
     // disp_drv.rotated = LV_DISP_ROT_180;
     // disp_drv.direct_mode = 1;
@@ -179,7 +183,7 @@ esp_err_t lv_port_tick_init(void){
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-static bool example_on_vsync_event(esp_lcd_panel_handle_t panel, const esp_lcd_rgb_panel_event_data_t *event_data, void *user_data)
+static bool IRAM_ATTR example_on_vsync_event(esp_lcd_panel_handle_t panel, const esp_lcd_rgb_panel_event_data_t *event_data, void *user_data)
 {
     BaseType_t high_task_awoken = pdFALSE;
     if (xSemaphoreTakeFromISR(sem_gui_ready, &high_task_awoken) == pdTRUE) {
@@ -188,7 +192,7 @@ static bool example_on_vsync_event(esp_lcd_panel_handle_t panel, const esp_lcd_r
     return high_task_awoken == pdTRUE;
 }
 
-static void example_lvgl_flush_cb(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_map)
+static void IRAM_ATTR example_lvgl_flush_cb(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_map)
 {
     esp_lcd_panel_handle_t panel_handle = (esp_lcd_panel_handle_t) drv->user_data;
     int offsetx1 = area->x1;

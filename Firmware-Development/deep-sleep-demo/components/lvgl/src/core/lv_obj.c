@@ -183,7 +183,7 @@ void lv_init(void)
     LV_LOG_TRACE("finished");
 }
 
-#if LV_ENABLE_GC || !LV_MEM_CUSTOM
+// #if LV_ENABLE_GC || !LV_MEM_CUSTOM
 
 void lv_deinit(void)
 {
@@ -199,7 +199,7 @@ void lv_deinit(void)
     lv_log_register_print_cb(NULL);
 #endif
 }
-#endif
+// #endif
 
 lv_obj_t * lv_obj_create(lv_obj_t * parent)
 {
