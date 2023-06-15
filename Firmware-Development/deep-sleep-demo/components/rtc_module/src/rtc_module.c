@@ -43,7 +43,7 @@ void setTime(int sc, int mn, int hr, int dy, int mt, int yr, int ms) {
 
 void setEpochTime(uint64_t epoch, int ms) {
     struct timeval tv;
-    tv.tv_sec = epoch / 1000;     // Convert epoch time from milliseconds to seconds
+    tv.tv_sec = epoch / 1000;             // Convert epoch time from milliseconds to seconds
     tv.tv_usec = (epoch % 1000) * 1000;  // Convert remaining milliseconds to microseconds
     settimeofday(&tv, NULL);
 }

@@ -43,14 +43,11 @@
 #include "esp_timer.h"
 #include "esp_sleep.h"
 
-/* GIF */
-// #include "gif/lv_gif.h"
-
 void setAlarmTime();
-void deepSleepTask(void* args);
-volatile bool deepSleep = true;
 
 static RTC_DATA_ATTR struct timeval sleep_enter_time;
+static RTC_DATA_ATTR uint8_t active_time_duration = 120;
+static RTC_DATA_ATTR uint8_t frame_number = 0;
 static const char *TAG = "MainAPP";
 alarmtime_t alarmTimeData[4];   /* Variable to hold Alarm Data's: [ (Almost Sleep)-(To Sleep) & (Almost Getting Up) - (To Get Up)] */
 
@@ -64,20 +61,15 @@ void app_main(void)
       .format_if_mount_failed = true,
     };
     esp_vfs_spiffs_register(&config);
-    
+
     uint64_t current_time = 0;
     wifi_prov_app_setup();
-    
     cloud_api_create_event_group();
     xTaskCreate(cloud_api_repeated_alarm_task, "cloud_api_task", 8192, alarmTimeData, 7, NULL);
     cloud_api_wait_repeated_alarm_event();
     vTaskDelay(500/portTICK_PERIOD_MS);
     xTaskCreate(cloud_api_current_time_task, "cloud_api_current_time_task", 8192, (void*)&current_time, 6, NULL);
     cloud_api_wait_current_time_event();
-
-    //hardcode alarm values
-    alarmTimeData[ALMOST_SLEEP]         = (alarmtime_t){.epoch_time = (current_time/1000)+60, .brightness=0.0};
-    alarmTimeData[ALMOST_GETTING_UP]    = (alarmtime_t){.epoch_time = (current_time/1000)+90, .brightness=0.0};
 
     char c[51];
     setenv("TZ","GMT-5",1);
@@ -90,19 +82,7 @@ void app_main(void)
     
     lv_obj_t *lottie = lv_rlottie_create_from_file(lv_scr_act(), 700, 700, "/spiffs/lottie.json");
     lv_obj_align(lottie, LV_ALIGN_CENTER, -12, -15);
-    // lv_rlottie_set_current_frame(lottie, 10);
-    
-    // Create a screen object
-    // lv_obj_t *scr = lv_obj_create(NULL);
-    // lv_scr_load(scr);
-
-    // Create an image object for the GIF
-    
-    // lv_obj_t *img = lv_gif_create(lv_scr_act());
-    // lv_gif_set_src(img, "A:/spiffs/R6Yv.gif");
-    // lv_obj_align(img, LV_ALIGN_CENTER, 0, 0);
-    // vTaskDelay(3000 / portTICK_PERIOD_MS);
-
+    lv_rlottie_set_current_frame(lottie, frame_number);
     
     struct timeval now;
     uint64_t active_time;
@@ -110,10 +90,11 @@ void app_main(void)
     {
         gettimeofday(&now, NULL);
         active_time = now.tv_sec - (current_time/1000);
-        ESP_LOGI(TAG,"active_time %llu", active_time);
+        // ESP_LOGI(TAG,"active_time %llu", active_time);
         
-        if(active_time > 20)
+        if(active_time >= active_time_duration)
         {
+            ESP_LOGI(TAG,"active_time %llu", active_time);
             lv_obj_clean(lottie);
             lottie = NULL;
             lv_port_disp_del();
@@ -122,66 +103,38 @@ void app_main(void)
             esp_wifi_stop();
             gettimeofday(&sleep_enter_time, NULL);
             setAlarmTime();
+            getDateTime(c, false);
+            ESP_LOGI(TAG,"%s", c);
             esp_deep_sleep_start();
             // ESP_LOGI(TAG,"20Sec Passed!");
           }
         lv_timer_handler();
         vTaskDelay(10/portTICK_PERIOD_MS);
     }
-    // vTaskDelay(5000/portTICK_PERIOD_MS);
-    // esp_sleep_enable_timer_wakeup(5 * 1000000);
-    // esp_deep_sleep_start();
-    //  while (1)
-    // {
-    //   if(deepSleep)
-    //     lv_timer_handler();
-    // }
-}
-
-void deepSleepTask(void* args)
-{
-  vTaskDelay(10000/portTICK_PERIOD_MS);
-  deepSleep = false;
-  esp_sleep_enable_timer_wakeup(5 * 1000000);
-  esp_deep_sleep_start();
-  vTaskDelete(NULL);
 }
 
 /* Function to set up the RTC and calculate the wakeup time */
 void setAlarmTime()
 {
+  struct timeval now, wakeup1, wakeup2;
   // Set the current time
-  struct timeval now;
   gettimeofday(&now, NULL);
-  ESP_LOGI(TAG,"%lld", now.tv_sec);
+
+  //Manipulate the alarm times retrive from api:
+  alarmTimeData[TO_SLEEP].epoch_time = now.tv_sec+30;
+  alarmTimeData[ALMOST_SLEEP].epoch_time = now.tv_sec+70;
+  frame_number = 120;
 
   // Calculate the desired wakeup time (30 seconds from the current time)
-  struct timeval wakeup1,wakeup2;
-  wakeup1.tv_sec = now.tv_sec+30; //(alarmTimeData[ALMOST_SLEEP].epoch_time);
-  ESP_LOGI(TAG, "%lld",(wakeup1.tv_sec - now.tv_sec) * 1000000);
-
-  wakeup2.tv_sec = (alarmTimeData[ALMOST_GETTING_UP].epoch_time);
-  ESP_LOGI(TAG, "%lld",(wakeup2.tv_sec - now.tv_sec) * 1000000);
+  wakeup1.tv_sec = alarmTimeData[TO_SLEEP].epoch_time;
+  wakeup2.tv_sec = alarmTimeData[ALMOST_SLEEP].epoch_time;
+  // Update the active time duration of screen : 
+  active_time_duration = wakeup2.tv_sec - wakeup1.tv_sec;
+  ESP_LOGI(TAG,"hehe %u", active_time_duration);
 
   int64_t time1_us = (wakeup1.tv_sec - now.tv_sec) * 1000000;
   int64_t time2_us = (wakeup2.tv_sec - now.tv_sec) * 1000000;
-  ESP_LOGI(TAG,"time1_us = %lld", time1_us);
-  ESP_LOGI(TAG,"time2_us = %lld", time2_us);
-
-  bool alarmSelect = 0; /* which alarm to be set for RTC */
-
-  if((time1_us < 0))
-    alarmSelect = 1;
-  else if((time2_us < 0))
-    alarmSelect = 0;
-  else if( (time1_us < time2_us) )
-    alarmSelect = 1;
-  else if( (time2_us < time1_us) )
-    alarmSelect = 0;
   
   // Set the wakeup time in the RTC alarm
-  if(alarmSelect == 0)
-    esp_sleep_enable_timer_wakeup((wakeup1.tv_sec - now.tv_sec) * 1000000);
-  else
-    esp_sleep_enable_timer_wakeup((wakeup1.tv_sec - now.tv_sec) * 1000000);
+  esp_sleep_enable_timer_wakeup((wakeup1.tv_sec - now.tv_sec) * 1000000);
 }
