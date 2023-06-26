@@ -20,11 +20,12 @@
 #define LCD_SDA_Clr()   gpio_set_level(GPIO_LCD_SDA, 0)
 #define LCD_SDA_Set()   gpio_set_level(GPIO_LCD_SDA, 1)
 
-#define ST7701_CND2BKxSEL   0xFF  ///< Command2 BKx Selection
-#define ST7701_BK0_PORCTRL  0xC1  ///< Porch control
-#define ST7701_BK0_LNESET   0xC0  ///< Display Line setting
-#define ST7701_BK0_INVSET   0xC2  ///< Inversion selection & Frame Rate Control
-#define ST7701_MADCTL       0x36  ///< Display data access control
+#define ST7701_SWRESET      0x01    ///< Software Reset
+#define ST7701_CND2BKxSEL   0xFF    ///< Command2 BKx Selection
+#define ST7701_BK0_PORCTRL  0xC1    ///< Porch control
+#define ST7701_BK0_LNESET   0xC0    ///< Display Line setting
+#define ST7701_BK0_INVSET   0xC2    ///< Inversion selection & Frame Rate Control
+#define ST7701_MADCTL       0x36    ///< Display data access control
 
 
 void st7701_reg_init(void);

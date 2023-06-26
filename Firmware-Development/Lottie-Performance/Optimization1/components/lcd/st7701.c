@@ -82,6 +82,9 @@ void st7701_reg_init(void)
     spi_soft_init();   //SPI - init
     ESP_LOGI(TAG, "st7701 register init");
 
+    st7701_write_cmd(ST7701_SWRESET);
+    st7701_write_data(0x01);
+
     // Command2, BK0
     st7701_write_cmd(ST7701_CND2BKxSEL); 
     st7701_write_data(0x77);   
