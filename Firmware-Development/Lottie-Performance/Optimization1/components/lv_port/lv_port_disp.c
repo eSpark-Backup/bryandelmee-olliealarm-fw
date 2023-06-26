@@ -66,7 +66,9 @@ void lv_port_disp_init(void)
     ESP_LOGI(TAG, "Install RGB LCD panel driver");
     esp_lcd_rgb_panel_config_t panel_config = {
         .data_width = 16, // RGB565 in parallel mode, thus 16bit in width
+        .bits_per_pixel = 16,
         .psram_trans_align = 64,
+        // .refresh_on_demand = true,
         .clk_src = LCD_CLK_SRC_PLL160M,
         .disp_gpio_num = EXAMPLE_PIN_NUM_DISP_EN,
         .pclk_gpio_num = EXAMPLE_PIN_NUM_PCLK,
@@ -102,7 +104,8 @@ void lv_port_disp_init(void)
             .vsync_back_porch = 15,
             .vsync_front_porch = 60,
             .vsync_pulse_width = 4,
-            .flags.pclk_active_neg = 0,
+            .flags.pclk_active_neg = 1,
+            .flags.de_idle_high = 0,
         },
         .num_fbs = 2,
         .flags.fb_in_psram = true, // allocate frame buffer in PSRAM
