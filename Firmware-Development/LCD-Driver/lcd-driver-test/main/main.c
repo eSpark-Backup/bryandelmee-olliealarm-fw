@@ -34,15 +34,13 @@ void app_main(void)
     vTaskDelay(1000/portTICK_PERIOD_MS);
 
     esp_lcd_setup();
-    gpio_set_level(GPIO_NUM_41, 1);
-    esp_lcd_draw_buf();
-    gpio_set_level(GPIO_NUM_41, 0);
-    esp_lcd_draw_buf();
-    gpio_set_level(GPIO_NUM_41, 1);
-    
+    int state = 0;
     while (1)
     {
-        vTaskDelay(1000/portTICK_PERIOD_MS);
+        // vTaskDelay(10/portTICK_PERIOD_MS);
+        state ^= 1;
+        gpio_set_level(GPIO_NUM_41, state);
+        esp_lcd_draw_buf();
     }
 }
 
