@@ -75,14 +75,28 @@ void esp_lcd_init()
     ESP_ERROR_CHECK(esp_lcd_panel_reset(panel_handle));
     ESP_ERROR_CHECK(esp_lcd_panel_init(panel_handle));
 
-    buf = heap_caps_malloc(480 * 480 * sizeof(uint16_t), MALLOC_CAP_SPIRAM);
-    my_memset(buf, 0xF800, 480*480*2);
+    buf = heap_caps_malloc(2 * 480 * 480 * sizeof(uint16_t), MALLOC_CAP_SPIRAM);
+    esp_lcd_memset(buf, 0xF800, (480*480*2)-1);
+    esp_lcd_memset((buf+(480*480*2)), 0x001F, ((480*480*2*2)-1));
+}
 
-    esp_lcd_panel_draw_bitmap(panel_handle, 0, 0, 480, 480, buf);
+void esp_lcd_draw_buf()
+{
+    static int i = 0;
+    if(i == 0){
+        esp_lcd_panel_draw_bitmap(panel_handle, 0, 0, 480, 480, buf);
+        i++;
+    }
+    else
+    {
+        esp_lcd_panel_draw_bitmap(panel_handle, 0, 0, 480, 480, (buf+(480*480*2)));
+        i = 0;
+    }
+    
 }
 
 //Own Created memset
-void *my_memset(void *s, int c,  unsigned int len)
+void *esp_lcd_memset(void *s, int c,  unsigned int len)
 {
     uint16_t*p = s;
     while(len--)

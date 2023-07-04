@@ -26,11 +26,32 @@
 
 static const char *TAG = "MainAPP";
 
+void setup_test_pin();
+
 void app_main(void)
 {
+    setup_test_pin();
+    vTaskDelay(1000/portTICK_PERIOD_MS);
+
     esp_lcd_setup();
+    gpio_set_level(GPIO_NUM_41, 1);
+    esp_lcd_draw_buf();
+    gpio_set_level(GPIO_NUM_41, 0);
+    esp_lcd_draw_buf();
+    gpio_set_level(GPIO_NUM_41, 1);
+    
     while (1)
     {
         vTaskDelay(1000/portTICK_PERIOD_MS);
     }
+}
+
+void setup_test_pin()
+{
+    gpio_config_t test_pin = {
+        .mode = GPIO_MODE_OUTPUT,
+        .pin_bit_mask = 1ULL << GPIO_NUM_41
+    };
+    gpio_config(&test_pin);
+    gpio_set_level(GPIO_NUM_41, 0);
 }

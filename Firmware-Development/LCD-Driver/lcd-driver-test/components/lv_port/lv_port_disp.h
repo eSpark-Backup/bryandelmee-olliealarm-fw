@@ -33,7 +33,8 @@ extern "C" {
 void esp_lcd_setup();
 void esp_lcd_backlight_init();
 void esp_lcd_init();
-void *my_memset(void *s, int c,  unsigned int len);
+void esp_lcd_draw_buf();
+void *esp_lcd_memset(void *s, int c,  unsigned int len);
 
 
 #ifdef __cplusplus
