@@ -16,8 +16,6 @@ extern "C" {
 #include "../../../lvgl.h"
 #if LV_USE_RLOTTIE
 
-#include "esp_heap_caps.h"
-
 /*********************
  *      DEFINES
  *********************/

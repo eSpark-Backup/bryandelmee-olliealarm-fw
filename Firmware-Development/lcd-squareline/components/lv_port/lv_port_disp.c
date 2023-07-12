@@ -44,6 +44,13 @@ esp_lcd_panel_handle_t panel_handle = NULL;
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
+void disp_register(void* parameter)
+{
+    lv_disp_drv_t* disp_drv = (lv_disp_drv_t*)parameter;
+    lv_disp_drv_register(disp_drv);
+    lv_port_tick_init();
+    vTaskDelete(NULL);
+}
 void lv_port_disp_init(void)
 {
     st7701_reg_init();
@@ -51,10 +58,10 @@ void lv_port_disp_init(void)
     static lv_disp_drv_t disp_drv;      // contains callback functions
 
     ESP_LOGI(TAG, "Create semaphores");
-    sem_vsync_end = xSemaphoreCreateBinary();
-    assert(sem_vsync_end);
-    sem_gui_ready = xSemaphoreCreateBinary();
-    assert(sem_gui_ready);
+    // sem_vsync_end = xSemaphoreCreateBinary();
+    // assert(sem_vsync_end);
+    // sem_gui_ready = xSemaphoreCreateBinary();
+    // assert(sem_gui_ready);
 
     ESP_LOGI(TAG, "Turn off LCD backlight");
     gpio_config_t bk_gpio_config = {
@@ -117,7 +124,7 @@ void lv_port_disp_init(void)
     esp_lcd_rgb_panel_event_callbacks_t cbs = {
         .on_vsync = example_on_vsync_event,
     };
-    ESP_ERROR_CHECK(esp_lcd_rgb_panel_register_event_callbacks(panel_handle, &cbs, &disp_drv));
+    ESP_ERROR_CHECK(esp_lcd_rgb_panel_register_event_callbacks(panel_handle, &cbs, NULL));
 
     ESP_LOGI(TAG, "Initialize RGB LCD panel");
     ESP_ERROR_CHECK(esp_lcd_panel_reset(panel_handle));
@@ -146,14 +153,11 @@ void lv_port_disp_init(void)
     disp_drv.draw_buf = &disp_buf;
     disp_drv.user_data = panel_handle;
     disp_drv.full_refresh = 1;
-    // disp_drv.dpi = 160;
-    // disp_drv.sw_rotate = 1;
-    // disp_drv.rotated = LV_DISP_ROT_180;
     disp_drv.direct_mode = 1;
 
     lv_disp_t *disp = lv_disp_drv_register(&disp_drv);
 }
-
+//xTaskCreatePinnedToCore(disp_register, "disp_register_task", 2048*2, &disp_drv, 10, NULL, 1);
 void lv_port_free_buf()
 {
     heap_caps_free(buf1);
@@ -187,13 +191,14 @@ esp_err_t lv_port_tick_init(void){
  **********************/
 static bool IRAM_ATTR example_on_vsync_event(esp_lcd_panel_handle_t panel, const esp_lcd_rgb_panel_event_data_t *event_data, void *user_data)
 {
-    BaseType_t high_task_awoken = pdFALSE;
-    if (xSemaphoreTakeFromISR(sem_gui_ready, &high_task_awoken) == pdTRUE) {
-        xSemaphoreGiveFromISR(sem_vsync_end, &high_task_awoken);
-    }
-    return high_task_awoken == pdTRUE;
+    // BaseType_t high_task_awoken = pdFALSE;
+    // if (xSemaphoreTakeFromISR(sem_gui_ready, &high_task_awoken) == pdTRUE) {
+    //     xSemaphoreGiveFromISR(sem_vsync_end, &high_task_awoken);
+    // }
+    // return high_task_awoken == pdTRUE;
+    return pdTRUE;
 }
-
+extern int64_t time_since_boot;
 static void example_lvgl_flush_cb(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_map)
 {
     esp_lcd_panel_handle_t panel_handle = (esp_lcd_panel_handle_t) drv->user_data;
@@ -202,11 +207,14 @@ static void example_lvgl_flush_cb(lv_disp_drv_t *drv, const lv_area_t *area, lv_
     int offsety1 = area->y1;
     int offsety2 = area->y2;
 
-    xSemaphoreGive(sem_gui_ready);
-    xSemaphoreTake(sem_vsync_end, portMAX_DELAY);
-
+    // xSemaphoreGive(sem_gui_ready);
+    // xSemaphoreTake(sem_vsync_end, portMAX_DELAY);
+    int64_t cb_time = esp_timer_get_time();
+    ESP_LOGI(TAG,"flush_cb = %lld us", cb_time - time_since_boot);
+    time_since_boot = esp_timer_get_time();
     // pass the draw buffer to the driver
     esp_lcd_panel_draw_bitmap(panel_handle, offsetx1, offsety1, offsetx2 + 1, offsety2 + 1, color_map);
+    // ESP_LOGI(TAG,"draw_bitmap = %lld us", esp_timer_get_time() - time_since_boot);
     lv_disp_flush_ready(drv);
 }
 

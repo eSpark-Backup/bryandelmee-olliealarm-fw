@@ -127,7 +127,7 @@ static void lv_rlottie_constructor(const lv_obj_class_t * class_p, lv_obj_t * ob
     rlottie->scanline_width = create_width * LV_ARGB32 / 8;
 
     size_t allocaled_buf_size = (create_width * create_height * LV_ARGB32 / 8);
-    rlottie->allocated_buf = heap_caps_malloc(allocaled_buf_size+1, MALLOC_CAP_SPIRAM);
+    rlottie->allocated_buf = lv_mem_alloc(allocaled_buf_size);
     if(rlottie->allocated_buf != NULL) {
         rlottie->allocated_buffer_size = allocaled_buf_size;
         memset(rlottie->allocated_buf, 0, allocaled_buf_size);

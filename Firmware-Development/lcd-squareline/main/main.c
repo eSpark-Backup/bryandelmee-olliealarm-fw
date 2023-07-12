@@ -30,17 +30,26 @@
 #include "ui.h"
 
 static const char *TAG = "MainAPP";
+int64_t time_since_boot = 0;
+
+void lcd_init(void* para)
+{
+    lv_port_disp_init();
+    vTaskDelete(NULL);
+}
 
 void app_main(void)
 {
     
     lv_port_disp_init();
+    // lv_port_tick_init();
+    // xTaskCreatePinnedToCore(lcd_init, "lcd_init_task", 2048*4, NULL, 10, NULL, 1);
     lv_port_tick_init();
     ui_init();
-
+    time_since_boot = esp_timer_get_time();
     while (1)
     {
         lv_timer_handler();
-        vTaskDelay(1/portTICK_PERIOD_MS);
+        vTaskDelay(10/portTICK_PERIOD_MS);
     }
 }

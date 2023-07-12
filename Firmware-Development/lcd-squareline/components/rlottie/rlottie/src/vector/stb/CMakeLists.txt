@@ -2,9 +2,10 @@ if(LOTTIE_MODULE)
     add_library(rlottie-image-loader SHARED
                 stb_image.cpp
                )
+    
     if(NOT MSVC)
         target_compile_options(rlottie-image-loader PRIVATE
-                               -fvisibility=hidden
+                               -fvisibility=hidden 
                               )
     endif()
 
@@ -28,4 +29,6 @@ else()
         PRIVATE
             "${CMAKE_CURRENT_LIST_DIR}/stb_image.cpp"
         )
+
+target_compile_options(${COMPONENT_LIB} INTERFACE -Wno-unused-variable)
 endif()
