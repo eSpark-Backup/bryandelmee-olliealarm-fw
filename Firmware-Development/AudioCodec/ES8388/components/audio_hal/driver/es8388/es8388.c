@@ -266,14 +266,16 @@ esp_err_t es8388_deinit(void)
  */
 esp_err_t es8388_init(audio_hal_codec_config_t *cfg, int sda_pin, int scl_pin)
 {
-    int res = 0;
+    esp_err_t res;
 #ifdef CONFIG_ESP_LYRAT_V4_3_BOARD
     headphone_detect_init(get_headphone_detect_gpio());
 #endif
 
     res = i2c_init(sda_pin, scl_pin); // ESP32 in master mode
+    ESP_LOGI(ES_TAG, "i2c_init = %s", esp_err_to_name(res));
 
     res |= es_write_reg(ES8388_ADDR, ES8388_DACCONTROL3, 0x04);  // 0x04 mute/0x00 unmute&ramp;DAC unmute and  disabled digital volume control soft ramp
+    ESP_LOGI(ES_TAG, "es_write_reg = %s", esp_err_to_name(res));
     /* Chip Control and Power Management */
     res |= es_write_reg(ES8388_ADDR, ES8388_CONTROL2, 0x50);
     res |= es_write_reg(ES8388_ADDR, ES8388_CHIPPOWER, 0x00); //normal all and power up all

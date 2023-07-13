@@ -36,16 +36,23 @@ void app_main(void)
             .bits = AUDIO_HAL_BIT_LENGTH_16BITS,        
         },
     };
-    es8388_init(&es8388_cfg, GPIO_NUM_40, GPIO_NUM_41);
+
+    esp_err_t ret;
+
+    ret = es8388_init(&es8388_cfg, GPIO_NUM_40, GPIO_NUM_41);
+    ESP_LOGI(TAG, "es8388_init = %s", esp_err_to_name(ret));
     es8388_config_i2s(es8388_cfg.codec_mode, &es8388_cfg.i2s_iface);
     es8388_ctrl_state(AUDIO_HAL_CODEC_MODE_DECODE, AUDIO_HAL_CTRL_START);
     es8388_set_voice_volume(50);
 
     size_t bytes_written = 0;
     ESP_LOGI(TAG, "Start to play music");
-    i2s_write(TEST_I2S_NUM, test_pcm_start, test_pcm_end - test_pcm_start, &bytes_written, portMAX_DELAY);
-
-    ESP_LOGW(TAG, "Reach the end of music, release all resource");
+    while (1)
+    {   
+        i2s_write(TEST_I2S_NUM, test_pcm_start, test_pcm_end - test_pcm_start, &bytes_written, portMAX_DELAY);
+        ESP_LOGI(TAG, "[music] i2s music played, %d bytes are written.", bytes_written);
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+    }
     i2c_driver_delete(I2C_NUM_0);
     i2s_deinit();
 }
@@ -70,8 +77,8 @@ static void i2s_init()
         .mck_io_num = GPIO_NUM_42,
         .bck_io_num = GPIO_NUM_46,
         .ws_io_num = GPIO_NUM_45,
-        .data_out_num = GPIO_NUM_37,
-        .data_in_num = GPIO_NUM_36,
+        .data_out_num = GPIO_NUM_43,
+        .data_in_num = GPIO_NUM_44,
     };
     // get_i2s_pins(TEST_I2S_NUM, &i2s_pin_cfg);
     i2s_set_pin(TEST_I2S_NUM, &i2s_pin_cfg);
