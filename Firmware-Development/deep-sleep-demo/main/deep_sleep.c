@@ -62,6 +62,7 @@ void app_main(void)
     };
     esp_vfs_spiffs_register(&config);
 
+    heap_caps_malloc_extmem_enable(0);
     uint64_t current_time = 0;
     wifi_prov_app_setup();
     cloud_api_create_event_group();
@@ -90,7 +91,6 @@ void app_main(void)
     {
         gettimeofday(&now, NULL);
         active_time = now.tv_sec - (current_time/1000);
-        // ESP_LOGI(TAG,"active_time %llu", active_time);
         
         if(active_time >= active_time_duration)
         {
