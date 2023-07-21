@@ -53,7 +53,8 @@ void ui_Screen2_screen_init(void)
     // lv_obj_set_height(ui_Label2, LV_SIZE_CONTENT);    /// 1
     // lv_obj_set_align(ui_Label2, LV_ALIGN_CENTER);
     // lv_label_set_text(ui_Label2, "Play");
-
-    lv_obj_add_event_cb(ui_Screen2, ui_event_Button2, LV_EVENT_ALL, NULL);
+    SunExitAnimation_Animation(ui_Sun1, 2000);
+    CloudSwingingAnimation_Animation(ui_About_to_Sleep, 0);
+    // lv_obj_add_event_cb(ui_Screen2, ui_event_Button2, LV_EVENT_ALL, NULL);
 
 }

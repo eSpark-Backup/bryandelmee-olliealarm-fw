@@ -109,7 +109,7 @@ void app_main(void)
             // ESP_LOGI(TAG,"20Sec Passed!");
           }
         lv_timer_handler();
-        vTaskDelay(10/portTICK_PERIOD_MS);
+        vTaskDelay(1/portTICK_PERIOD_MS);
     }
 }
 

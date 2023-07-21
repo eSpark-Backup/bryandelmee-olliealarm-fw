@@ -195,7 +195,7 @@ static bool IRAM_ATTR example_on_vsync_event(esp_lcd_panel_handle_t panel, const
     // return high_task_awoken == pdTRUE;
     return pdTRUE;
 }
-extern int64_t time_since_boot;
+
 static void example_lvgl_flush_cb(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_map)
 {
     esp_lcd_panel_handle_t panel_handle = (esp_lcd_panel_handle_t) drv->user_data;
@@ -208,11 +208,7 @@ static void example_lvgl_flush_cb(lv_disp_drv_t *drv, const lv_area_t *area, lv_
     // xSemaphoreTake(sem_vsync_end, portMAX_DELAY);
 
     // pass the draw buffer to the driver
-    int64_t bitmap_timer = esp_timer_get_time();
-    ESP_LOGI(TAG, "example_lvgl_flush_cb : %lld us", bitmap_timer - time_since_boot);
-    time_since_boot = esp_timer_get_time();
     esp_lcd_panel_draw_bitmap(panel_handle, offsetx1, offsety1, offsetx2 + 1, offsety2 + 1, color_map);
-    ESP_LOGI(TAG, "draw_bitmap : %lld us", esp_timer_get_time() - time_since_boot);
     lv_disp_flush_ready(drv);
 }
 

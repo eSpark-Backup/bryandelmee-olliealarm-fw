@@ -54,6 +54,6 @@ void ui_Screen3_screen_init(void)
     // lv_obj_set_align(ui_Label3, LV_ALIGN_CENTER);
     // lv_label_set_text(ui_Label3, "Play");
 
-    lv_obj_add_event_cb(ui_Screen3, ui_event_Button3, LV_EVENT_ALL, NULL);
+    // lv_obj_add_event_cb(ui_Screen3, ui_event_Button3, LV_EVENT_ALL, NULL);
 
 }
