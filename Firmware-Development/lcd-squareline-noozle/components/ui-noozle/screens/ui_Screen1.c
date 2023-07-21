@@ -31,6 +31,9 @@ void ui_Screen1_screen_init(void)
     lv_obj_set_align(ui_Sun, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_Sun, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
     lv_obj_clear_flag(ui_Sun, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_img_set_zoom(ui_Sun, 350);
+    lv_obj_set_style_opa(ui_Sun, LV_OPA_0, LV_PART_MAIN | LV_STATE_DEFAULT); 
+    SunEntry_Animation(ui_Sun, 1000);
 
     ui_Wake_Up_Exp = lv_img_create(ui_Screen1);
     lv_img_set_src(ui_Wake_Up_Exp, &ui_img_1398729226);
@@ -43,21 +46,7 @@ void ui_Screen1_screen_init(void)
     lv_obj_clear_flag(ui_Wake_Up_Exp, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_img_set_zoom(ui_Wake_Up_Exp, 250);
 
-    // ui_Button1 = lv_btn_create(ui_Screen1);
-    // lv_obj_set_width(ui_Button1, 135);
-    // lv_obj_set_height(ui_Button1, 50);
-    // lv_obj_set_x(ui_Button1, 0);
-    // lv_obj_set_y(ui_Button1, 150);
-    // lv_obj_set_align(ui_Button1, LV_ALIGN_CENTER);
-    // lv_obj_add_flag(ui_Button1, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
-    // lv_obj_clear_flag(ui_Button1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-
-    // ui_Label1 = lv_label_create(ui_Button1);
-    // lv_obj_set_width(ui_Label1, LV_SIZE_CONTENT);   /// 1
-    // lv_obj_set_height(ui_Label1, LV_SIZE_CONTENT);    /// 1
-    // lv_obj_set_align(ui_Label1, LV_ALIGN_CENTER);
-    // lv_label_set_text(ui_Label1, "Play");
     CloudSwingingAnimation_Animation(ui_Wake_Up_Exp, 0);
-    // lv_obj_add_event_cb(ui_Screen1, ui_event_Button1, LV_EVENT_ALL, NULL);
+    // lv_obj_add_event_cb(ui_Screen1, ui_event_Screen1, LV_EVENT_ALL, NULL);
 
 }

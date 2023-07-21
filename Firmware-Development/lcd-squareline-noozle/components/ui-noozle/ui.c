@@ -10,38 +10,44 @@
 void CloudSwingingAnimation_Animation(lv_obj_t * TargetObject, int delay);
 void SunExitAnimation_Animation(lv_obj_t * TargetObject, int delay);
 void MoonEntry_Animation(lv_obj_t * TargetObject, int delay);
+void MoonExitAnimation_Animation(lv_obj_t * TargetObject, int delay);
+void SunEntry_Animation(lv_obj_t * TargetObject, int delay);
 
 // SCREEN: ui_Screen1
 void ui_Screen1_screen_init(void);
+void ui_event_Screen1(lv_event_t * e);
 lv_obj_t * ui_Screen1;
 lv_obj_t * ui_Blue_Sky;
 lv_obj_t * ui_Sun;
 lv_obj_t * ui_Wake_Up_Exp;
-void ui_event_Button1(lv_event_t * e);
-lv_obj_t * ui_Button1;
-lv_obj_t * ui_Label1;
 
 // SCREEN: ui_Screen2
 void ui_Screen2_screen_init(void);
+void ui_event_Screen2(lv_event_t * e);
 lv_obj_t * ui_Screen2;
 lv_obj_t * ui_Orange_Sky;
 lv_obj_t * ui_Sun1;
 lv_obj_t * ui_About_to_Sleep;
-void ui_event_Button2(lv_event_t * e);
-lv_obj_t * ui_Button2;
-lv_obj_t * ui_Label2;
 
 // SCREEN: ui_Screen3
 void ui_Screen3_screen_init(void);
+void ui_event_Screen3(lv_event_t * e);
 lv_obj_t * ui_Screen3;
 lv_obj_t * ui_Night_Sky;
 lv_obj_t * ui_Moon;
 lv_obj_t * ui_Sleep;
-void ui_event_Button3(lv_event_t * e);
-lv_obj_t * ui_Button3;
-lv_obj_t * ui_Label3;
-lv_obj_t * ui____initial_actions0;
+lv_obj_t * ui_Stars;
 
+// SCREEN: ui_Screen4
+void ui_Screen4_screen_init(void);
+void ui_event_Screen4(lv_event_t * e);
+lv_obj_t * ui_Screen4;
+lv_obj_t * ui_Blue_Sky1;
+lv_obj_t * ui_Moon2;
+void ui_event_Wake_Up_Exp1(lv_event_t * e);
+lv_obj_t * ui_Wake_Up_Exp1;
+lv_obj_t * ui____initial_actions0;
+lv_anim_t PropertyAnimation_0;
 ///////////////////// TEST LVGL SETTINGS ////////////////////
 #if LV_COLOR_DEPTH != 16
     #error "LV_COLOR_DEPTH should be 16bit to match SquareLine Studio's settings"
@@ -68,7 +74,7 @@ void CloudSwingingAnimation_Animation(lv_obj_t * TargetObject, int delay)
     lv_anim_set_playback_time(&PropertyAnimation_0, 1000);
     lv_anim_set_playback_delay(&PropertyAnimation_0, 0);
     lv_anim_set_repeat_count(&PropertyAnimation_0, LV_ANIM_REPEAT_INFINITE);
-    lv_anim_set_repeat_delay(&PropertyAnimation_0, 150);
+    lv_anim_set_repeat_delay(&PropertyAnimation_0, 120);
     lv_anim_set_early_apply(&PropertyAnimation_0, false);
     lv_anim_set_get_value_cb(&PropertyAnimation_0, &_ui_anim_callback_get_image_angle);
     lv_anim_start(&PropertyAnimation_0);
@@ -91,7 +97,7 @@ void SunExitAnimation_Animation(lv_obj_t * TargetObject, int delay)
     lv_anim_set_playback_time(&PropertyAnimation_0, 0);
     lv_anim_set_playback_delay(&PropertyAnimation_0, 0);
     lv_anim_set_repeat_count(&PropertyAnimation_0, 0);
-    lv_anim_set_repeat_delay(&PropertyAnimation_0, 0);
+    lv_anim_set_repeat_delay(&PropertyAnimation_0, 300);
     lv_anim_set_early_apply(&PropertyAnimation_0, false);
     lv_anim_set_get_value_cb(&PropertyAnimation_0, &_ui_anim_callback_get_y);
     lv_anim_start(&PropertyAnimation_0);
@@ -107,8 +113,32 @@ void MoonEntry_Animation(lv_obj_t * TargetObject, int delay)
     lv_anim_set_time(&PropertyAnimation_0, 1000);
     lv_anim_set_user_data(&PropertyAnimation_0, PropertyAnimation_0_user_data);
     lv_anim_set_custom_exec_cb(&PropertyAnimation_0, _ui_anim_callback_set_y);
-    lv_anim_set_values(&PropertyAnimation_0, 450, 0);
+    lv_anim_set_values(&PropertyAnimation_0, 1000, 0);
     lv_anim_set_path_cb(&PropertyAnimation_0, lv_anim_path_ease_out);
+    lv_anim_set_delay(&PropertyAnimation_0, delay + 0);
+    lv_anim_set_deleted_cb(&PropertyAnimation_0, _ui_anim_callback_free_user_data);
+    lv_anim_set_playback_time(&PropertyAnimation_0, 0);
+    lv_anim_set_playback_delay(&PropertyAnimation_0, 0);
+    lv_anim_set_repeat_count(&PropertyAnimation_0, 0);
+    lv_anim_set_repeat_delay(&PropertyAnimation_0, 300);
+    lv_anim_set_early_apply(&PropertyAnimation_0, true);
+    lv_anim_set_get_value_cb(&PropertyAnimation_0, &_ui_anim_callback_get_y);
+    lv_anim_start(&PropertyAnimation_0);
+    lv_obj_set_style_opa(TargetObject, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_DEFAULT); 
+
+}
+void MoonExitAnimation_Animation(lv_obj_t * TargetObject, int delay)
+{
+    ui_anim_user_data_t * PropertyAnimation_0_user_data = lv_mem_alloc(sizeof(ui_anim_user_data_t));
+    PropertyAnimation_0_user_data->target = TargetObject;
+    PropertyAnimation_0_user_data->val = -1;
+    lv_anim_t PropertyAnimation_0;
+    lv_anim_init(&PropertyAnimation_0);
+    lv_anim_set_time(&PropertyAnimation_0, 500);
+    lv_anim_set_user_data(&PropertyAnimation_0, PropertyAnimation_0_user_data);
+    lv_anim_set_custom_exec_cb(&PropertyAnimation_0, _ui_anim_callback_set_y);
+    lv_anim_set_values(&PropertyAnimation_0, 0, -320);
+    lv_anim_set_path_cb(&PropertyAnimation_0, lv_anim_path_ease_in);
     lv_anim_set_delay(&PropertyAnimation_0, delay + 0);
     lv_anim_set_deleted_cb(&PropertyAnimation_0, _ui_anim_callback_free_user_data);
     lv_anim_set_playback_time(&PropertyAnimation_0, 0);
@@ -120,51 +150,85 @@ void MoonEntry_Animation(lv_obj_t * TargetObject, int delay)
     lv_anim_start(&PropertyAnimation_0);
 
 }
+void SunEntry_Animation(lv_obj_t * TargetObject, int delay)
+{
+    ui_anim_user_data_t * PropertyAnimation_0_user_data = lv_mem_alloc(sizeof(ui_anim_user_data_t));
+    PropertyAnimation_0_user_data->target = TargetObject;
+    PropertyAnimation_0_user_data->val = -1;
+    lv_anim_t PropertyAnimation_0;
+    lv_anim_init(&PropertyAnimation_0);
+    lv_anim_set_time(&PropertyAnimation_0, 1000);
+    lv_anim_set_user_data(&PropertyAnimation_0, PropertyAnimation_0_user_data);
+    lv_anim_set_custom_exec_cb(&PropertyAnimation_0, _ui_anim_callback_set_y);
+    lv_anim_set_values(&PropertyAnimation_0, 1000, 0);
+    lv_anim_set_path_cb(&PropertyAnimation_0, lv_anim_path_ease_out);
+    lv_anim_set_delay(&PropertyAnimation_0, delay + 0);
+    lv_anim_set_deleted_cb(&PropertyAnimation_0, _ui_anim_callback_free_user_data);
+    lv_anim_set_playback_time(&PropertyAnimation_0, 0);
+    lv_anim_set_playback_delay(&PropertyAnimation_0, 0);
+    lv_anim_set_repeat_count(&PropertyAnimation_0, 0);
+    lv_anim_set_repeat_delay(&PropertyAnimation_0, 300);
+    lv_anim_set_early_apply(&PropertyAnimation_0, true);
+    lv_anim_set_get_value_cb(&PropertyAnimation_0, &_ui_anim_callback_get_y);
+    lv_anim_start(&PropertyAnimation_0);
+    lv_obj_set_style_opa(TargetObject, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_DEFAULT); 
+}
 
 ///////////////////// FUNCTIONS ////////////////////
-void ui_event_Button1(lv_event_t * e)
+void ui_event_Screen1(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * target = lv_event_get_target(e);
     if(event_code == LV_EVENT_SCREEN_LOADED) {
-        CloudSwingingAnimation_Animation(ui_Wake_Up_Exp, 0);
-        CloudSwingingAnimation_Animation(ui_About_to_Sleep, 0);
-        CloudSwingingAnimation_Animation(ui_Sleep, 0);
+        _ui_screen_change(ui_Screen2, LV_SCR_LOAD_ANIM_FADE_ON, 400, 2000);
     }
     if(event_code == LV_EVENT_SCREEN_LOADED) {
-        _ui_screen_change(ui_Screen2, LV_SCR_LOAD_ANIM_FADE_ON, 10, 5000);
+        CloudSwingingAnimation_Animation(ui_Sleep, 0);
+        CloudSwingingAnimation_Animation(ui_About_to_Sleep, 0);
+        CloudSwingingAnimation_Animation(ui_Wake_Up_Exp, 0);
+        CloudSwingingAnimation_Animation(ui_Wake_Up_Exp1, 0);
+    }
+    if(event_code == LV_EVENT_SCREEN_LOADED) {
+        SunEntry_Animation(ui_Sun, 0);
     }
 }
-void ui_event_Button2(lv_event_t * e)
+void ui_event_Screen2(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * target = lv_event_get_target(e);
     if(event_code == LV_EVENT_SCREEN_LOADED) {
-        CloudSwingingAnimation_Animation(ui_Wake_Up_Exp, 0);
-        CloudSwingingAnimation_Animation(ui_About_to_Sleep, 0);
-        CloudSwingingAnimation_Animation(ui_Sleep, 0);
-    }
-    if(event_code == LV_EVENT_SCREEN_LOADED) {
-        _ui_screen_change(ui_Screen3, LV_SCR_LOAD_ANIM_FADE_ON, 10, 5000);
+        _ui_screen_change(ui_Screen3, LV_SCR_LOAD_ANIM_FADE_ON, 400, 2000);
     }
     if(event_code == LV_EVENT_SCREEN_LOADED) {
         SunExitAnimation_Animation(ui_Sun1, 0);
     }
 }
-void ui_event_Button3(lv_event_t * e)
+void ui_event_Screen3(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * target = lv_event_get_target(e);
     if(event_code == LV_EVENT_SCREEN_LOADED) {
-        CloudSwingingAnimation_Animation(ui_Wake_Up_Exp, 0);
-        CloudSwingingAnimation_Animation(ui_About_to_Sleep, 0);
-        CloudSwingingAnimation_Animation(ui_Sleep, 0);
-    }
-    if(event_code == LV_EVENT_SCREEN_LOADED) {
-        _ui_screen_change(ui_Screen1, LV_SCR_LOAD_ANIM_FADE_ON, 10, 5000);
+        _ui_screen_change(ui_Screen4, LV_SCR_LOAD_ANIM_FADE_ON, 400, 2000);
     }
     if(event_code == LV_EVENT_SCREEN_LOADED) {
         MoonEntry_Animation(ui_Moon, 0);
+    }
+}
+void ui_event_Screen4(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+    if(event_code == LV_EVENT_SCREEN_LOADED) {
+        _ui_screen_change(ui_Screen1, LV_SCR_LOAD_ANIM_FADE_ON, 400, 2000);
+        MoonExitAnimation_Animation(ui_Moon2, 0);
+    }
+}
+void ui_event_Wake_Up_Exp1(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+    if(event_code == LV_EVENT_SCREEN_LOADED) {
+        CloudSwingingAnimation_Animation(ui_Wake_Up_Exp1, 0);
     }
 }
 
@@ -179,6 +243,7 @@ void ui_init(void)
     ui_Screen1_screen_init();
     ui_Screen2_screen_init();
     ui_Screen3_screen_init();
+    ui_Screen4_screen_init();
     ui____initial_actions0 = lv_obj_create(NULL);
     // lv_disp_load_scr(ui_Screen1);
 }

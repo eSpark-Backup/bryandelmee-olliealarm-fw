@@ -15,7 +15,7 @@ void ui_Screen2_screen_init(void)
     lv_obj_set_height(ui_Orange_Sky, 510);
     lv_obj_set_align(ui_Orange_Sky, LV_ALIGN_CENTER);
     lv_obj_clear_flag(ui_Orange_Sky, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_bg_color(ui_Orange_Sky, lv_color_hex(0xF9893D), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_Orange_Sky, lv_color_hex(0xFF8D4A), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_Orange_Sky, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Sun1 = lv_img_create(ui_Screen2);
@@ -27,6 +27,7 @@ void ui_Screen2_screen_init(void)
     lv_obj_set_align(ui_Sun1, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_Sun1, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
     lv_obj_clear_flag(ui_Sun1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_img_set_zoom(ui_Sun1, 350);
 
     ui_About_to_Sleep = lv_img_create(ui_Screen2);
     lv_img_set_src(ui_About_to_Sleep, &ui_img_880741718);
@@ -39,22 +40,8 @@ void ui_Screen2_screen_init(void)
     lv_obj_clear_flag(ui_About_to_Sleep, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_img_set_zoom(ui_About_to_Sleep, 250);
 
-    // ui_Button2 = lv_btn_create(ui_Screen2);
-    // lv_obj_set_width(ui_Button2, 135);
-    // lv_obj_set_height(ui_Button2, 50);
-    // lv_obj_set_x(ui_Button2, 0);
-    // lv_obj_set_y(ui_Button2, 150);
-    // lv_obj_set_align(ui_Button2, LV_ALIGN_CENTER);
-    // lv_obj_add_flag(ui_Button2, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
-    // lv_obj_clear_flag(ui_Button2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-
-    // ui_Label2 = lv_label_create(ui_Button2);
-    // lv_obj_set_width(ui_Label2, LV_SIZE_CONTENT);   /// 1
-    // lv_obj_set_height(ui_Label2, LV_SIZE_CONTENT);    /// 1
-    // lv_obj_set_align(ui_Label2, LV_ALIGN_CENTER);
-    // lv_label_set_text(ui_Label2, "Play");
-    SunExitAnimation_Animation(ui_Sun1, 2000);
+    SunExitAnimation_Animation(ui_Sun1, 1000);
     CloudSwingingAnimation_Animation(ui_About_to_Sleep, 0);
-    // lv_obj_add_event_cb(ui_Screen2, ui_event_Button2, LV_EVENT_ALL, NULL);
+    // lv_obj_add_event_cb(ui_Screen2, ui_event_Screen2, LV_EVENT_ALL, NULL);
 
 }

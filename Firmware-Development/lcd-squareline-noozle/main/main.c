@@ -27,7 +27,7 @@
 #include "lv_port_disp.h"
 #include "lv_demos.h"
 #include "ui.h"
-
+#include "ui_helpers.h"
 /* WiFi / BLE-Provisioning */
 #include "wifi_prov_app.h"
 
@@ -48,6 +48,76 @@ static RTC_DATA_ATTR uint8_t active_time_duration = 120;
 static RTC_DATA_ATTR uint8_t frame_number = 0;
 static const char *TAG = "MainAPP";
 alarmtime_t alarmTimeData[4];   /* Variable to hold Alarm Data's: [ (Almost Sleep)-(To Sleep) & (Almost Getting Up) - (To Get Up)] */
+
+// void timer_callback(void *param)
+// {
+//   static int count = 0;
+//   static int screenNum = 0;
+//   count++;
+  
+//   if(count == 10)
+//   {
+//     if(screenNum == 0){
+//       ui_Screen1_screen_init();
+//       lv_disp_load_scr(ui_Screen2);
+//     }
+      
+//     else if(screenNum == 1){
+//       lv_obj_del(ui_Screen1);
+//       ui_Screen1 = NULL;
+//       ui_Screen2_screen_init();
+//       lv_disp_load_scr(ui_Screen2);
+//     }
+//     else if(screenNum == 2){
+//       lv_obj_del(ui_Screen2);
+//       ui_Screen2 = NULL;
+//       ui_Screen3_screen_init();
+//       lv_disp_load_scr(ui_Screen3);
+//     }
+//     else{
+//       lv_obj_del(ui_Screen3);
+//       ui_Screen3 = NULL;
+//       ui_Screen3_screen_init();
+//       lv_disp_load_scr(ui_Screen4);
+//     }
+//     count = 0;
+//     screenNum++;
+//     if(screenNum == 4)
+//       screenNum = 0;
+//   }
+// }
+volatile bool lvTimerHandler = false;
+void timer_callback(void *param)
+{
+  static int count = 10;
+  static int screenNum = 0;
+  
+  if(count == 10)
+  {
+      // lvTimerHandler = true;
+      // ui_Screen1_screen_init();
+      // lv_disp_load_scr(ui_Screen1);
+      // _ui_screen_change(ui_Screen1, LV_SCR_LOAD_ANIM_FADE_ON, 1000, 1000);
+      _ui_screen_change(ui_Screen3, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0);
+  }
+  else if(count == 20)
+  {
+    // lvTimerHandler = false;
+    _ui_screen_change(ui_Screen1, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0);
+  }
+  else if(count == 30)
+  {
+    count = 10;
+  }
+  // else if(count == 21) 
+  // {
+  //   lv_anim_del(&PropertyAnimation_0, NULL);
+  //   lv_obj_clean(ui_Screen1);
+  //   ui_Screen1 = NULL;
+  //   count = 9;
+  // }
+  count++;
+}
 
 
 void app_main(void)
@@ -71,12 +141,20 @@ void app_main(void)
     lv_port_disp_init();
     lv_port_tick_init();
     ui_init();
-    lv_disp_load_scr(ui_Screen2);
-    _ui_screen_change(ui_Screen1, LV_SCR_LOAD_ANIM_FADE_ON, 0, 10000);
+    // _ui_screen_change(ui_Screen1, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0);
+    // lv_disp_load_scr(ui_Screen1);
+    // lv_disp_load_scr(ui_Screen4);
+    // _ui_screen_change(ui_Screen1, LV_SCR_LOAD_ANIM_FADE_ON, 0, 10000);
     // _ui_screen_change(ui_Screen3, LV_SCR_LOAD_ANIM_FADE_ON, 10, 10000);
 
     // struct timeval now;
     // uint64_t active_time;
+      const esp_timer_create_args_t my_timer_args = {
+        .callback = &timer_callback,
+        .name = "My Timer"};
+      esp_timer_handle_t timer_handler;
+      ESP_ERROR_CHECK(esp_timer_create(&my_timer_args, &timer_handler));
+      ESP_ERROR_CHECK(esp_timer_start_periodic(timer_handler, 1000000));
 
     while (1)
     {
@@ -97,8 +175,10 @@ void app_main(void)
         //     esp_deep_sleep_start();
         //     // ESP_LOGI(TAG,"20Sec Passed!");
         //   }
-        lv_timer_handler();
-        vTaskDelay(10/portTICK_PERIOD_MS);
+        // if(lvTimerHandler)
+          lv_timer_handler();
+        
+        vTaskDelay(1/portTICK_PERIOD_MS);
     }
 }
 
