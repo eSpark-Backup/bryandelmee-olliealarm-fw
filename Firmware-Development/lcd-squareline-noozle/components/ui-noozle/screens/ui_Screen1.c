@@ -33,7 +33,6 @@ void ui_Screen1_screen_init(void)
     lv_obj_clear_flag(ui_Sun, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_img_set_zoom(ui_Sun, 350);
     lv_obj_set_style_opa(ui_Sun, LV_OPA_0, LV_PART_MAIN | LV_STATE_DEFAULT); 
-    SunEntry_Animation(ui_Sun, 1000);
 
     ui_Wake_Up_Exp = lv_img_create(ui_Screen1);
     lv_img_set_src(ui_Wake_Up_Exp, &ui_img_1398729226);
@@ -47,6 +46,6 @@ void ui_Screen1_screen_init(void)
     lv_img_set_zoom(ui_Wake_Up_Exp, 250);
 
     CloudSwingingAnimation_Animation(ui_Wake_Up_Exp, 0);
-    // lv_obj_add_event_cb(ui_Screen1, ui_event_Screen1, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_Screen1, ui_event_Screen1, LV_EVENT_ALL, NULL);
 
 }

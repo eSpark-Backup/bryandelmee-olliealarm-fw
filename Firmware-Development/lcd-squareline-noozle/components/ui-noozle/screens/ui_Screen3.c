@@ -28,7 +28,6 @@ void ui_Screen3_screen_init(void)
     lv_obj_add_flag(ui_Moon, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
     lv_obj_clear_flag(ui_Moon, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_opa(ui_Moon, LV_OPA_0, LV_PART_MAIN | LV_STATE_DEFAULT); 
-    MoonEntry_Animation(ui_Moon, 0);
 
     ui_Sleep = lv_img_create(ui_Screen3);
     lv_img_set_src(ui_Sleep, &ui_img_1280572105);
@@ -51,7 +50,7 @@ void ui_Screen3_screen_init(void)
     lv_obj_add_flag(ui_Stars, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
     lv_obj_clear_flag(ui_Stars, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
-    // MoonEntry_Animation(ui_Moon, 0);
-    // lv_obj_add_event_cb(ui_Screen3, ui_event_Screen3, LV_EVENT_ALL, NULL);
+    CloudSwingingAnimation_Animation(ui_Sleep, 0);
+    lv_obj_add_event_cb(ui_Screen3, ui_event_Screen3, LV_EVENT_ALL, NULL);
 
 }

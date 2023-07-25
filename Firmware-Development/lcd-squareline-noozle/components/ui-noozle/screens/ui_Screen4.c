@@ -27,7 +27,7 @@ void ui_Screen4_screen_init(void)
     lv_obj_set_width(ui_Moon2, LV_SIZE_CONTENT);   /// 141
     lv_obj_set_height(ui_Moon2, LV_SIZE_CONTENT);    /// 329
     lv_obj_set_x(ui_Moon2, 109);
-    lv_obj_set_y(ui_Moon2, -310);
+    lv_obj_set_y(ui_Moon2, -630);
     lv_obj_set_align(ui_Moon2, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_Moon2, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
     lv_obj_clear_flag(ui_Moon2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
@@ -44,8 +44,6 @@ void ui_Screen4_screen_init(void)
     lv_img_set_zoom(ui_Wake_Up_Exp1, 250);
 
     CloudSwingingAnimation_Animation(ui_Wake_Up_Exp1, 0);
-    MoonExitAnimation_Animation(ui_Moon2, 1000);
-    // lv_obj_add_event_cb(ui_Wake_Up_Exp1, ui_event_Wake_Up_Exp1, LV_EVENT_ALL, NULL);
-    // lv_obj_add_event_cb(ui_Screen4, ui_event_Screen4, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_Screen4, ui_event_Screen4, LV_EVENT_ALL, NULL);
 
 }
