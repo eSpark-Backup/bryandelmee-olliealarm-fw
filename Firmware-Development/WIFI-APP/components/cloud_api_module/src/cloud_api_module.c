@@ -125,7 +125,7 @@ esp_err_t time_http_event_handler(esp_http_client_event_t *evt)
     }
     return ESP_OK;
 }
-
+extern uint64_t current_time;
 void cloud_api_parse_time_and_brightness(const char* jsonString, alarmtime_t* alarmTime)
 {
     cJSON* root = cJSON_Parse(jsonString);
@@ -133,28 +133,25 @@ void cloud_api_parse_time_and_brightness(const char* jsonString, alarmtime_t* al
         cJSON_Delete(root);
         return;
     }
-
-    cJSON* data = cJSON_GetObjectItemCaseSensitive(root, "data");
-    if (cJSON_IsArray(data)) {
-        cJSON* scene = cJSON_GetArrayItem(data, 0);
-        cJSON* sceneSleepTimes = cJSON_GetObjectItemCaseSensitive(scene, "scene_sleep_time");
+        cJSON* sceneSleepTimes = cJSON_GetObjectItemCaseSensitive(root, "scene_sleep_time");
         if (cJSON_IsArray(sceneSleepTimes)) {
             int sceneSleepTimeCount = cJSON_GetArraySize(sceneSleepTimes);
+            ESP_LOGI("CLOUDAPI","sceneSleepTimeCount = %d", sceneSleepTimeCount);
             for (int i = 0; i < sceneSleepTimeCount; i++) {
                 cJSON* sceneSleepTime = cJSON_GetArrayItem(sceneSleepTimes, i);
                 const char* name = cJSON_GetObjectItemCaseSensitive(sceneSleepTime, "scene_sleep_time_name")->valuestring;
                 char* time = cJSON_GetObjectItemCaseSensitive(sceneSleepTime, "time")->valuestring;
-                time = "1686046904";
                 (alarmTime+i)->epoch_time = atoi(time);
+                // (alarmTime+i)->epoch_time = (current_time/1000) + ((i+1)*30);
                 const char* str_brightness = cJSON_GetObjectItemCaseSensitive(sceneSleepTime, "brightness")->valuestring;
-                (alarmTime+i)->brightness = atof(str_brightness);
-                printf("Scene: %s, time: %llu, brightness: %lf \n", name, (alarmTime+i)->epoch_time, (alarmTime+i)->brightness);
+                // (alarmTime+i)->brightness = atof(str_brightness);
+                ESP_LOGI("CLOUDAPI","Scene: %s, time: %s", name, time);
+                ESP_LOGI("CLOUDAPI","alarmTime[%d], time: %llu", i, (alarmTime+i)->epoch_time);
                 }
         }
-    }
     cJSON_Delete(root);
-    free((void*)jsonString);
-    jsonString = NULL;
+    // free((void*)jsonString);
+    // jsonString = NULL;
 }
 
 esp_err_t cloud_api_parse_current_time(const char* jsonString, uint64_t* time)
