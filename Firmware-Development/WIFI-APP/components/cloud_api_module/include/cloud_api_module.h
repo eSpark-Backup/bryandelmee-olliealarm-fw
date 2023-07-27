@@ -16,6 +16,8 @@
 #include "esp_http_client.h"
 #include <cJSON.h>
 
+#define CLOUD_DEBUG 1
+
 typedef struct{
     uint64_t epoch_time;
     float brightness;

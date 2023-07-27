@@ -18,14 +18,17 @@ esp_err_t wifi_prov_app_setup()
 
     nvs_open_namespace_rw(WIFI_NAMESPACE);
     err = wifi_get_credetianls_nvs(&wifi_config, WIFI_KEY);
-
-    // vTaskDelay(3000 / portTICK_PERIOD_MS);
+    wifi_config.sta.threshold.authmode = WIFI_AUTH_WPA2_PSK;
+    wifi_config.sta.bssid_set = 0;
+    
     if(err == ESP_ERR_NVS_NOT_FOUND)
     {
         prov_mgr_init();
         prov_mgr_setup();
         prov_mgr_credential_recv_wait();
     }
+    esp_wifi_set_mode(WIFI_MODE_STA);   
+    esp_wifi_set_config(WIFI_IF_STA, &wifi_config);
     esp_wifi_start();
     wifi_connction_wait();
     nvs_close_handle();
