@@ -92,7 +92,7 @@ void set_alarm_time()
           alarm_stop_time = alarmTimeData[TO_SLEEP].epoch_time;
           ESP_LOGI(TAG,"set_alarm_time : Sleep Alarm");
      }
-     else if(now.tv_sec > alarmTimeData[ALMOST_SLEEP].epoch_time)
+     else if(now.tv_sec > alarmTimeData[ALMOST_SLEEP].epoch_time && alarmTimeData[ALMOST_GETTING_UP].epoch_time > now.tv_sec)
      {
           // Calculate the desired wakeup time
           alarm_start_time = alarmTimeData[ALMOST_GETTING_UP].epoch_time;

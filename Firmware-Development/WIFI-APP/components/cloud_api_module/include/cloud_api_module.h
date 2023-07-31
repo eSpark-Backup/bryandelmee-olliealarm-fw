@@ -19,7 +19,7 @@
 #define CLOUD_DEBUG 1
 
 typedef struct{
-    uint64_t epoch_time;
+    int64_t epoch_time;
     float brightness;
 } alarmtime_t;
 

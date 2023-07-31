@@ -141,12 +141,12 @@ void cloud_api_parse_time_and_brightness(const char* jsonString, alarmtime_t* al
                 cJSON* sceneSleepTime = cJSON_GetArrayItem(sceneSleepTimes, i);
                 const char* name = cJSON_GetObjectItemCaseSensitive(sceneSleepTime, "scene_sleep_time_name")->valuestring;
                 char* time = cJSON_GetObjectItemCaseSensitive(sceneSleepTime, "time")->valuestring;
-                (alarmTime+i)->epoch_time = atoi(time);
+                (alarmTime+i)->epoch_time = atoll(time);
                 // (alarmTime+i)->epoch_time = (current_time/1000) + ((i+1)*30);
                 const char* str_brightness = cJSON_GetObjectItemCaseSensitive(sceneSleepTime, "brightness")->valuestring;
                 // (alarmTime+i)->brightness = atof(str_brightness);
                 ESP_LOGI("CLOUDAPI","Scene: %s, time: %s", name, time);
-                ESP_LOGI("CLOUDAPI","alarmTime[%d], time: %llu", i, (alarmTime+i)->epoch_time);
+                ESP_LOGI("CLOUDAPI","alarmTime[%d], time: %lld", i, (alarmTime+i)->epoch_time);
                 }
         }
     cJSON_Delete(root);
