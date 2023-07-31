@@ -8,6 +8,8 @@
 /* Deep Sleep */
 #include "esp_timer.h"
 #include "esp_sleep.h"
+/*LCD*/
+#include "lcd_app.h"
 
 static const char *TAG = "MainAPP";
 
@@ -21,6 +23,9 @@ static RTC_DATA_ATTR bool alarm_time_set = false;
 static RTC_DATA_ATTR uint64_t mcu_sleep_time =  3600 * 1000000;
 static RTC_DATA_ATTR uint32_t mcu_active_time = 120; 
 
+/* LCD Screen Num*/
+static RTC_DATA_ATTR uint8_t ui_scr_num = 0;
+
 volatile bool main_loop_run; 
 
 void timer_callback(void *param)
@@ -28,8 +33,36 @@ void timer_callback(void *param)
      main_loop_run = false;
 }
 
+void lcd_get_screen(uint8_t scr_num)
+{
+     switch (scr_num)
+     {
+     case 1:
+          _ui_screen_change(ui_Screen1, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0);
+          break;
+
+     case 2:
+          _ui_screen_change(ui_Screen2, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0);
+          break;
+     
+     case 3:
+          _ui_screen_change(ui_Screen3, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0);
+          break;
+     
+     case 4:
+          _ui_screen_change(ui_Screen4, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0);
+          break;
+     
+     default:
+          break;
+     }
+}
+
 void app_main(void)
 {
+     lcd_setup();
+     ui_init();
+
      device_startup();
 
      const esp_timer_create_args_t my_timer_args = {
@@ -40,18 +73,20 @@ void app_main(void)
      ESP_ERROR_CHECK(esp_timer_start_periodic(timer_handler, mcu_active_time * 1000000));
 
      main_loop_run = true;
+     lcd_get_screen(ui_scr_num);
      while (1)
      {
           if(main_loop_run)
           {
                ESP_LOGI(TAG, "MAIN-LOOP Routine");
+               lcd_display();
           }
           else
           {
                alarm_time_set = false;
                device_startup();
           }
-          vTaskDelay(1000 / portTICK_PERIOD_MS);
+          vTaskDelay(1 / portTICK_PERIOD_MS);
      }
 }
 
@@ -71,7 +106,7 @@ void device_startup()
      setEpochTime(current_time, 0);
 
      /*CLOUD : ALARM API*/
-     const char *jsonString = "{\n   \"alarm_id\": 2,\n   \"ollie_id\": 2,\n   \"scene_name\": \"tesy\",\n   \"isActive\": 1,\n   \"days\": \"2023-01-24 00:00:00.000Z\",\n   \"scene_sleep_time\":[\n        {\n          \"scene_sleep_time_name\":\"Almost Asleep\",\n          \"time\":\"1690813000\",\n\t\t  \"color\" : \"Color(0xffcs23)\",\n\t\t  \"brightness\" : 60,\n\t\t  \"countdown_function\" :true,\n\t\t  \"soundname\" : \"Rain\",\n\t\t  \"sound_minutes\": 50\n        },\n        {\n          \"scene_sleep_time_name\":\"To sleep\",\n          \"time\":\"1690813050\",\n\t\t  \"color\" : \"Color(0xffcs23)\",\n\t\t  \"brightness\" : 60,\n\t\t  \"countdown_function\" :true,\n\t\t  \"soundname\" : \"Rain\",\n\t\t  \"sound_minutes\": 50\n        },\n\t {\n          \"scene_sleep_time_name\":\"Almost getting up\",\n          \"time\":\"1690813120\",\n\t\t  \"color\" : \"Color(0xffcs23)\",\n\t\t  \"brightness\" : 60,\n\t\t  \"countdown_function\" :true,\n\t\t  \"soundname\" : \"Rain\",\n\t\t  \"sound_minutes\": 50\n        },\n\t {\n          \"scene_sleep_time_name\":\"To get up\",\n          \"time\":\"1690813185\",\n\t\t  \"color\" : \"Color(0xffcs23)\",\n\t\t  \"brightness\" : 60,\n\t\t  \"countdown_function\" :true,\n\t\t  \"soundname\" : \"Rain\",\n\t\t  \"sound_minutes\": 50\n        }\n       ]\n}";
+     const char *jsonString = "{\n   \"alarm_id\": 2,\n   \"ollie_id\": 2,\n   \"scene_name\": \"tesy\",\n   \"isActive\": 1,\n   \"days\": \"2023-01-24 00:00:00.000Z\",\n   \"scene_sleep_time\":[\n        {\n          \"scene_sleep_time_name\":\"Almost Asleep\",\n          \"time\":\"1690818200\",\n\t\t  \"color\" : \"Color(0xffcs23)\",\n\t\t  \"brightness\" : 60,\n\t\t  \"countdown_function\" :true,\n\t\t  \"soundname\" : \"Rain\",\n\t\t  \"sound_minutes\": 50\n        },\n        {\n          \"scene_sleep_time_name\":\"To sleep\",\n          \"time\":\"1690818235\",\n\t\t  \"color\" : \"Color(0xffcs23)\",\n\t\t  \"brightness\" : 60,\n\t\t  \"countdown_function\" :true,\n\t\t  \"soundname\" : \"Rain\",\n\t\t  \"sound_minutes\": 50\n        },\n\t {\n          \"scene_sleep_time_name\":\"Almost getting up\",\n          \"time\":\"1690818270\",\n\t\t  \"color\" : \"Color(0xffcs23)\",\n\t\t  \"brightness\" : 60,\n\t\t  \"countdown_function\" :true,\n\t\t  \"soundname\" : \"Rain\",\n\t\t  \"sound_minutes\": 50\n        },\n\t {\n          \"scene_sleep_time_name\":\"To get up\",\n          \"time\":\"1690818315\",\n\t\t  \"color\" : \"Color(0xffcs23)\",\n\t\t  \"brightness\" : 60,\n\t\t  \"countdown_function\" :true,\n\t\t  \"soundname\" : \"Rain\",\n\t\t  \"sound_minutes\": 50\n        }\n       ]\n}";
      cloud_api_parse_time_and_brightness(jsonString, alarmTimeData);
      set_alarm_time();
      }
@@ -91,6 +126,8 @@ void set_alarm_time()
           alarm_start_time = alarmTimeData[ALMOST_SLEEP].epoch_time;
           alarm_stop_time = alarmTimeData[TO_SLEEP].epoch_time;
           ESP_LOGI(TAG,"set_alarm_time : Sleep Alarm");
+          // _ui_screen_change(ui_Screen1, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0);
+          ui_scr_num = 1;
      }
      else if(now.tv_sec > alarmTimeData[ALMOST_SLEEP].epoch_time && alarmTimeData[ALMOST_GETTING_UP].epoch_time > now.tv_sec)
      {
@@ -98,6 +135,8 @@ void set_alarm_time()
           alarm_start_time = alarmTimeData[ALMOST_GETTING_UP].epoch_time;
           alarm_stop_time = alarmTimeData[TO_GET_UP].epoch_time;
           ESP_LOGI(TAG,"set_alarm_time : WakeUp Alarm");
+          // _ui_screen_change(ui_Screen3, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0);
+          ui_scr_num = 2;
      }
      else
      {
