@@ -98,7 +98,8 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
                 ESP_LOGI(TAG, "Wi-Fi disconnected, Retry %d", retry);
                 xEventGroupClearBits(wifi_event_group, WIFI_CONNECTED_BIT);
                 esp_wifi_connect();
-                if(retry == 15){  
+                if(retry == 30)
+                {  
                     xTaskCreate(prov_reinit,"prov_reinit_task", 2*2048, NULL, 10, NULL);
                     retry=0;
                     break;
