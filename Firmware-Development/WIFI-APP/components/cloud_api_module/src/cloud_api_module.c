@@ -85,11 +85,11 @@ esp_err_t alarm_http_event_handler(esp_http_client_event_t *evt)
             response_len += evt->data_len;
             break;
         case HTTP_EVENT_ON_FINISH:
-            // alarmtime_t* alarmTime = (alarmtime_t*)evt->user_data;
+            alarmtime_t* alarmTime = (alarmtime_t*)evt->user_data;
             #if CLOUD_DEBUG == 1
             ESP_LOGI("Noozle-API", "Received data: %s", response_data);
             #endif
-            // cloud_api_parse_time_and_brightness(response_data, alarmTime);
+            cloud_api_parse_time_and_brightness(response_data, alarmTime);
             xEventGroupSetBits(cloud_api_event_group, got_repeated_alarm);
             break;
         default:

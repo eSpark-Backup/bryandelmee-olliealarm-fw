@@ -93,12 +93,11 @@ void app_main(void)
 
      main_loop_run = true;
      lcd_get_screen(ui_scr_num);
-     // ESP_LOGI(TAG,"ui_scr_num : %d",ui_scr_num);
+
      while (1)
      {
           if(main_loop_run)
           {
-               // ESP_LOGI(TAG, "MAIN-LOOP Routine");
                lcd_display();
           }
           else
@@ -126,8 +125,10 @@ void device_startup()
      setEpochTime(current_time, 0);
 
      /*CLOUD : ALARM API*/
-     const char *jsonString = "{\n   \"alarm_id\": 2,\n   \"ollie_id\": 2,\n   \"scene_name\": \"tesy\",\n   \"isActive\": 1,\n   \"days\": \"2023-01-24 00:00:00.000Z\",\n   \"scene_sleep_time\":[\n        {\n          \"scene_sleep_time_name\":\"Almost Asleep\",\n          \"time\":\"1690881800\",\n\t\t  \"color\" : \"Color(0xffcs23)\",\n\t\t  \"brightness\" : 60,\n\t\t  \"countdown_function\" :true,\n\t\t  \"soundname\" : \"Rain\",\n\t\t  \"sound_minutes\": 50\n        },\n        {\n          \"scene_sleep_time_name\":\"To sleep\",\n          \"time\":\"1690881850\",\n\t\t  \"color\" : \"Color(0xffcs23)\",\n\t\t  \"brightness\" : 60,\n\t\t  \"countdown_function\" :true,\n\t\t  \"soundname\" : \"Rain\",\n\t\t  \"sound_minutes\": 50\n        },\n\t {\n          \"scene_sleep_time_name\":\"Almost getting up\",\n          \"time\":\"1690881900\",\n\t\t  \"color\" : \"Color(0xffcs23)\",\n\t\t  \"brightness\" : 60,\n\t\t  \"countdown_function\" :true,\n\t\t  \"soundname\" : \"Rain\",\n\t\t  \"sound_minutes\": 50\n        },\n\t {\n          \"scene_sleep_time_name\":\"To get up\",\n          \"time\":\"1690881940\",\n\t\t  \"color\" : \"Color(0xffcs23)\",\n\t\t  \"brightness\" : 60,\n\t\t  \"countdown_function\" :true,\n\t\t  \"soundname\" : \"Rain\",\n\t\t  \"sound_minutes\": 50\n        }\n       ]\n}";
-     cloud_api_parse_time_and_brightness(jsonString, alarmTimeData);
+     // const char *jsonString = "{\n   \"alarm_id\": 2,\n   \"ollie_id\": 2,\n   \"scene_name\": \"tesy\",\n   \"isActive\": 1,\n   \"days\": \"2023-01-24 00:00:00.000Z\",\n   \"scene_sleep_time\":[\n        {\n          \"scene_sleep_time_name\":\"Almost Asleep\",\n          \"time\":\"1690881800\",\n\t\t  \"color\" : \"Color(0xffcs23)\",\n\t\t  \"brightness\" : 60,\n\t\t  \"countdown_function\" :true,\n\t\t  \"soundname\" : \"Rain\",\n\t\t  \"sound_minutes\": 50\n        },\n        {\n          \"scene_sleep_time_name\":\"To sleep\",\n          \"time\":\"1690881850\",\n\t\t  \"color\" : \"Color(0xffcs23)\",\n\t\t  \"brightness\" : 60,\n\t\t  \"countdown_function\" :true,\n\t\t  \"soundname\" : \"Rain\",\n\t\t  \"sound_minutes\": 50\n        },\n\t {\n          \"scene_sleep_time_name\":\"Almost getting up\",\n          \"time\":\"1690881900\",\n\t\t  \"color\" : \"Color(0xffcs23)\",\n\t\t  \"brightness\" : 60,\n\t\t  \"countdown_function\" :true,\n\t\t  \"soundname\" : \"Rain\",\n\t\t  \"sound_minutes\": 50\n        },\n\t {\n          \"scene_sleep_time_name\":\"To get up\",\n          \"time\":\"1690881940\",\n\t\t  \"color\" : \"Color(0xffcs23)\",\n\t\t  \"brightness\" : 60,\n\t\t  \"countdown_function\" :true,\n\t\t  \"soundname\" : \"Rain\",\n\t\t  \"sound_minutes\": 50\n        }\n       ]\n}";
+     xTaskCreate(cloud_api_repeated_alarm_task, "cloud_api_task", 8192, alarmTimeData, 7, NULL);
+     cloud_api_wait_repeated_alarm_event();
+     // cloud_api_parse_time_and_brightness(jsonString, alarmTimeData);
      set_alarm_time();
      }
 }
@@ -172,7 +173,7 @@ void set_alarm_time()
      // Set the wakeup time in the RTC alarm
      mcu_sleep_time = alarm_start_time - (uint64_t)now.tv_sec;
      ESP_LOGI(TAG, "mcu_sleep_time %llu", mcu_sleep_time);
-     esp_sleep_enable_timer_wakeup(mcu_sleep_time * 1000000);
+     esp_sleep_enable_timer_wakeup((mcu_sleep_time-5) * 1000000); /*Minus 5sec offset is used for mcu startup*/
      alarm_time_set = true;
      esp_deep_sleep_start();
 }
