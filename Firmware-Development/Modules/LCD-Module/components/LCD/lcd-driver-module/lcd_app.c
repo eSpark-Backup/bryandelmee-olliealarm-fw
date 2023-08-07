@@ -52,12 +52,13 @@ void lcd_app_run( void* parameter )
 
 void lcd_change_scr_timer_callback(void *param)
 { 
-    static uint8_t ui_scr_num;
-    ui_scr_num++;
+    static uint8_t ui_scr_num = 4;
 
     lcd_get_screen(ui_scr_num);
     if(ui_scr_num == 4)
-        ui_scr_num = 0;
+        ui_scr_num = 1;
+    else
+        ui_scr_num = 4;
 }
 
 void lcd_get_screen(uint8_t scr_num)
@@ -65,20 +66,21 @@ void lcd_get_screen(uint8_t scr_num)
      switch (scr_num)
      {
      case 1:
-          _ui_screen_change(ui_Screen1, LV_SCR_LOAD_ANIM_NONE, 0, 10);
-          break;
+            lv_event_send(ui_Screen4, LV_EVENT_REFRESH, NULL);
+            _ui_screen_change(ui_Screen1, LV_SCR_LOAD_ANIM_NONE, 0, 1200);
+            break;
 
      case 2:
-          _ui_screen_change(ui_Screen2, LV_SCR_LOAD_ANIM_NONE, 0, 10);
+            _ui_screen_change(ui_Screen2, LV_SCR_LOAD_ANIM_NONE, 0, 10);
           break;
      
      case 3:
-          _ui_screen_change(ui_Screen3, LV_SCR_LOAD_ANIM_NONE, 0, 10);
-          break;
+            _ui_screen_change(ui_Screen3, LV_SCR_LOAD_ANIM_NONE, 0, 10);
+            break;
      
      case 4:
-          _ui_screen_change(ui_Screen4, LV_SCR_LOAD_ANIM_NONE, 0, 10);
-          break;
+            _ui_screen_change(ui_Screen4, LV_SCR_LOAD_ANIM_NONE, 0, 10);
+            break;
      
      default:
           break;

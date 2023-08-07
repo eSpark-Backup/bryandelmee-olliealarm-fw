@@ -47,6 +47,7 @@ void ui_event_Screen4(lv_event_t * e);
 extern lv_obj_t * ui_Screen4;
 extern lv_obj_t * ui_Blue_Sky1;
 extern lv_obj_t * ui_Moon2;
+extern lv_obj_t * ui_Sun2;
 void ui_event_Wake_Up_Exp1(lv_event_t * e);
 extern lv_obj_t * ui_Wake_Up_Exp1;
 extern lv_obj_t * ui____initial_actions0;

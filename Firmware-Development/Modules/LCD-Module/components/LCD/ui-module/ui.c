@@ -44,6 +44,7 @@ void ui_event_Screen4(lv_event_t * e);
 lv_obj_t * ui_Screen4;
 lv_obj_t * ui_Blue_Sky1;
 lv_obj_t * ui_Moon2;
+lv_obj_t * ui_Sun2;
 lv_obj_t * ui_Wake_Up_Exp1;
 lv_obj_t * ui____initial_actions0;
 lv_anim_t PropertyAnimation_0;
@@ -179,7 +180,7 @@ void ui_event_Screen1(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * target = lv_event_get_target(e);
     if(event_code == LV_EVENT_SCREEN_LOADED) {
-        SunEntry_Animation(ui_Sun, 0);
+        // SunEntry_Animation(ui_Sun, 0);
     }
 }
 void ui_event_Screen2(lv_event_t * e)
@@ -203,7 +204,12 @@ void ui_event_Screen4(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * target = lv_event_get_target(e);
     if(event_code == LV_EVENT_SCREEN_LOADED) {
+        lv_obj_set_style_opa(ui_Sun2, LV_OPA_0, LV_PART_MAIN | LV_STATE_DEFAULT); 
         MoonExitAnimation_Animation(ui_Moon2, 1000);
+    }
+    if(event_code == LV_EVENT_REFRESH) 
+    {
+        SunEntry_Animation(ui_Sun2, 0);
     }
 }
 

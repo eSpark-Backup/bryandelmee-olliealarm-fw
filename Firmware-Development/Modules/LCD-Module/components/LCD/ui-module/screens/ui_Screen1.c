@@ -32,7 +32,7 @@ void ui_Screen1_screen_init(void)
     lv_obj_add_flag(ui_Sun, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
     lv_obj_clear_flag(ui_Sun, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_img_set_zoom(ui_Sun, 350);
-    lv_obj_set_style_opa(ui_Sun, LV_OPA_0, LV_PART_MAIN | LV_STATE_DEFAULT); 
+    lv_obj_set_style_opa(ui_Sun, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_DEFAULT); 
 
     ui_Wake_Up_Exp = lv_img_create(ui_Screen1);
     lv_img_set_src(ui_Wake_Up_Exp, &ui_img_1398729226);
