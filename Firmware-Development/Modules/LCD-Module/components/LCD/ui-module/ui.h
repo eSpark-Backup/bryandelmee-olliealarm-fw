@@ -32,6 +32,7 @@ void ui_event_Screen2(lv_event_t * e);
 extern lv_obj_t * ui_Screen2;
 extern lv_obj_t * ui_Orange_Sky;
 extern lv_obj_t * ui_Sun1;
+extern lv_obj_t * ui_Moon1;
 extern lv_obj_t * ui_About_to_Sleep;
 // SCREEN: ui_Screen3
 void ui_Screen3_screen_init(void);

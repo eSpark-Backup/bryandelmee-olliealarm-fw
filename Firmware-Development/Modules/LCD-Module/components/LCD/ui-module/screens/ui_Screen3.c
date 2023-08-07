@@ -27,7 +27,7 @@ void ui_Screen3_screen_init(void)
     lv_obj_set_align(ui_Moon, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_Moon, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
     lv_obj_clear_flag(ui_Moon, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_opa(ui_Moon, LV_OPA_0, LV_PART_MAIN | LV_STATE_DEFAULT); 
+    lv_obj_set_style_opa(ui_Moon, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_DEFAULT); 
 
     ui_Sleep = lv_img_create(ui_Screen3);
     lv_img_set_src(ui_Sleep, &ui_img_1280572105);

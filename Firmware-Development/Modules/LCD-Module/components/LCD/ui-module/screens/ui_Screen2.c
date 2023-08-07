@@ -29,6 +29,17 @@ void ui_Screen2_screen_init(void)
     lv_obj_clear_flag(ui_Sun1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_img_set_zoom(ui_Sun1, 350);
 
+    ui_Moon1 = lv_img_create(ui_Screen2);
+    lv_img_set_src(ui_Moon1, &ui_img_moon_png);
+    lv_obj_set_width(ui_Moon1, LV_SIZE_CONTENT);   /// 171
+    lv_obj_set_height(ui_Moon1, LV_SIZE_CONTENT);    /// 500
+    lv_obj_set_x(ui_Moon1, 109);
+    lv_obj_set_y(ui_Moon1, -310);
+    lv_obj_set_align(ui_Moon1, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_Moon1, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
+    lv_obj_clear_flag(ui_Moon1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_opa(ui_Moon1, LV_OPA_0, LV_PART_MAIN | LV_STATE_DEFAULT); 
+
     ui_About_to_Sleep = lv_img_create(ui_Screen2);
     lv_img_set_src(ui_About_to_Sleep, &ui_img_880741718);
     lv_obj_set_width(ui_About_to_Sleep, LV_SIZE_CONTENT);   /// 1
