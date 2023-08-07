@@ -27,7 +27,7 @@ void ui_Screen4_screen_init(void)
     lv_obj_set_width(ui_Moon2, LV_SIZE_CONTENT);   /// 141
     lv_obj_set_height(ui_Moon2, LV_SIZE_CONTENT);    /// 329
     lv_obj_set_x(ui_Moon2, 109);
-    lv_obj_set_y(ui_Moon2, -630);
+    lv_obj_set_y(ui_Moon2, -620);
     lv_obj_set_align(ui_Moon2, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_Moon2, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
     lv_obj_clear_flag(ui_Moon2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
@@ -49,7 +49,7 @@ void ui_Screen4_screen_init(void)
     lv_obj_set_width(ui_Wake_Up_Exp1, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Wake_Up_Exp1, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_Wake_Up_Exp1, 0);
-    lv_obj_set_y(ui_Wake_Up_Exp1, -250);
+    lv_obj_set_y(ui_Wake_Up_Exp1, -210);
     lv_obj_set_align(ui_Wake_Up_Exp1, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_Wake_Up_Exp1, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
     lv_obj_clear_flag(ui_Wake_Up_Exp1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags

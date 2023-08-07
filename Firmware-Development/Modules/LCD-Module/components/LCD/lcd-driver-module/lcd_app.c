@@ -52,13 +52,17 @@ void lcd_app_run( void* parameter )
 
 void lcd_change_scr_timer_callback(void *param)
 { 
-    static uint8_t ui_scr_num = 2;
+    static uint8_t ui_scr_num = 4;
 
     lcd_get_screen(ui_scr_num);
-    if(ui_scr_num == 2)
+    if(ui_scr_num == 4)
+        ui_scr_num = 1;
+    else if(ui_scr_num == 1)
+        ui_scr_num = 2;
+    else if(ui_scr_num == 2)
         ui_scr_num = 3;
     else
-        ui_scr_num = 2;
+        ui_scr_num = 4;
 }
 
 void lcd_get_screen(uint8_t scr_num)

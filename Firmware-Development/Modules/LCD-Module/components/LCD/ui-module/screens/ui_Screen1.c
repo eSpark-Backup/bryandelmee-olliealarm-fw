@@ -39,7 +39,7 @@ void ui_Screen1_screen_init(void)
     lv_obj_set_width(ui_Wake_Up_Exp, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Wake_Up_Exp, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_Wake_Up_Exp, 0);
-    lv_obj_set_y(ui_Wake_Up_Exp, -250);
+    lv_obj_set_y(ui_Wake_Up_Exp, -210);
     lv_obj_set_align(ui_Wake_Up_Exp, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_Wake_Up_Exp, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
     lv_obj_clear_flag(ui_Wake_Up_Exp, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
