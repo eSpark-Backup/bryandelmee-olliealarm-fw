@@ -1,14 +1,15 @@
-#ifndef _LCD_APP_H_
-#define _LCD_APP_H_
+#ifndef LCD_APP_H
+#define LCD_APP_H
 
-/* lcd-driver-moudle*/
 #include "lcd_spi_driver.h"
 #include "lcd_rgb_driver.h"
 #include "lcd_lvgl.h"
 
-/* ui-moudle */
 #include "ui.h"
 #include "ui_helpers.h"
+
+#include "esp_timer.h"
+#include "esp_sleep.h"
 
 esp_err_t lcd_setup();
 void lcd_display();

@@ -1,5 +1,6 @@
 #include "lcd_app.h"
 
+RTC_DATA_ATTR uint8_t ui_scr_num = 4;
 TaskHandle_t lcd_task_handle = NULL;
 
 void lcd_get_screen(uint8_t scr_num);
@@ -36,14 +37,15 @@ void lcd_app_run( void* parameter )
 {
     lcd_setup();
     ui_init();
+    lcd_get_screen(ui_scr_num);
     
     const esp_timer_create_args_t my_timer_args = {
       .callback = &lcd_change_scr_timer_callback,
       .name = "My Timer"};
-     esp_timer_handle_t timer_handler;
-     ESP_ERROR_CHECK(esp_timer_create(&my_timer_args, &timer_handler));
-     ESP_ERROR_CHECK(esp_timer_start_periodic(timer_handler, 5 * 1000000));
-
+    esp_timer_handle_t timer_handler;
+    ESP_ERROR_CHECK(esp_timer_create(&my_timer_args, &timer_handler));
+    ESP_ERROR_CHECK(esp_timer_start_periodic(timer_handler, 30 * 1000000));
+    
     while (1)
     {
         lcd_display();
@@ -51,10 +53,7 @@ void lcd_app_run( void* parameter )
 }
 
 void lcd_change_scr_timer_callback(void *param)
-{ 
-    static uint8_t ui_scr_num = 4;
-
-    lcd_get_screen(ui_scr_num);
+{
     if(ui_scr_num == 4)
         ui_scr_num = 1;
     else if(ui_scr_num == 1)
@@ -63,6 +62,17 @@ void lcd_change_scr_timer_callback(void *param)
         ui_scr_num = 3;
     else
         ui_scr_num = 4;
+
+    static uint8_t count = 0;
+    count++;
+    if(count == 2)
+    {
+        count = 0;
+        esp_sleep_enable_timer_wakeup(60 * 1000000);
+        esp_deep_sleep_start();
+    }
+
+    lcd_get_screen(ui_scr_num);
 }
 
 void lcd_get_screen(uint8_t scr_num)
