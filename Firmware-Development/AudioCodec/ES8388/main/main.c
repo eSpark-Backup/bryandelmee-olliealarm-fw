@@ -8,14 +8,34 @@
 #include "esp_spiffs.h"
 #include "freertos/timers.h"
 
+#include "freertos/FreeRTOS.h"
+#include "freertos/event_groups.h"
+#include "esp_wifi.h"
+#include "esp_event.h"
+#include "esp_log.h"
+#include "esp_http_client.h"
+#include "esp_spiffs.h"
+#include "nvs_flash.h"
+#include <dirent.h>
+
 static const char *TAG = "TEST_AUDIO_HAL";
 
 #define AUDIO_BUFFER 2048                       // buffer size for reading the wav file and sending to i2s
-#define WAV_FILE "/spiffs/audio/Piano.wav"      // wav file to play
+#define WAV_FILE "/spiffs/audio/downloaded.wav"      // wav file to play
 // handles
 i2s_chan_handle_t tx_handle;
 esp_err_t i2s_setup(void);
 esp_err_t play_wav(char *fp);
+
+/* Download WAV */
+static FILE *wav_file = NULL;
+static EventGroupHandle_t wifi_event_group;
+const int CONNECTED_BIT = BIT0;
+void wifi_init_sta();
+esp_err_t http_event_handler(esp_http_client_event_t *evt);
+esp_err_t wifi_event_handler(void* arg, esp_event_base_t event_base,
+                                int32_t event_id, void* event_data);
+void download_wav_file(const char *url);
 
 void app_main(void)
 {
@@ -26,6 +46,29 @@ void app_main(void)
       .format_if_mount_failed = true,
     };
     esp_vfs_spiffs_register(&config);
+
+    ESP_LOGI(TAG, "Initializing WiFi...");
+    wifi_init_sta();
+    
+    // Replace with the actual URL of your WAV file
+    const char *wavFileUrl = "https://drive.usercontent.google.com/download?id=1SvWTjg3JKd3-gA58_XU2aUAVbBsTlC_N&export=download&authuser=0&confirm=t&uuid=b97fa8d5-c617-447c-b6a2-270a37bd52b9&at=APZUnTXJK7axgoVfpy_5L03zyBlp:1692269869256";
+
+    ESP_LOGI(TAG, "Downloading WAV file...");
+    download_wav_file(wavFileUrl);
+
+    DIR* dir = opendir("/spiffs/audio");
+    if (dir == NULL) {
+        return;
+    }
+
+    while (true) {
+        struct dirent* de = readdir(dir);
+        if (!de) {
+            break;
+        }
+
+        printf("Found file: %s\n", de->d_name);
+    }
 
     pca9536_i2c_master_init();
     pca9536_set_pin_mode_output(PCA9536_IO1);
@@ -55,7 +98,7 @@ void app_main(void)
     ESP_LOGI(TAG, "es8388_init = %s", esp_err_to_name(ret));
     es8388_config_i2s(es8388_cfg.codec_mode, &es8388_cfg.i2s_iface);
     es8388_ctrl_state(AUDIO_HAL_CODEC_MODE_DECODE, AUDIO_HAL_CTRL_START);
-    es8388_set_voice_volume(50);
+    es8388_set_voice_volume(20);
 
     size_t bytes_written = 0;
     ESP_LOGI(TAG, "Start to play music");
@@ -95,35 +138,158 @@ esp_err_t i2s_setup(void)
 
 esp_err_t play_wav(char *fp)
 {
-  FILE *fh = fopen(fp, "rb");
-  if (fh == NULL)
+    fclose(wav_file);
+  wav_file = fopen(fp, "rb");
+  if (wav_file == NULL)
   {
     ESP_LOGE(TAG, "Failed to open file");
     return ESP_ERR_INVALID_ARG;
   }
 
   // skip the header...
-  fseek(fh, 44, SEEK_SET);
+  fseek(wav_file, 44, SEEK_SET);
 
   // create a writer buffer
   int16_t *buf = calloc(AUDIO_BUFFER, sizeof(int16_t));
   size_t bytes_read = 0;
   size_t bytes_written = 0;
 
-  bytes_read = fread(buf, sizeof(int16_t), AUDIO_BUFFER, fh);
-
+  bytes_read = fread(buf, sizeof(int16_t), AUDIO_BUFFER, wav_file);
   i2s_channel_enable(tx_handle);
 
   while (bytes_read > 0)
   {
     // write the buffer to the i2s
     i2s_channel_write(tx_handle, buf, bytes_read * sizeof(int16_t), &bytes_written, portMAX_DELAY);
-    bytes_read = fread(buf, sizeof(int16_t), AUDIO_BUFFER, fh);
-    ESP_LOGV(TAG, "Bytes read: %d", bytes_read);
+    bytes_read = fread(buf, sizeof(int16_t), AUDIO_BUFFER, wav_file);
+    ESP_LOGI(TAG, "Bytes read: %d", bytes_read);
   }
 
   i2s_channel_disable(tx_handle);
   free(buf);
 
   return ESP_OK;
+}
+
+void wifi_init_sta() {
+
+    nvs_flash_init();
+    wifi_event_group = xEventGroupCreate();
+    esp_netif_init();
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
+    esp_netif_create_default_wifi_sta();
+    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+
+    wifi_config_t wifi_config = {
+        .sta = {
+            .ssid = "eSpark Wifi",
+            .password = "47356880",
+        },
+    };
+    esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler, NULL);
+    esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &wifi_event_handler, NULL);
+
+    ESP_LOGI(TAG, "Setting WiFi configuration SSID %s...", wifi_config.sta.ssid);
+    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
+    ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config));
+    ESP_ERROR_CHECK(esp_wifi_start());
+
+    ESP_LOGI(TAG, "Waiting for WiFi connection...");
+    xEventGroupWaitBits(wifi_event_group, CONNECTED_BIT, false, false, portMAX_DELAY);
+    ESP_LOGI(TAG, "Connected to WiFi");
+}
+
+/* .WAV Downloading Functions */
+void download_wav_file(const char *url) {
+    wav_file = fopen("/spiffs/audio/downloaded.wav", "wb");
+    if (!wav_file) {
+        ESP_LOGE(TAG, "Failed to open file for writing");
+        return;
+    }
+
+    esp_http_client_config_t config = {
+        .url = url,
+        .event_handler = http_event_handler,
+    };
+    
+    esp_http_client_handle_t client = esp_http_client_init(&config);
+    esp_err_t err = esp_http_client_perform(client);
+
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "HTTP request failed: %s", esp_err_to_name(err));
+    }
+
+    esp_http_client_cleanup(client);
+}
+
+esp_err_t wifi_event_handler(void* arg, esp_event_base_t event_base,
+                                int32_t event_id, void* event_data) {
+    static int retry = 0; 
+    if(event_base == WIFI_EVENT){
+        switch (event_id)
+        {
+            case WIFI_EVENT_STA_START:
+                ESP_LOGI(TAG,"esp_wifi_connect");
+                esp_wifi_connect();
+                break;
+
+            case WIFI_EVENT_STA_DISCONNECTED:
+                ESP_LOGI(TAG, "Wi-Fi disconnected, Retry %d", retry);
+                xEventGroupClearBits(wifi_event_group, CONNECTED_BIT);
+                esp_wifi_connect();
+                if(retry == 30)
+                {  
+                    // xTaskCreate(prov_reinit,"prov_reinit_task", 2*2048, NULL, 10, NULL);
+                    retry=0;
+                    break;
+                }
+                retry++;
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    if(event_base == IP_EVENT){
+        switch (event_id)
+        {
+        case IP_EVENT_STA_GOT_IP:
+            xEventGroupSetBits(wifi_event_group, CONNECTED_BIT);
+            ESP_LOGI(TAG, "Wi-Fi connected");
+            retry=0;
+            break;
+        
+        default:
+            break;
+        }
+    }
+    return ESP_OK;
+}
+
+esp_err_t http_event_handler(esp_http_client_event_t *evt) {
+    static size_t file_size;
+    switch(evt->event_id) {
+        case HTTP_EVENT_ON_DATA:
+            if (!wav_file) {
+                ESP_LOGE(TAG, "File not opened for writing");
+                return ESP_FAIL;
+            }
+            fwrite(evt->data, 1, evt->data_len, wav_file);
+            file_size += evt->data_len;
+            ESP_LOGI(TAG,"downloading : %d", file_size);
+            break;
+        case HTTP_EVENT_ON_FINISH:
+            if (wav_file) {
+                // fclose(wav_file);
+                // wav_file = NULL;
+                ESP_LOGI(TAG, "File download complete");
+                ESP_LOGI(TAG, "File Size : %d bytes", file_size);
+            }
+            break;
+        default:
+            break;
+    }
+    return ESP_OK;
 }
