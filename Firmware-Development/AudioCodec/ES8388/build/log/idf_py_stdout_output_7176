@@ -1,0 +1,594 @@
+[0;32mI (98) esp_image: segment 0: paddr=00010020 vaddr=3c0b002ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0x15 (USB_UART_CHIP_RESET),boot:0x8 (SPI_FAST_FLASH_BOOT)
+Saved PC:0x40380ad3
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce3818,len:0x16e0
+load:0x403c9700,len:0x4
+load:0x403c9704,len:0xc00
+load:0x403cc700,len:0x2eb0
+entry 0x403c9908
+[0;32mI (27) boot: ESP-IDF v5.1 2nd stage bootloader[0m
+[0;32mI (27) boot: compile time Aug 16 2023 12:18:42[0m
+[0;32mI (27) boot: Multicore bootloader[0m
+[0;32mI (30) boot: chip revision: v0.1[0m
+[0;32mI (33) boot.esp32s3: Boot SPI Speed : 80MHz[0m
+[0;32mI (38) boot.esp32s3: SPI Mode       : DIO[0m
+[0;32mI (43) boot.esp32s3: SPI Flash Size : 16MB[0m
+[0;32mI (48) boot: Enabling RNG early entropy source...[0m
+[0;32mI (53) boot: Partition Table:[0m
+[0;32mI (57) boot: ## Label            Usage          Type ST Offset   Length[0m
+[0;32mI (64) boot:  0 nvs              WiFi data        01 02 00009000 00006000[0m
+[0;32mI (72) boot:  1 phy_init         RF data          01 01 0000f000 00001000[0m
+[0;32mI (79) boot:  2 factory          factory app      00 00 00010000 002ee000[0m
+[0;32mI (86) boot:  3 storage          Unknown data     01 82 002fe000 00200000[0m
+[0;32mI (94) boot: End of partition table[0m
+[0;32mI (98) esp_image: segment 0: paddr=00010020 vaddr=3c0b0020 size=2849ch (165020) map[0m
+[0;32mI (136) esp_image: segment 1: paddr=000384c4 vaddr=3fc98300 size=0447ch ( 17532) load[0m
+[0;32mI (140) esp_image: segment 2: paddr=0003c948 vaddr=40374000 size=036d0h ( 14032) load[0m
+[0;32mI (145) esp_image: segment 3: paddr=00040020 vaddr=42000020 size=a0cc4h (658628) map[0m
+[0;32mI (269) esp_image: segment 4: paddr=000e0cec vaddr=403776d0 size=10b28h ( 68392) load[0m
+[0;32mI (293) boot: Loaded app from partition at offset 0x10000[0m
+[0;32mI (293) boot: Disabling RNG early entropy source...[0m
+[0;32mI (304) cpu_start: Multicore app[0m
+[0;32mI (304) cpu_start: Pro cpu up.[0m
+[0;32mI (305) cpu_start: Starting app cpu, entry point is 0x40375580[0m
+[0;32mI (0) cpu_start: App cpu up.[0m
+[0;32mI (323) cpu_start: Pro cpu start user code[0m
+[0;32mI (323) cpu_start: cpu freq: 160000000 Hz[0m
+[0;32mI (323) cpu_start: Application information:[0m
+[0;32mI (326) cpu_start: Project name:     ES8388[0m
+[0;32mI (331) cpu_start: App version:      ba320b7-dirty[0m
+[0;32mI (336) cpu_start: Compile time:     Aug 16 2023 19:00:16[0m
+[0;32mI (342) cpu_start: ELF file SHA256:  9334aa796c311584...[0m
+[0;32mI (348) cpu_start: ESP-IDF:          v5.1[0m
+[0;32mI (353) cpu_start: Min chip rev:     v0.0[0m
+[0;32mI (358) cpu_start: Max chip rev:     v0.99 [0m
+[0;32mI (362) cpu_start: Chip rev:         v0.1[0m
+[0;32mI (367) heap_init: Initializing. RAM available for dynamic allocation:[0m
+[0;32mI (374) heap_init: At 3FCA0770 len 00048FA0 (291 KiB): DRAM[0m
+[0;32mI (381) heap_init: At 3FCE9710 len 00005724 (21 KiB): STACK/DRAM[0m
+[0;32mI (387) heap_init: At 3FCF0000 len 00008000 (32 KiB): DRAM[0m
+[0;32mI (393) heap_init: At 600FE010 len 00001FF0 (7 KiB): RTCRAM[0m
+[0;32mI (401) spi_flash: detected chip: gd[0m
+[0;32mI (404) spi_flash: flash io: dio[0m
+[0;32mI (408) sleep: Configure to isolate all GPIO pins in sleep state[0m
+[0;32mI (415) sleep: Enable automatic switching of GPIO sleep configuration[0m
+[0;32mI (422) app_start: Starting scheduler on CPU0[0m
+[0;32mI (427) app_start: Starting scheduler on CPU1[0m
+[0;32mI (427) main_task: Started on CPU0[0m
+[0;32mI (437) main_task: Calling app_main()[0m
+[0;32mI (617) TEST_AUDIO_HAL: Initializing WiFi...[0m
+[0;32mI (637) pp: pp rom version: e7ae62f[0m
+[0;32mI (647) net80211: net80211 rom version: e7ae62f[0m
+I (657) wifi:wifi driver task: 3fcab400, prio:23, stack:6656, core=0
+I (667) wifi:wifi firmware version: b2f1f86
+I (667) wifi:wifi certification version: v7.0
+I (667) wifi:config NVS flash: enabled
+I (667) wifi:config nano formating: disabled
+I (667) wifi:Init data frame dynamic rx buffer num: 32
+I (677) wifi:Init management frame dynamic rx buffer num: 32
+I (677) wifi:Init management short buffer num: 32
+I (687) wifi:Init dynamic tx buffer num: 32
+I (687) wifi:Init static tx FG buffer num: 2
+I (697) wifi:Init static rx buffer size: 1600
+I (697) wifi:Init static rx buffer num: 10
+I (697) wifi:Init dynamic rx buffer num: 32
+[0;32mI (707) wifi_init: rx ba win: 6[0m
+[0;32mI (707) wifi_init: tcpip mbox: 32[0m
+[0;32mI (717) wifi_init: udp mbox: 6[0m
+[0;32mI (717) wifi_init: tcp mbox: 6[0m
+[0;32mI (717) wifi_init: tcp tx win: 5744[0m
+[0;32mI (727) wifi_init: tcp rx win: 5744[0m
+[0;32mI (727) wifi_init: tcp mss: 1440[0m
+[0;32mI (737) wifi_init: WiFi IRAM OP enabled[0m
+[0;32mI (737) wifi_init: WiFi RX IRAM OP enabled[0m
+[0;32mI (737) TEST_AUDIO_HAL: Setting WiFi configuration SSID eSpark Wifi...[0m
+[0;32mI (747) phy_init: phy_version 601,fe52df4,May 10 2023,17:26:54[0m
+I (797) wifi:mode : sta (34:85:18:8c:fd:f8)
+I (797) wifi:enable tsf
+[0;32mI (797) TEST_AUDIO_HAL: Waiting for WiFi connection...[0m
+[0;32mI (797) TEST_AUDIO_HAL: esp_wifi_connect[0m
+I (817) wifi:new:<4,1>, old:<1,0>, ap:<255,255>, sta:<4,1>, prof:1
+I (817) wifi:state: init -> auth (b0)
+I (827) wifi:state: auth -> assoc (0)
+I (837) wifi:state: assoc -> run (10)
+I (867) wifi:connected with eSpark Wifi, aid = 7, channel 4, 40U, bssid = 14:eb:b6:4b:c1:be
+I (867) wifi:security: WPA2-PSK, phy: bgn, rssi: -64
+I (867) wifi:pm start, type: 1
+
+I (867) wifi:set rx beacon pti, rx_bcn_pti: 0, bcn_timeout: 25000, mt_pti: 0, mt_time: 10000
+I (967) wifi:AP's beacon interval = 102400 us, DTIM period = 1
+I (987) wifi:<ba-add>idx:0 (ifx:0, 14:eb:b6:4b:c1:be), tid:0, ssn:0, winSize:64
+[0;32mI (2377) esp_netif_handlers: sta ip: 192.168.68.124, mask: 255.255.252.0, gw: 192.168.68.1[0m
+[0;32mI (2377) TEST_AUDIO_HAL: Wi-Fi connected[0m
+[0;32mI (2377) TEST_AUDIO_HAL: Connected to WiFi[0m
+[0;32mI (2377) TEST_AUDIO_HAL: Downloading WAV file...[0m
+[0;31mE (2827) TEST_AUDIO_HAL: Failed to open file for writing[0m
+Found file: Piano.wav
+Found file: downloaded.wav
+[0;32mI (3907) TEST_AUDIO_HAL: Initialize i2s[0m
+[0;32mI (3907) TEST_AUDIO_HAL: Start es8388 codec chip[0m
+[0;32mI (3907) ES8388_DRIVER: i2c_init = ESP_OK[0m
+[0;32mI (3907) ES8388_DRIVER: es_write_reg = ESP_OK[0m
+[0;32mI (3917) ES8388_DRIVER: init,out:02, in:00[0m
+[0;32mI (3917) TEST_AUDIO_HAL: es8388_init = ESP_OK[0m
+[0;32mI (3927) TEST_AUDIO_HAL: Start to play music[0m
+[0;32mI (3957) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (3987) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4007) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4027) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4057) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4097) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4097) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4127) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4147) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4167) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4187) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4217) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4237) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4257) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4287) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4307) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4327) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4357) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4377) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4397) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4437) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4447) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4477) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4497) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4517) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4537) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4567) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4587) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4657) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4667) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4687) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4707) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4727) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4757) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4777) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4867) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4867) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4887) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4907) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4927) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4947) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4977) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (4997) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (5037) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (5047) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (5067) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (5097) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (5117) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (5147) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (5167) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (5197) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (5207) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (5237) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (5257) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (5277) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (5297) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (5327) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (5347) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (5437) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (5447) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (5467) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (5487) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (5507) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (5537) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (5557) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (5577) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (5597) TEST_AUDIO_HAL: Bytes read: 170[0m
+[0;32mI (5597) TEST_AUDIO_HAL: Bytes read: 0[0m
+[0;32mI (6637) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (6657) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (6677) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (6707) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (6727) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (6767) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (6777) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (6797) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (6827) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (6847) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (6867) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (6897) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (6917) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (6937) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (6957) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (6987) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7007) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7027) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7057) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7077) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7107) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7127) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7147) TEST_AUDIO_HAL: Bytes read: 2048[0m
+I (7157) wifi:<ba-add>idx:1 (ifx:0, 14:eb:b6:4b:c1:be), tid:1, ssn:0, winSize:64
+[0;32mI (7167) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7197) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7217) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7237) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7267) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7337) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7337) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7357) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7377) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7397) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7427) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7447) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7537) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7537) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7557) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7577) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7597) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7627) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7647) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7667) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7707) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7717) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7737) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7767) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7787) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7817) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7837) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7867) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7877) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7907) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7927) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7947) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7967) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (7997) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (8017) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (8107) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (8117) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (8137) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (8157) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (8177) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (8207) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (8227) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (8247) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (8267) TEST_AUDIO_HAL: Bytes read: 170[0m
+[0;32mI (8277) TEST_AUDIO_HAL: Bytes read: 0[0m
+[0;32mI (9307) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (9327) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (9347) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (9377) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (9397) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (9437) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (9447) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (9467) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (9487) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (9517) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (9537) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (9557) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (9587) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (9607) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (9627) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (9657) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (9677) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (9697) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (9727) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (9747) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (9777) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (9787) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (9817) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (9837) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (9857) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (9887) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (9907) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (9927) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (10007) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (10007) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (10027) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (10047) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (10067) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (10097) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (10117) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (10207) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (10207) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (10227) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (10247) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (10267) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (10287) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (10317) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (10337) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (10377) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (10387) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (10407) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (10437) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (10457) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (10477) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (10507) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (10537) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (10547) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (10577) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (10597) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (10617) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (10637) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (10667) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (10687) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (10777) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (10787) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (10807) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (10827) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (10847) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (10877) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (10897) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (10917) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (10937) TEST_AUDIO_HAL: Bytes read: 170[0m
+[0;32mI (10937) TEST_AUDIO_HAL: Bytes read: 0[0m
+[0;32mI (11967) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (11987) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12007) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12037) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12057) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12097) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12107) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12127) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12147) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12177) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12197) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12217) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12247) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12267) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12287) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12317) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12337) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12357) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12387) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12407) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12437) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12447) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12477) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12497) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12517) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12547) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12567) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12587) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12667) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12667) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12687) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12707) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12737) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12757) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12787) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12867) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12877) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12887) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12917) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12937) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12957) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (12987) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (13007) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (13047) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (13047) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (13077) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (13097) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (13117) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (13147) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (13167) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (13207) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (13217) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (13237) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (13257) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (13287) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (13307) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (13337) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (13357) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (13447) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (13447) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (13467) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (13487) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (13507) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (13537) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (13557) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (13587) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (13597) TEST_AUDIO_HAL: Bytes read: 170[0m
+[0;32mI (13607) TEST_AUDIO_HAL: Bytes read: 0[0m
+[0;32mI (14637) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (14657) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (14677) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (14707) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (14727) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (14767) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (14777) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (14797) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (14817) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (14847) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (14867) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (14897) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (14917) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (14937) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (14957) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (14987) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15007) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15027) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15057) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15077) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15107) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15117) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15147) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15167) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15187) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15217) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15237) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15257) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15337) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15337) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15357) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15377) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15397) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15427) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15447) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15537) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15537) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15557) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15577) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15597) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15617) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15647) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15667) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15707) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15717) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15737) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15767) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15787) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15807) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15837) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15867) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15877) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15907) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15927) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15947) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15967) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (15997) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (16017) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (16107) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (16117) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (16137) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (16157) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (16177) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (16207) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (16227) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (16247) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (16267) TEST_AUDIO_HAL: Bytes read: 170[0m
+[0;32mI (16267) TEST_AUDIO_HAL: Bytes read: 0[0m
+[0;32mI (17297) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (17317) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (17337) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (17367) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (17387) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (17427) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (17437) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (17457) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (17477) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (17507) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (17527) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (17557) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (17577) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (17597) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (17617) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (17647) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (17667) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (17687) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (17717) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (17737) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (17767) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (17777) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (17807) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (17827) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (17847) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (17877) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (17897) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (17927) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (17997) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (17997) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (18017) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (18037) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (18057) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (18087) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (18107) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (18197) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (18197) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (18217) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (18237) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (18257) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (18287) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (18307) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (18327) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (18367) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (18377) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (18397) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (18427) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (18447) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (18467) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (18497) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (18527) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (18537) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (18567) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (18587) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (18607) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (18627) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (18657) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (18677) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (18767) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (18777) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (18797) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (18817) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (18837) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (18867) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (18887) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (18907) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (18927) TEST_AUDIO_HAL: Bytes read: 170[0m
+[0;32mI (18927) TEST_AUDIO_HAL: Bytes read: 0[0m
+[0;32mI (19957) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (19977) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (19997) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20027) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20047) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20087) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20097) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20117) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20147) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20167) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20187) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20207) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20237) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20257) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20277) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20307) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20327) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20347) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20377) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20397) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20437) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20437) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20467) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20487) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20507) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20537) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20557) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20577) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20657) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20657) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20677) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20697) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20717) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20747) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20767) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20857) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20857) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20877) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20897) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20917) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20947) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20967) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (20987) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (21027) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (21037) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (21057) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (21087) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (21107) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (21127) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (21157) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (21187) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (21197) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (21227) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (21247) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (21267) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (21287) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (21317) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (21337) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (21427) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (21437) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (21457) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (21477) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (21497) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (21527) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (21547) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (21567) TEST_AUDIO_HAL: Bytes read: 2048[0m
+[0;32mI (21587) TEST_AUDIO_HAL: Bytes read: 170[0m
+[0;32mI (21587) TEST_AUDIO_HAL: Bytes read: 0[0m

@@ -1,0 +1,181 @@
+[1/11] cmd.exe /C "cd /D C:\Github\bryandelmee-olliealarm-firmware_lcd\Firmware-Development\AudioCodec\ES8388\build\esp-idf\main && C:\Users\eSpark\.espressif\python_env\idf5.1_py3.11_env\Scripts\python.exe C:/Users/eSpark/esp/esp-idf/components/spiffs/spiffsgen.py 0x200000 C:/Github/bryandelmee-olliealarm-firmware_lcd/Firmware-Development/AudioCodec/ES8388/spiffs_data C:/Github/bryandelmee-olliealarm-firmware_lcd/Firmware-Development/AudioCodec/ES8388/build/storage.bin --page-size=256 --obj-name-len=32 --meta-len=4 --use-magic --use-magic-len"
+[2/11] Performing build step for 'bootloader'
+[1/1] cmd.exe /C "cd /D C:\Github\bryandelmee-olliealarm-firmware_lcd\Firmware-Development\AudioCodec\ES8388\build\bootloader\esp-idf\esptool_py && C:\Users\eSpark\.espressif\python_env\idf5.1_py3.11_env\Scripts\python.exe C:/Users/eSpark/esp/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 C:/Github/bryandelmee-olliealarm-firmware_lcd/Firmware-Development/AudioCodec/ES8388/build/bootloader/bootloader.bin"
+Bootloader binary size 0x51f0 bytes. 0x2e10 bytes (36%) free.
+[3/9] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/main.c.obj
+In file included from C:/Github/bryandelmee-olliealarm-firmware_lcd/Firmware-Development/AudioCodec/ES8388/main/main.c:4:
+C:/Users/eSpark/esp/esp-idf/components/driver/deprecated/driver/i2s.h:27:2: warning: #warning "This set of I2S APIs has been deprecated, please include 'driver/i2s_std.h', 'driver/i2s_pdm.h' or 'driver/i2s_tdm.h' instead. if you want to keep using the old APIs and ignore this warning, you can enable 'Suppress leagcy driver deprecated warning' option under 'I2S Configuration' menu in Kconfig" [-Wcpp]
+   27 | #warning "This set of I2S APIs has been deprecated, \
+      |  ^~~~~~~
+C:/Github/bryandelmee-olliealarm-firmware_lcd/Firmware-Development/AudioCodec/ES8388/main/main.c: In function 'app_main':
+C:/Github/bryandelmee-olliealarm-firmware_lcd/Firmware-Development/AudioCodec/ES8388/main/main.c:103:12: warning: unused variable 'bytes_written' [-Wunused-variable]
+  103 |     size_t bytes_written = 0;
+      |            ^~~~~~~~~~~~~
+C:/Github/bryandelmee-olliealarm-firmware_lcd/Firmware-Development/AudioCodec/ES8388/main/main.c: In function 'wifi_init_sta':
+C:/Github/bryandelmee-olliealarm-firmware_lcd/Firmware-Development/AudioCodec/ES8388/main/main.c:190:62: warning: passing argument 3 of 'esp_event_handler_register' from incompatible pointer type [-Wincompatible-pointer-types]
+  190 |     esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler, NULL);
+      |                                                              ^~~~~~~~~~~~~~~~~~~
+      |                                                              |
+      |                                                              esp_err_t (*)(void *, const char *, int32_t,  void *) {aka int (*)(void *, const char *, long int,  void *)}
+In file included from C:/Users/eSpark/esp/esp-idf/components/esp_wifi/include/esp_wifi.h:56,
+                 from C:/Github/bryandelmee-olliealarm-firmware_lcd/Firmware-Development/AudioCodec/ES8388/main/main.c:13:
+C:/Users/eSpark/esp/esp-idf/components/esp_event/include/esp_event.h:138:58: note: expected 'esp_event_handler_t' {aka 'void (*)(void *, const char *, long int,  void *)'} but argument is of type 'esp_err_t (*)(void *, const char *, int32_t,  void *)' {aka 'int (*)(void *, const char *, long int,  void *)'}
+  138 |                                      esp_event_handler_t event_handler,
+      |                                      ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~
+C:/Github/bryandelmee-olliealarm-firmware_lcd/Firmware-Development/AudioCodec/ES8388/main/main.c:191:63: warning: passing argument 3 of 'esp_event_handler_register' from incompatible pointer type [-Wincompatible-pointer-types]
+  191 |     esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &wifi_event_handler, NULL);
+      |                                                               ^~~~~~~~~~~~~~~~~~~
+      |                                                               |
+      |                                                               esp_err_t (*)(void *, const char *, int32_t,  void *) {aka int (*)(void *, const char *, long int,  void *)}
+C:/Users/eSpark/esp/esp-idf/components/esp_event/include/esp_event.h:138:58: note: expected 'esp_event_handler_t' {aka 'void (*)(void *, const char *, long int,  void *)'} but argument is of type 'esp_err_t (*)(void *, const char *, int32_t,  void *)' {aka 'int (*)(void *, const char *, long int,  void *)'}
+  138 |                                      esp_event_handler_t event_handler,
+      |                                      ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~
+[4/9] Linking C static library esp-idf\main\libmain.a
+[5/9] Generating ld/sections.ld
+[6/9] Linking CXX executable ES8388.elf
+[7/9] Generating binary image from built executable
+esptool.py v4.6.2
+Creating esp32s3 image...
+Merged 2 ELF sections
+Successfully created esp32s3 image.
+Generated C:/Github/bryandelmee-olliealarm-firmware_lcd/Firmware-Development/AudioCodec/ES8388/build/ES8388.bin
+[8/9] cmd.exe /C "cd /D C:\Github\bryandelmee-olliealarm-firmware_lcd\Firmware-Development\AudioCodec\ES8388\build\esp-idf\esptool_py && C:\Users\eSpark\.espressif\python_env\idf5.1_py3.11_env\Scripts\python.exe C:/Users/eSpark/esp/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app C:/Github/bryandelmee-olliealarm-firmware_lcd/Firmware-Development/AudioCodec/ES8388/build/partition_table/partition-table.bin C:/Github/bryandelmee-olliealarm-firmware_lcd/Firmware-Development/AudioCodec/ES8388/build/ES8388.bin"
+ES8388.bin binary size 0xe17b0 bytes. Smallest app partition is 0x2ee000 bytes. 0x20c850 bytes (70%) free.
+[8/9] cmd.exe /C "cd /D C:\Users\eSpark\esp\esp-idf\components\esptool_py && C:\Users\eSpark\.espressif\tools\cmake\3.24.0\bin\cmake.exe -D IDF_PATH=C:/Users/eSpark/esp/esp-idf -D SERIAL_TOOL=C:/Users/eSpark/.espressif/python_env/idf5.1_py3.11_env/Scripts/python.exe;;C:/Users/eSpark/esp/esp-idf/components/esptool_py/esptool/esptool.py;--chip;esp32s3 -D SERIAL_TOOL_ARGS=--before=default_reset;--after=hard_reset;write_flash;@flash_args -D WORKING_DIRECTORY=C:/Github/bryandelmee-olliealarm-firmware_lcd/Firmware-Development/AudioCodec/ES8388/build -P C:/Users/eSpark/esp/esp-idf/components/esptool_py/run_serial_tool.cmake"
+esptool esp32s3 -p COM6 -b 460800 --before=default_reset --after=hard_reset write_flash --flash_mode dio --flash_freq 80m --flash_size 16MB 0x0 bootloader/bootloader.bin 0x10000 ES8388.bin 0x8000 partition_table/partition-table.bin 0x2fe000 storage.bin
+esptool.py v4.6.2
+Serial port COM6
+Connecting...
+Chip is ESP32-S3 (revision v0.1)
+Features: WiFi, BLE
+Crystal is 40MHz
+MAC: 34:85:18:8c:fd:f8
+Uploading stub...
+Running stub...
+Stub running...
+Changing baud rate to 460800
+Changed.
+Configuring flash size...
+Flash will be erased from 0x00000000 to 0x00005fff...
+Flash will be erased from 0x00010000 to 0x000f1fff...
+Flash will be erased from 0x00008000 to 0x00008fff...
+Flash will be erased from 0x002fe000 to 0x004fdfff...
+Compressed 20976 bytes to 13319...
+Writing at 0x00000000... (100 %)
+Wrote 20976 bytes (13319 compressed) at 0x00000000 in 0.2 seconds (effective 747.3 kbit/s)...
+Hash of data verified.
+Compressed 923568 bytes to 583397...
+Writing at 0x00010000... (2 %)
+Writing at 0x0001ce95... (5 %)
+Writing at 0x00027ebf... (8 %)
+Writing at 0x0002dc6e... (11 %)
+Writing at 0x000355af... (13 %)
+Writing at 0x0003f3ed... (16 %)
+Writing at 0x0004534f... (19 %)
+Writing at 0x0004b5de... (22 %)
+Writing at 0x00051347... (25 %)
+Writing at 0x0005783e... (27 %)
+Writing at 0x0005d738... (30 %)
+Writing at 0x00063583... (33 %)
+Writing at 0x000692a2... (36 %)
+Writing at 0x0006e1a4... (38 %)
+Writing at 0x000733c7... (41 %)
+Writing at 0x000781f8... (44 %)
+Writing at 0x0007d603... (47 %)
+Writing at 0x00082a16... (50 %)
+Writing at 0x000882e9... (52 %)
+Writing at 0x0008df41... (55 %)
+Writing at 0x0009343a... (58 %)
+Writing at 0x00098c77... (61 %)
+Writing at 0x0009e561... (63 %)
+Writing at 0x000a3bf8... (66 %)
+Writing at 0x000a95f2... (69 %)
+Writing at 0x000af109... (72 %)
+Writing at 0x000b51e4... (75 %)
+Writing at 0x000bada7... (77 %)
+Writing at 0x000c0632... (80 %)
+Writing at 0x000c5fe6... (83 %)
+Writing at 0x000cb686... (86 %)
+Writing at 0x000d4221... (88 %)
+Writing at 0x000dc48c... (91 %)
+Writing at 0x000e240c... (94 %)
+Writing at 0x000e81b8... (97 %)
+Writing at 0x000edd87... (100 %)
+Wrote 923568 bytes (583397 compressed) at 0x00010000 in 5.7 seconds (effective 1288.9 kbit/s)...
+Hash of data verified.
+Compressed 3072 bytes to 122...
+Writing at 0x00008000... (100 %)
+Wrote 3072 bytes (122 compressed) at 0x00008000 in 0.0 seconds (effective 612.1 kbit/s)...
+Hash of data verified.
+Compressed 2097152 bytes to 1075346...
+Writing at 0x002fe000... (1 %)
+Writing at 0x003222f0... (3 %)
+Writing at 0x003278a2... (4 %)
+Writing at 0x0032d3e7... (6 %)
+Writing at 0x00333188... (7 %)
+Writing at 0x0033922b... (9 %)
+Writing at 0x0033f40a... (10 %)
+Writing at 0x00345317... (12 %)
+Writing at 0x0034b3d0... (13 %)
+Writing at 0x0035126a... (15 %)
+Writing at 0x003564ed... (16 %)
+Writing at 0x0035b389... (18 %)
+Writing at 0x003603ab... (19 %)
+Writing at 0x00364f47... (21 %)
+Writing at 0x00369b59... (22 %)
+Writing at 0x0036e747... (24 %)
+Writing at 0x00372fb1... (25 %)
+Writing at 0x00377a6b... (27 %)
+Writing at 0x0037c3c2... (28 %)
+Writing at 0x00380db1... (30 %)
+Writing at 0x0038562c... (31 %)
+Writing at 0x00389fa6... (33 %)
+Writing at 0x0038e849... (34 %)
+Writing at 0x00393263... (36 %)
+Writing at 0x00397961... (37 %)
+Writing at 0x0039c22e... (39 %)
+Writing at 0x003a0a5c... (40 %)
+Writing at 0x003a52f1... (42 %)
+Writing at 0x003a9be7... (43 %)
+Writing at 0x003ae3b0... (45 %)
+Writing at 0x003b2b99... (46 %)
+Writing at 0x003b7453... (48 %)
+Writing at 0x003bbc72... (50 %)
+Writing at 0x003c0684... (51 %)
+Writing at 0x003c4fa6... (53 %)
+Writing at 0x003c9b2f... (54 %)
+Writing at 0x003ce4d3... (56 %)
+Writing at 0x003d2f43... (57 %)
+Writing at 0x003d788c... (59 %)
+Writing at 0x003dc30b... (60 %)
+Writing at 0x003e0b64... (62 %)
+Writing at 0x003e5598... (63 %)
+Writing at 0x003ea0fc... (65 %)
+Writing at 0x003ee9a9... (66 %)
+Writing at 0x003f34d7... (68 %)
+Writing at 0x003f7e93... (69 %)
+Writing at 0x003fcb45... (71 %)
+Writing at 0x0040178e... (72 %)
+Writing at 0x0040644f... (74 %)
+Writing at 0x0040af58... (75 %)
+Writing at 0x0040fa38... (77 %)
+Writing at 0x0041472b... (78 %)
+Writing at 0x00419127... (80 %)
+Writing at 0x0041dc0b... (81 %)
+Writing at 0x004225c3... (83 %)
+Writing at 0x00426ff5... (84 %)
+Writing at 0x0042bbf9... (86 %)
+Writing at 0x004306d3... (87 %)
+Writing at 0x0043526a... (89 %)
+Writing at 0x00439bc3... (90 %)
+Writing at 0x0043e7d1... (92 %)
+Writing at 0x004432a6... (93 %)
+Writing at 0x00447e11... (95 %)
+Writing at 0x0044c8f2... (96 %)
+Writing at 0x0045152c... (98 %)
+Writing at 0x004562c6... (100 %)
+Wrote 2097152 bytes (1075346 compressed) at 0x002fe000 in 11.1 seconds (effective 1508.4 kbit/s)...
+Hash of data verified.
+
+Leaving...
+Hard resetting via RTS pin...

@@ -1,0 +1,125 @@
+[0;32mI (98) esp_image: segment 0: paddr=00010020 vaddr=3c0b002ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0x15 (USB_UART_CHIP_RESET),boot:0x8 (SPI_FAST_FLASH_BOOT)
+Saved PC:0x40388170
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce3818,len:0x16e0
+load:0x403c9700,len:0x4
+load:0x403c9704,len:0xc00
+load:0x403cc700,len:0x2eb0
+entry 0x403c9908
+[0;32mI (27) boot: ESP-IDF v5.1 2nd stage bootloader[0m
+[0;32mI (27) boot: compile time Aug 16 2023 12:18:42[0m
+[0;32mI (27) boot: Multicore bootloader[0m
+[0;32mI (30) boot: chip revision: v0.1[0m
+[0;32mI (33) boot.esp32s3: Boot SPI Speed : 80MHz[0m
+[0;32mI (38) boot.esp32s3: SPI Mode       : DIO[0m
+[0;32mI (43) boot.esp32s3: SPI Flash Size : 16MB[0m
+[0;32mI (48) boot: Enabling RNG early entropy source...[0m
+[0;32mI (53) boot: Partition Table:[0m
+[0;32mI (57) boot: ## Label            Usage          Type ST Offset   Length[0m
+[0;32mI (64) boot:  0 nvs              WiFi data        01 02 00009000 00006000[0m
+[0;32mI (72) boot:  1 phy_init         RF data          01 01 0000f000 00001000[0m
+[0;32mI (79) boot:  2 factory          factory app      00 00 00010000 002ee000[0m
+[0;32mI (86) boot:  3 storage          Unknown data     01 82 002fe000 00200000[0m
+[0;32mI (94) boot: End of partition table[0m
+[0;32mI (98) esp_image: segment 0: paddr=00010020 vaddr=3c0b0020 size=28414h (164884) map[0m
+[0;32mI (136) esp_image: segment 1: paddr=0003843c vaddr=3fc98300 size=0447ch ( 17532) load[0m
+[0;32mI (140) esp_image: segment 2: paddr=0003c8c0 vaddr=40374000 size=03758h ( 14168) load[0m
+[0;32mI (145) esp_image: segment 3: paddr=00040020 vaddr=42000020 size=a0ca0h (658592) map[0m
+[0;32mI (269) esp_image: segment 4: paddr=000e0cc8 vaddr=40377758 size=10aa0h ( 68256) load[0m
+[0;32mI (292) boot: Loaded app from partition at offset 0x10000[0m
+[0;32mI (293) boot: Disabling RNG early entropy source...[0m
+[0;32mI (304) cpu_start: Multicore app[0m
+[0;32mI (304) cpu_start: Pro cpu up.[0m
+[0;32mI (304) cpu_start: Starting app cpu, entry point is 0x40375580[0m
+[0;32mI (0) cpu_start: App cpu up.[0m
+[0;32mI (323) cpu_start: Pro cpu start user code[0m
+[0;32mI (323) cpu_start: cpu freq: 160000000 Hz[0m
+[0;32mI (323) cpu_start: Application information:[0m
+[0;32mI (326) cpu_start: Project name:     ES8388[0m
+[0;32mI (331) cpu_start: App version:      ba320b7-dirty[0m
+[0;32mI (336) cpu_start: Compile time:     Aug 16 2023 19:00:16[0m
+[0;32mI (342) cpu_start: ELF file SHA256:  983547f9cafe166c...[0m
+[0;32mI (348) cpu_start: ESP-IDF:          v5.1[0m
+[0;32mI (353) cpu_start: Min chip rev:     v0.0[0m
+[0;32mI (357) cpu_start: Max chip rev:     v0.99 [0m
+[0;32mI (362) cpu_start: Chip rev:         v0.1[0m
+[0;32mI (367) heap_init: Initializing. RAM available for dynamic allocation:[0m
+[0;32mI (374) heap_init: At 3FCA0770 len 00048FA0 (291 KiB): DRAM[0m
+[0;32mI (380) heap_init: At 3FCE9710 len 00005724 (21 KiB): STACK/DRAM[0m
+[0;32mI (387) heap_init: At 3FCF0000 len 00008000 (32 KiB): DRAM[0m
+[0;32mI (393) heap_init: At 600FE010 len 00001FF0 (7 KiB): RTCRAM[0m
+[0;32mI (401) spi_flash: detected chip: gd[0m
+[0;32mI (404) spi_flash: flash io: dio[0m
+[0;32mI (408) sleep: Configure to isolate all GPIO pins in sleep state[0m
+[0;32mI (415) sleep: Enable automatic switching of GPIO sleep configuration[0m
+[0;32mI (422) app_start: Starting scheduler on CPU0[0m
+[0;32mI (427) app_start: Starting scheduler on CPU1[0m
+[0;32mI (427) main_task: Started on CPU0[0m
+[0;32mI (437) main_task: Calling app_main()[0m
+[0;32mI (617) TEST_AUDIO_HAL: Initializing WiFi...[0m
+[0;32mI (637) pp: pp rom version: e7ae62f[0m
+[0;32mI (647) net80211: net80211 rom version: e7ae62f[0m
+I (657) wifi:wifi driver task: 3fcab400, prio:23, stack:6656, core=0
+I (667) wifi:wifi firmware version: b2f1f86
+I (667) wifi:wifi certification version: v7.0
+I (667) wifi:config NVS flash: enabled
+I (667) wifi:config nano formating: disabled
+I (667) wifi:Init data frame dynamic rx buffer num: 32
+I (677) wifi:Init management frame dynamic rx buffer num: 32
+I (677) wifi:Init management short buffer num: 32
+I (687) wifi:Init dynamic tx buffer num: 32
+I (687) wifi:Init static tx FG buffer num: 2
+I (697) wifi:Init static rx buffer size: 1600
+I (697) wifi:Init static rx buffer num: 10
+I (697) wifi:Init dynamic rx buffer num: 32
+[0;32mI (707) wifi_init: rx ba win: 6[0m
+[0;32mI (707) wifi_init: tcpip mbox: 32[0m
+[0;32mI (717) wifi_init: udp mbox: 6[0m
+[0;32mI (717) wifi_init: tcp mbox: 6[0m
+[0;32mI (717) wifi_init: tcp tx win: 5744[0m
+[0;32mI (727) wifi_init: tcp rx win: 5744[0m
+[0;32mI (727) wifi_init: tcp mss: 1440[0m
+[0;32mI (737) wifi_init: WiFi IRAM OP enabled[0m
+[0;32mI (737) wifi_init: WiFi RX IRAM OP enabled[0m
+[0;32mI (737) TEST_AUDIO_HAL: Setting WiFi configuration SSID eSpark Wifi...[0m
+[0;32mI (747) phy_init: phy_version 601,fe52df4,May 10 2023,17:26:54[0m
+I (817) wifi:mode : sta (34:85:18:8c:fd:f8)
+I (817) wifi:enable tsf
+[0;32mI (817) TEST_AUDIO_HAL: Waiting for WiFi connection...[0m
+[0;32mI (817) TEST_AUDIO_HAL: esp_wifi_connect[0m
+I (837) wifi:new:<5,1>, old:<1,0>, ap:<255,255>, sta:<5,1>, prof:1
+I (837) wifi:state: init -> auth (b0)
+I (847) wifi:state: auth -> init (8a0)
+I (847) wifi:new:<5,0>, old:<5,1>, ap:<255,255>, sta:<5,1>, prof:1
+[0;32mI (847) TEST_AUDIO_HAL: Wi-Fi disconnected, Retry 0[0m
+[0;32mI (3257) TEST_AUDIO_HAL: Wi-Fi disconnected, Retry 1[0m
+I (3297) wifi:new:<5,1>, old:<5,0>, ap:<255,255>, sta:<5,1>, prof:1
+I (3297) wifi:state: init -> auth (b0)
+I (3307) wifi:state: auth -> assoc (0)
+I (3317) wifi:state: assoc -> run (10)
+I (3437) wifi:connected with eSpark Wifi, aid = 2, channel 5, 40U, bssid = 14:eb:b6:4b:c2:6a
+I (3437) wifi:security: WPA2-PSK, phy: bgn, rssi: -46
+I (3437) wifi:pm start, type: 1
+
+I (3437) wifi:set rx beacon pti, rx_bcn_pti: 0, bcn_timeout: 25000, mt_pti: 0, mt_time: 10000
+I (3497) wifi:AP's beacon interval = 102400 us, DTIM period = 1
+I (3517) wifi:<ba-add>idx:0 (ifx:0, 14:eb:b6:4b:c2:6a), tid:0, ssn:0, winSize:64
+[0;32mI (4447) esp_netif_handlers: sta ip: 192.168.68.143, mask: 255.255.252.0, gw: 192.168.68.1[0m
+[0;32mI (4447) TEST_AUDIO_HAL: Wi-Fi connected[0m
+[0;32mI (4447) TEST_AUDIO_HAL: Connected to WiFi[0m
+[0;32mI (4447) TEST_AUDIO_HAL: Downloading WAV file...[0m
+I (5167) wifi:<ba-add>idx:1 (ifx:0, 14:eb:b6:4b:c2:6a), tid:1, ssn:0, winSize:64
+[0;32mI (14137) TEST_AUDIO_HAL: File download complete[0m
+[0;32mI (14137) TEST_AUDIO_HAL: File Size : 79071 bytes[0m
+Found file: Piano.wav
+Found file: downloaded.wav
+[0;32mI (15227) TEST_AUDIO_HAL: Initialize i2s[0m
+[0;32mI (15227) TEST_AUDIO_HAL: Start es8388 codec chip[0m
+[0;32mI (15227) ES8388_DRIVER: i2c_init = ESP_OK[0m
+[0;32mI (15227) ES8388_DRIVER: es_write_reg = ESP_OK[0m
+[0;32mI (15237) ES8388_DRIVER: init,out:02, in:00[0m
+[0;32mI (15237) TEST_AUDIO_HAL: es8388_init = ESP_OK[0m
+[0;32mI (15247) TEST_AUDIO_HAL: Start to play music[0m
