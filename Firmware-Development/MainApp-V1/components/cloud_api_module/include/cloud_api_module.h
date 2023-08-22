@@ -19,6 +19,8 @@
 /* RTC MOUDLE*/
 #include "rtc_module.h"
 
+#include "noozle_factory_setup.h"
+
 typedef enum{
     NOOZLE_TIME_API = 0,
     NOOZLE_GET_ID_API,
@@ -45,7 +47,7 @@ esp_err_t cloud_http_event_handler(esp_http_client_event_t *evt);
 
 /*cloud_api_json_parsing*/
 esp_err_t cloud_api_parse_current_time(const char* jsonString, uint64_t* time);
-esp_err_t cloud_api_parse_ollie_id(const char* jsonString);
+esp_err_t cloud_api_parse_ollie_id(const char* jsonString, char** noozle_dev_id);
 esp_err_t cloud_api_parse_repeated_alarms(const char* jsonString);
 esp_err_t cloud_api_success_status(cJSON* root);
 

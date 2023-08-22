@@ -36,6 +36,7 @@ void app_main(void)
      }
 
      char time[50];
+     // char* devname = noozle_get_device_name();
      while (1)
      {
           getDateTime(time, 0);

@@ -9,7 +9,8 @@ const char* noozle_time_api = "http://dev.noozle.nl:3000/time/current";
 const char* noozle_get_id_api = "http://dev.noozle.nl:3000/ollie/getAll";
 const char* noozle_repeated_alarm_api = "http://dev.noozle.nl:3000/scenes/getRepeatedAlarmsByOllieID";
 
-const char* noozle_device_id = "{\"ollie_id\":\"64d249aa500db82a5dad3827\"}";
+char* noozle_device_id;
+uint32_t noozle_device_id_len;
 
 esp_err_t noozle_cloud_service(noozle_api_t API)
 {
@@ -28,7 +29,7 @@ esp_err_t noozle_cloud_service(noozle_api_t API)
         case NOOZLE_GET_ID_API:
             cloud_free_buf();
             ret |= cloud_api_request(noozle_get_id_api, HTTP_METHOD_GET, NULL);
-            ret |= cloud_api_parse_ollie_id(cloud_buffer);
+            ret |= cloud_api_parse_ollie_id(cloud_buffer, &noozle_device_id);
             break;
 
         case NOOZLE_REPEATED_ALARM_API:
@@ -55,7 +56,8 @@ esp_err_t cloud_api_request(const char* api, esp_http_client_method_t http_metho
     ret |= esp_http_client_set_header(client, "Content-Type", "application/json");
     ret |= esp_http_client_set_user_data(client, user_data);
     if(http_method == HTTP_METHOD_POST)
-        ret |= esp_http_client_set_post_field(client, noozle_device_id, strlen(noozle_device_id));
+        ret |= esp_http_client_set_post_field(client, noozle_device_id, noozle_device_id_len);
+        
     ret |= esp_http_client_perform(client);
     int status_code = esp_http_client_get_status_code(client);
     ret |= esp_http_client_close(client);
@@ -92,6 +94,7 @@ esp_err_t cloud_http_event_handler(esp_http_client_event_t *evt)
             break;
 
         case HTTP_EVENT_ON_FINISH:
+            ESP_LOGI(TAG,"%s", cloud_buffer);
             break;
 
         default:

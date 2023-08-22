@@ -19,6 +19,6 @@ esp_err_t noozle_factory_setup();
 noozle_register_status noozle_get_registeration_status();
 esp_err_t noozle_factory_registeration_run();
 
-void noozle_get_deivce_name(char* device_name);
+char* noozle_get_device_name();
 
 #endif

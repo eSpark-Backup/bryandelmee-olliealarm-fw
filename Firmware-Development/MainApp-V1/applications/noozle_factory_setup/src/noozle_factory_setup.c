@@ -67,11 +67,15 @@ esp_err_t noozle_factory_registeration_run()
     return noozle_provisioning_service();
 }
 
-void noozle_get_deivce_name(char* device_name)
+char* noozle_get_device_name() 
 {
     uint8_t eth_mac[6];
     const char *ssid_prefix = "PROV_";
     esp_wifi_get_mac(WIFI_IF_STA, eth_mac);
-    snprintf(device_name, strlen(device_name), "%s%02X%02X%02X",
-                ssid_prefix, eth_mac[3], eth_mac[4], eth_mac[5]);
+
+    char* device_name = (char*)malloc(12 * sizeof(char));
+    snprintf(device_name, 12, "%s%02X%02X%02X",
+             ssid_prefix, eth_mac[3], eth_mac[4], eth_mac[5]);
+
+    return device_name;
 }
