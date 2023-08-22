@@ -22,8 +22,8 @@ void app_main(void)
      {
           case ESP_RST_POWERON:
                ESP_LOGI(TAG,"rst_reason : ESP_RST_POWERON");
-               noozle_cloud_service(NOOZLE_TIME_API);
-               noozle_cloud_service(NOOZLE_REPEATED_ALARM_API);
+               // while(ESP_OK != noozle_cloud_service(NOOZLE_TIME_API));
+               while(ESP_OK != noozle_cloud_service(NOOZLE_REPEATED_ALARM_API));
                break;
 
           case ESP_RST_DEEPSLEEP:

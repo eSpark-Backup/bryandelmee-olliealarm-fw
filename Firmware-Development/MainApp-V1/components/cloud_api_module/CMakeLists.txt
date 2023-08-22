@@ -1,4 +1,4 @@
-set(srcs "src/cloud_api_module.c")
+set(srcs "src/cloud_api_module.c" "src/cloud_api_json_parsing.c")
 
 idf_component_register(	SRCS ${srcs}
 						INCLUDE_DIRS "include" 

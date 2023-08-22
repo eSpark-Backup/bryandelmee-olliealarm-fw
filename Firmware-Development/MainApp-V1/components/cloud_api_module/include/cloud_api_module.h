@@ -46,6 +46,7 @@ esp_err_t cloud_api_request(const char* api, esp_http_client_method_t http_metho
 esp_err_t cloud_http_event_handler(esp_http_client_event_t *evt);
 
 esp_err_t cloud_api_parse_current_time(const char* jsonString, uint64_t* time);
+esp_err_t cloud_api_parse_repeated_alarms(const char* jsonString);
 
 void cloud_free_buf();
 void cloud_copy_response(esp_http_client_event_t *evt);
