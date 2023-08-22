@@ -23,17 +23,11 @@ esp_err_t cloud_api_parse_current_time(const char* jsonString, uint64_t* time)
 
     // Clean up cJSON objects
     cJSON_Delete(root);
-    cJSON_Delete(time_value);
     return ESP_OK;
 }
 
-esp_err_t cloud_api_parse_repeated_alarms(const char* jsonString)
+esp_err_t cloud_api_parse_ollie_id(const char* jsonString)
 {
-    if(jsonString == NULL){
-        ESP_LOGE(TAG,"jsonString is NULL.\n");
-        return ESP_FAIL;
-    }
-
     // Parse the JSON string
     cJSON* root = cJSON_Parse(jsonString);
     if (root == NULL) {
@@ -41,6 +35,29 @@ esp_err_t cloud_api_parse_repeated_alarms(const char* jsonString)
         return ESP_FAIL;
     }
 
+    cloud_api_success_status(root);
+
+    cJSON_Delete(root);
+    return ESP_OK;
+}
+
+esp_err_t cloud_api_parse_repeated_alarms(const char* jsonString)
+{
+    // Parse the JSON string
+    cJSON* root = cJSON_Parse(jsonString);
+    if (root == NULL) {
+        printf("Error: Failed to parse JSON.\n");
+        return ESP_FAIL;
+    }
+
+    cloud_api_success_status(root);
+
+    cJSON_Delete(root);
+    return ESP_OK;
+}
+
+esp_err_t cloud_api_success_status(cJSON* root)
+{
     // Get the "success" flag to validate the data.
     cJSON* success = cJSON_GetObjectItem(root, "success");
     if (cJSON_IsTrue(success)) {
@@ -50,11 +67,8 @@ esp_err_t cloud_api_parse_repeated_alarms(const char* jsonString)
     else
     {
         ESP_LOGI(TAG,"success == FALSE");
-        cJSON_Delete(root);
         return ESP_FAIL;
     }
-
     cJSON_Delete(success);
-    cJSON_Delete(root);
-    return ESP_OK;
+    return ESP_FAIL;
 }

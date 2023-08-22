@@ -23,6 +23,7 @@ void app_main(void)
           case ESP_RST_POWERON:
                ESP_LOGI(TAG,"rst_reason : ESP_RST_POWERON");
                while(ESP_OK != noozle_cloud_service(NOOZLE_TIME_API));
+               while(ESP_OK != noozle_cloud_service(NOOZLE_GET_ID_API));
                while(ESP_OK != noozle_cloud_service(NOOZLE_REPEATED_ALARM_API));
                break;
 
@@ -37,8 +38,8 @@ void app_main(void)
      char time[50];
      while (1)
      {
-          getDateTime(time, 1);
+          getDateTime(time, 0);
           ESP_LOGI(TAG, "%s", time);
-          vTaskDelay(900 / portTICK_PERIOD_MS);
+          vTaskDelay(1000 / portTICK_PERIOD_MS);
      }
 }
