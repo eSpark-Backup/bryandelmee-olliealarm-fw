@@ -40,8 +40,6 @@ typedef enum {
 
 esp_err_t noozle_cloud_service(noozle_api_t API);
 
-esp_err_t cloud_api_create_event_group();
-esp_err_t cloud_api_wait_finish_event();
 esp_err_t cloud_api_request(const char* api, esp_http_client_method_t http_method, void* user_data);
 esp_err_t cloud_http_event_handler(esp_http_client_event_t *evt);
 

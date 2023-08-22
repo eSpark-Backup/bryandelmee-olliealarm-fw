@@ -16,7 +16,6 @@ esp_err_t noozle_device_create_event_groups()
 {
      /*Create a Event Groups*/
      wifi_create_event_group();
-     cloud_api_create_event_group();
      return ESP_OK;
 }
 

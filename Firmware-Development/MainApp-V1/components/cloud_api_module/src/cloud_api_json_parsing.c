@@ -8,7 +8,7 @@ esp_err_t cloud_api_parse_current_time(const char* jsonString, uint64_t* time)
     if (root == NULL) {
         printf("Error: Failed to parse JSON.\n");
         return ESP_FAIL;
-    }
+    } 
 
     // Get the value of the "time" key
     cJSON* time_value = cJSON_GetObjectItem(root, "time");

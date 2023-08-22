@@ -2,9 +2,6 @@
 
 static const char* TAG = "Cloud-API-Module";
 
-EventGroupHandle_t cloud_api_event_group;
-const int cloud_api_http_finish_event = BIT0;
-
 char *cloud_buffer = NULL;
 size_t cloud_buffer_len = 0;
 
@@ -20,9 +17,7 @@ esp_err_t noozle_cloud_service(noozle_api_t API)
     {
         case NOOZLE_TIME_API:
             uint64_t time;
-            xEventGroupClearBits(cloud_api_event_group, cloud_api_http_finish_event);
             ret |= cloud_api_request(noozle_time_api, HTTP_METHOD_GET, NULL);
-            cloud_api_wait_finish_event();
             cloud_api_parse_current_time(cloud_buffer, &time);
             ESP_LOGI(TAG, "CURRENT TIME : %llu", time);
             setenv("TZ", "GMT-5", 1);
@@ -31,9 +26,7 @@ esp_err_t noozle_cloud_service(noozle_api_t API)
         
         case NOOZLE_REPEATED_ALARM_API:
             cloud_free_buf();
-            xEventGroupClearBits(cloud_api_event_group, cloud_api_http_finish_event);
             ret |= cloud_api_request(noozle_repeated_alarm_api, HTTP_METHOD_POST, NULL);
-            cloud_api_wait_finish_event();
             ret |= cloud_api_parse_repeated_alarms(cloud_buffer);
             break;
 
@@ -42,21 +35,6 @@ esp_err_t noozle_cloud_service(noozle_api_t API)
     }
     
     return ret;
-}
-
-esp_err_t cloud_api_create_event_group()
-{
-    cloud_api_event_group = xEventGroupCreate();
-    if( cloud_api_event_group == NULL )
-        return ESP_FAIL;
-
-    return ESP_OK;
-}
-
-esp_err_t cloud_api_wait_finish_event()
-{
-    xEventGroupWaitBits(cloud_api_event_group, cloud_api_http_finish_event, true, true, portMAX_DELAY);
-    return ESP_OK;
 }
 
 esp_err_t cloud_api_request(const char* api, esp_http_client_method_t http_method, void* user_data)
@@ -87,6 +65,7 @@ void cloud_free_buf()
     {
         free(cloud_buffer);
         cloud_buffer = NULL;
+        cloud_buffer_len = 0;
     }
 }
 
@@ -101,13 +80,10 @@ esp_err_t cloud_http_event_handler(esp_http_client_event_t *evt)
 {
     switch (evt->event_id) {
         case HTTP_EVENT_ON_DATA:
-            // ESP_LOGI("Noozle-API", "evt->data: %s", (char *)evt->data);
-            // cloud_free_buf();
             cloud_copy_response(evt);
             break;
 
         case HTTP_EVENT_ON_FINISH:
-            xEventGroupSetBits(cloud_api_event_group, cloud_api_http_finish_event);
             ESP_LOGI("Noozle-API", "HTTP_EVENT_ON_FINISH");
             ESP_LOGI(TAG,"%s", cloud_buffer);
             break;
