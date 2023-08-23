@@ -37,6 +37,12 @@ void app_main(void)
 
      char time[50];
      // char* devname = noozle_get_device_name();
+     int64_t alarms[4];
+     nvs_open_namespace_rw(ALARM_NAMESPACE);
+     nvs_read_key_value(ALARM_KEY, alarms);
+     nvs_close_handle();
+     for(int i =0; i < 4; i++)
+          ESP_LOGI(TAG,"alarms[%d]=%lld", i,alarms[i]);
      while (1)
      {
           getDateTime(time, 0);

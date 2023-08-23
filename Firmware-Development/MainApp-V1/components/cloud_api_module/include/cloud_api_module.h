@@ -19,7 +19,13 @@
 /* RTC MOUDLE*/
 #include "rtc_module.h"
 
+/*NVS MODULE*/
+#include "nvs_module.h"
+
 #include "noozle_factory_setup.h"
+
+#define ALARM_NAMESPACE "ALARM"
+#define ALARM_KEY "alarm_epoch"
 
 typedef enum{
     NOOZLE_TIME_API = 0,
@@ -46,6 +52,8 @@ esp_err_t cloud_api_parse_ollie_id(const char* jsonString, char** noozle_dev_id)
 esp_err_t cloud_api_parse_repeated_alarms(const char* jsonString);
 esp_err_t cloud_api_parse_repeated_alarms_epoch(cJSON* root, int64_t* alarm_epoch);
 esp_err_t cloud_api_success_status(cJSON* root);
+
+esp_err_t save_alarms_in_nvs(int64_t* alarm_epoch, size_t size);
 
 void cloud_free_buf();
 void cloud_copy_response(esp_http_client_event_t *evt);

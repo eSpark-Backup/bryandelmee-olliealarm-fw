@@ -91,8 +91,7 @@ esp_err_t cloud_api_parse_repeated_alarms(const char* jsonString)
 
     ret |= cloud_api_success_status(root);
     ret |= cloud_api_parse_repeated_alarms_epoch(root, alarm_epoch);
-    for(int i = 0; i < 4; i++)
-        ESP_LOGI(TAG,"alarm_epoch[%d] = %lld", i, alarm_epoch[i]);
+    ret |= save_alarms_in_nvs(alarm_epoch, sizeof(alarm_epoch));
     
     cJSON_Delete(root);
     return ret;
@@ -158,4 +157,12 @@ esp_err_t cloud_api_success_status(cJSON* root)
     }
     cJSON_Delete(success);
     return ESP_FAIL;
+}
+
+esp_err_t save_alarms_in_nvs(int64_t* alarm_epoch, size_t size)
+{
+    nvs_open_namespace_rw(ALARM_NAMESPACE);
+    esp_err_t err = nvs_write_key_value(ALARM_KEY, alarm_epoch, size);
+    nvs_close_handle();
+    return err;
 }
