@@ -29,7 +29,9 @@ esp_err_t noozle_cloud_service(noozle_api_t API)
         case NOOZLE_GET_ID_API:
             cloud_free_buf();
             ret |= cloud_api_request(noozle_get_id_api, HTTP_METHOD_GET, NULL);
+            ESP_LOGI(TAG,"cloud_api_request = %s", esp_err_to_name(ret));
             ret |= cloud_api_parse_ollie_id(cloud_buffer, &noozle_device_id);
+            ESP_LOGI(TAG,"cloud_api_parse_ollie_id = %s", esp_err_to_name(ret));
             break;
 
         case NOOZLE_REPEATED_ALARM_API:
@@ -94,7 +96,7 @@ esp_err_t cloud_http_event_handler(esp_http_client_event_t *evt)
             break;
 
         case HTTP_EVENT_ON_FINISH:
-            ESP_LOGI(TAG,"%s", cloud_buffer);
+            // ESP_LOGI(TAG,"%s", cloud_buffer);
             break;
 
         default:
