@@ -9,6 +9,7 @@
 
 #include "noozle_factory_setup.h"
 #include "noozle_alarm.h"
+
 static const char *TAG = "MainAPP";
 
 void app_main(void)
@@ -34,11 +35,11 @@ void app_main(void)
                break;
 
           default:
-               break;
+          break;
      }
 
      char time[50];
-
+     // char* devname = noozle_get_device_name();
      while (1)
      {
           getDateTime(time, 0);
