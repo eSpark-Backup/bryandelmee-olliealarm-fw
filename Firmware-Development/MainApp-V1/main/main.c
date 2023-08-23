@@ -8,6 +8,7 @@
 #include "cloud_api_module.h"
 
 #include "noozle_factory_setup.h"
+#include "noozle_alarm.h"
 static const char *TAG = "MainAPP";
 
 void app_main(void)
@@ -25,6 +26,7 @@ void app_main(void)
                while(ESP_OK != noozle_cloud_service(NOOZLE_TIME_API));
                while(ESP_OK != noozle_cloud_service(NOOZLE_GET_ID_API));
                while(ESP_OK != noozle_cloud_service(NOOZLE_REPEATED_ALARM_API));
+               noozle_set_alarm();
                break;
 
           case ESP_RST_DEEPSLEEP:
@@ -32,17 +34,11 @@ void app_main(void)
                break;
 
           default:
-          break;
+               break;
      }
 
      char time[50];
-     // char* devname = noozle_get_device_name();
-     int64_t alarms[4];
-     nvs_open_namespace_rw(ALARM_NAMESPACE);
-     nvs_read_key_value(ALARM_KEY, alarms);
-     nvs_close_handle();
-     for(int i =0; i < 4; i++)
-          ESP_LOGI(TAG,"alarms[%d]=%lld", i,alarms[i]);
+
      while (1)
      {
           getDateTime(time, 0);

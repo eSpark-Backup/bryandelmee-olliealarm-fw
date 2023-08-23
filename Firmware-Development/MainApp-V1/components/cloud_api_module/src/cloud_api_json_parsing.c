@@ -39,7 +39,8 @@ esp_err_t cloud_api_parse_ollie_id(const char* jsonString, char** noozle_dev_id)
     ret |= cloud_api_success_status(root);
 
     cJSON *data = cJSON_GetObjectItemCaseSensitive(root, "data");
-    if (!cJSON_IsArray(data)) {
+    if (!cJSON_IsArray(data)) 
+    {
         fprintf(stderr, "Error: 'data' is not an array.\n");
         cJSON_Delete(root);
         return ESP_FAIL;
@@ -49,32 +50,24 @@ esp_err_t cloud_api_parse_ollie_id(const char* jsonString, char** noozle_dev_id)
 
     // Iterate through the 'data' array to find the matching 'name'
     cJSON *item;
-    cJSON_ArrayForEach(item, data) {
+    cJSON_ArrayForEach(item, data) 
+    {
         cJSON *name = cJSON_GetObjectItemCaseSensitive(item, "name");
         if (cJSON_IsString(name) && (strcmp(name->valuestring, targetName) == 0)) {
             cJSON *id = cJSON_GetObjectItemCaseSensitive(item, "_id");
             if (cJSON_IsString(id)) {
                 ESP_LOGI(TAG, "device_name: %s , id[%d] : %s", targetName, strlen(id->valuestring), id->valuestring);
-                //Update noozle_device_id.
-                // if(*noozle_dev_id != NULL){
-                //     free(*noozle_dev_id);
-                //     *noozle_dev_id = NULL;
-                // }
                 // Create the JSON string
                 noozle_device_id_len = snprintf(NULL, 0, "{\"ollie_id\":\"%s\"}", id->valuestring);
                 ESP_LOGI(TAG,"noozle_device_id_len = %lu", noozle_device_id_len);
                 *noozle_dev_id = realloc(*noozle_dev_id,noozle_device_id_len+1); // +1 for null terminator
                 snprintf(*noozle_dev_id, noozle_device_id_len+1, "{\"ollie_id\":\"%s\"}", id->valuestring);
                 ESP_LOGI(TAG,"noozle_device_id : %s", *noozle_dev_id);
-                ret |= ESP_OK;
-                // break;
             }
         }
-            
     }
-    // free(targetName);
-    // targetName = NULL;
     cJSON_Delete(root);
+    ESP_LOGI(TAG,"cloud_api_parse_ollie_id ret = %s", esp_err_to_name(ret));
     return ret;
 }
 

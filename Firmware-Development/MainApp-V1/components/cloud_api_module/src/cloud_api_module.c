@@ -36,6 +36,7 @@ esp_err_t noozle_cloud_service(noozle_api_t API)
             cloud_free_buf();
             ret |= cloud_api_request(noozle_repeated_alarm_api, HTTP_METHOD_POST, NULL);
             ret |= cloud_api_parse_repeated_alarms(cloud_buffer);
+            ESP_LOGI(TAG,"noozle_device_id = %s", noozle_device_id);
             break;
 
         default:
@@ -94,7 +95,7 @@ esp_err_t cloud_http_event_handler(esp_http_client_event_t *evt)
             break;
 
         case HTTP_EVENT_ON_FINISH:
-            // ESP_LOGI(TAG,"%s", cloud_buffer);
+            ESP_LOGI(TAG,"%s", cloud_buffer);
             break;
 
         default:
