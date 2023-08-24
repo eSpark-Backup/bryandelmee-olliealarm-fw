@@ -1,22 +1,35 @@
-### WebSockets on ESP32:
 
-The websockets component is not directly maintained in esp-idf, so in-order to add the esp_websocket_client component run the following command in terminal:
-idf.py add-dependency "espressif/esp_websocket_client^1.0.1"
+---
 
-source : https://components.espressif.com/components/espressif/esp_websocket_client
+# WebSockets on ESP32
 
-The postman websocket echo api is used to verify that the websocket client is working properly on the board.
-wss://ws.postman-echo.com/raw
+The WebSocket component is not directly maintained in the ESP-IDF. To add the `esp_websocket_client` component, follow these steps:
 
-source: https://blog.postman.com/introducing-postman-websocket-echo-service/
+1. Open your terminal and run the following command:
 
-Also, add the following line in the CMakeLists.txt of the project, to use the example_connect() :
-set(EXTRA_COMPONENT_DIRS $ENV{IDF_PATH}/examples/common_components/protocol_examples_common)
+   ```bash
+   idf.py add-dependency "espressif/esp_websocket_client^1.0.1"
+   ```
 
-Following SDK-Configurations are required to run the example:
+   Source: [esp_websocket_client on Espressif Components](https://components.espressif.com/components/espressif/esp_websocket_client)
 
-CONFIG_ESP_TLS_INSECURE=y
-CONFIG_ESP_TLS_SKIP_SERVER_CERT_VERIFY=y
-CONFIG_EXAMPLE_WIFI_SSID=""
-CONFIG_EXAMPLE_WIFI_PASSWORD=""
+2. To verify that the WebSocket client is working correctly on your ESP32 board, we recommend using the Postman WebSocket Echo API at `wss://ws.postman-echo.com/raw`. More information can be found [here](https://blog.postman.com/introducing-postman-websocket-echo-service/).
 
+3. Additionally, make sure to include the following line in the `CMakeLists.txt` file of your project to use `example_connect()`:
+
+   ```cmake
+   set(EXTRA_COMPONENT_DIRS $ENV{IDF_PATH}/examples/common_components/protocol_examples_common)
+   ```
+
+### SDK Configurations
+
+To run the example successfully, you need to configure the following settings in your ESP-IDF:
+
+- `CONFIG_ESP_TLS_INSECURE=y`
+- `CONFIG_ESP_TLS_SKIP_SERVER_CERT_VERIFY=y`
+- `CONFIG_EXAMPLE_WIFI_SSID=""`
+- `CONFIG_EXAMPLE_WIFI_PASSWORD=""`
+
+Make sure to set these configurations in your project's `sdkconfig` file or use `idf.py menuconfig` to access the ESP-IDF menu configuration system and set these options there.
+
+---
