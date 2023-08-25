@@ -20,9 +20,9 @@ void lcd_display()
     lv_timer_handler();
 }
 
-esp_err_t lcd_create_task()
+esp_err_t lcd_create_task(void* param)
 {
-    BaseType_t ret = xTaskCreatePinnedToCore(lcd_app_run, "lcd_task", 1024*4, NULL, 5, &lcd_task_handle, 1);
+    BaseType_t ret = xTaskCreatePinnedToCore(lcd_app_run, "lcd_task", 1024*4, param, 5, &lcd_task_handle, 1);
     if(ret != pdTRUE)
         return ESP_FAIL;
     
@@ -31,19 +31,22 @@ esp_err_t lcd_create_task()
 
 void lcd_app_run( void* parameter )
 {
+    lcd_config_alarm_t* lcd_alarm_config = (lcd_config_alarm_t*)(parameter); 
     lcd_setup();
     ui_init();
-    _ui_screen_change(ui_Screen1, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0);
-    time_t now, now1;
-    time(&now1);
-    time_t start = now1 + 30;
-    time_t end = now1 + 60;
+    if(lcd_alarm_config->alarm_name == 0)
+        _ui_screen_change(ui_Screen1, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0);
+    else if(lcd_alarm_config->alarm_name == 1)
+        _ui_screen_change(ui_Screen3, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0);
+    
+    int64_t now;
     while (1)
     {
-        time(&now);
-        if( now >= (start) && now <= (end) )
+        now = time(NULL);
+
+        if( now >= (lcd_alarm_config->start_time) && now <= (lcd_alarm_config->end_time) )
             lcd_display();
-        else if(now > end)
+        else if(now > lcd_alarm_config->end_time)
         {
             lcd_backlight_off();
             vTaskDelete(NULL);

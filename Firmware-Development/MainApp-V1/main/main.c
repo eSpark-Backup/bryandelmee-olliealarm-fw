@@ -10,7 +10,11 @@
 #include "noozle_factory_setup.h"
 #include "noozle_alarm.h"
 
+#include <time.h>
+
 static const char *TAG = "MainAPP";
+
+void noozle_set_alarm_config_lcd(lcd_config_alarm_t* lcd_alarm_config ,int64_t* alarms, alarm_name_t alarm_name);
 
 void app_main(void)
 {
@@ -20,6 +24,7 @@ void app_main(void)
      noozle_device_initialization();
      noozle_factory_setup();
 
+     alarm_name_t alarm_name; /*Variable to get the value of alarm name from nvs, to run the respective alarm*/
      switch (rst_reason)
      {
           case ESP_RST_POWERON:
@@ -32,18 +37,45 @@ void app_main(void)
 
           case ESP_RST_DEEPSLEEP:
                ESP_LOGI(TAG,"rst_reason : ESP_RST_DEEPSLEEP");
+               nvs_open_namespace_rw(ALARM_NAMESPACE);
+               nvs_read_key_value(ALARM_NAME, &alarm_name);
+               nvs_close_handle();
+               int64_t alarms[4];
+               noozle_get_alarm_epoch(alarms);
+               lcd_config_alarm_t lcd_alarm_config;
+               noozle_set_alarm_config_lcd(&lcd_alarm_config, alarms, alarm_name);
+               if(alarm_name != ALARM_NONE)
+                    lcd_create_task(&lcd_alarm_config);
+
                break;
 
           default:
           break;
      }
 
-     char time[50];
-     // char* devname = noozle_get_device_name();
+     int64_t epoch = 0;
+
      while (1)
      {
-          getDateTime(time, 0);
-          ESP_LOGI(TAG, "%s", time);
-          vTaskDelay(1000 / portTICK_PERIOD_MS);
+          epoch = time(NULL);
+          ESP_LOGI(TAG,"%lld", epoch);
+          ESP_LOGI(TAG,"%d",alarm_name);
+          vTaskDelay(500 / portTICK_PERIOD_MS);
+     }
+}
+
+void noozle_set_alarm_config_lcd(lcd_config_alarm_t* lcd_alarm_config ,int64_t* alarms, alarm_name_t alarm_name)
+{
+     if(alarm_name == ALARM_SLEEP)
+     {
+          lcd_alarm_config->start_time = alarms[TO_SLEEP];
+          lcd_alarm_config->end_time = alarms[ALMOST_SLEEP];
+          lcd_alarm_config->alarm_name = alarm_name; 
+     }
+     else if(alarm_name == ALARM_WAKE)
+     {
+          lcd_alarm_config->start_time = alarms[TO_GET_UP];
+          lcd_alarm_config->end_time = alarms[ALMOST_GETTING_UP];
+          lcd_alarm_config->alarm_name = alarm_name; 
      }
 }

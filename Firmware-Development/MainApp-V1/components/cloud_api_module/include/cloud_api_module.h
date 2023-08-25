@@ -23,6 +23,7 @@
 
 #define ALARM_NAMESPACE "ALARM"
 #define ALARM_KEY "alarm_epoch"
+#define ALARM_NAME "alarm_name"
 
 typedef enum{
     NOOZLE_TIME_API = 0,
@@ -43,6 +44,12 @@ typedef enum {
     ALMOST_GETTING_UP,
     TO_GET_UP
 }alarmtime_enum;
+
+typedef enum{
+    ALARM_WAKE = 0,
+    ALARM_SLEEP,
+    ALARM_NONE
+}alarm_name_t;
 
 esp_err_t noozle_cloud_service(noozle_api_t API);
 esp_err_t cloud_api_request(const char* api, esp_http_client_method_t http_method, void* user_data);
