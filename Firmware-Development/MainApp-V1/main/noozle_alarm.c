@@ -25,11 +25,11 @@ void noozle_set_deep_sleep(int64_t alarm_epoch, alarm_name_t alarm_name)
 {
     int64_t current_time = time(NULL);
     uint64_t sleep_time = alarm_epoch - current_time;
-    sleep_time = sleep_time * 1000000;
+    sleep_time = (sleep_time-10) * 1000000;
     ESP_LOGI(TAG,"current_epoch = %lld", current_time);
     ESP_LOGI(TAG,"alarm_epoch = %lld", alarm_epoch);
     ESP_LOGI(TAG,"sleep_time = %llu", sleep_time);
-    ESP_LOGI(TAG,"sleep_time_new = %llu", (alarm_epoch - current_time) * 1000000);
+    // ESP_LOGI(TAG,"sleep_time_new = %llu", (alarm_epoch - current_time) * 1000000);
     /*Saving the alarm name to check which alarm needs to trigger on wakeup*/
     nvs_open_namespace_rw(ALARM_NAMESPACE);
     nvs_write_key_value(ALARM_NAME, &alarm_name, sizeof(alarm_name_t));
