@@ -21,6 +21,8 @@ class BLEProv
         esp_err_t setServiceUUID();
         void setSecurity(wifi_prov_security security);
         void setPOP(const char* pop);
+        esp_err_t registerEventHandler();
+        static void eventHandler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data);
 
         void printServiceName();
         

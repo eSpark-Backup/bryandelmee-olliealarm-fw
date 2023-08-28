@@ -30,8 +30,8 @@ extern "C" void app_main(void)
 
 
     /*BLEProv*/
-    esp_event_handler_register(WIFI_PROV_EVENT, ESP_EVENT_ANY_ID, &ble_event_handler, NULL);
     BLEProv ble_prov = BLEProv();
+    // esp_event_handler_register(WIFI_PROV_EVENT, ESP_EVENT_ANY_ID, &ble_event_handler, NULL);
     ble_prov.setup();
     ble_prov.printServiceName();
     ble_prov.start();

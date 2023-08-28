@@ -3,6 +3,7 @@
 #include "esp_log.h"
 #include "esp_check.h"
 #include "esp_wifi.h"
+#include <functional>
 
 static const char* TAG = "BLEProv";
 
@@ -104,4 +105,48 @@ void BLEProv::setPOP(const char* pop)
     #if DEBUG 
     ESP_LOGI(TAG,"POP = %s", this->pop);
     #endif
+}
+
+esp_err_t BLEProv::registerEventHandler()
+{
+    return esp_event_handler_register(WIFI_PROV_EVENT, ESP_EVENT_ANY_ID, &eventHandler, this);
+}
+
+void BLEProv::eventHandler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data)
+{
+    BLEProv *thisObj = (BLEProv*)arg; 
+    if (event_base == WIFI_PROV_EVENT) {
+
+        switch (event_id) {
+
+            case WIFI_PROV_INIT:
+                ESP_LOGI(TAG,"WIFI_PROV_INIT");
+                break;
+            
+            case WIFI_PROV_START:
+                ESP_LOGI(TAG,"WIFI_PROV_START");
+                break;
+            
+            case WIFI_PROV_CRED_RECV: 
+                ESP_LOGI(TAG,"WIFI_PROV_CRED_RECV");
+                break;
+
+            case WIFI_PROV_CRED_FAIL: 
+                wifi_prov_mgr_reset_sm_state_on_failure();
+                break;
+
+            case WIFI_PROV_CRED_SUCCESS:
+                ESP_LOGI(TAG, "WIFI_PROV_CRED_SUCCESS");
+                break;
+            
+            case WIFI_PROV_END:
+                ESP_LOGI(TAG, "WIFI_PROV_END");
+                /* De-initialize manager once provisioning is finished */
+                wifi_prov_mgr_deinit();
+                break;
+                
+            default:
+                break;
+        }
+    }
 }
