@@ -9,6 +9,7 @@ static const char* TAG = "BLEProv";
 
 esp_err_t BLEProv::setup()
 {
+    ESP_RETURN_ON_ERROR(registerEventHandler(), TAG, "setup: registerEventHandler");
     ESP_RETURN_ON_ERROR(initProvisioningManager(), TAG, "setup: initProvisioningManager");
     ESP_RETURN_ON_ERROR(setServiceName(), TAG, "setup: setServiceName");
     ESP_RETURN_ON_ERROR(setServiceUUID(), TAG, "setup: setServiceUUID");
@@ -24,6 +25,16 @@ esp_err_t BLEProv::start()
     ESP_RETURN_ON_ERROR(wifi_prov_mgr_start_provisioning(security, pop, service_name, service_key), TAG, "start: wifi_prov_mgr_start_provisioning");
     // wifi_prov_mgr_endpoint_register("custom-data", custom_prov_data_handler, NULL);
     return ESP_OK;
+}
+
+esp_err_t BLEProv::restart()
+{
+    return wifi_prov_mgr_reset_sm_state_on_failure();
+}
+
+void BLEProv::stop() 
+{
+    return wifi_prov_mgr_deinit();
 }
 
 /**
@@ -132,7 +143,7 @@ void BLEProv::eventHandler(void* arg, esp_event_base_t event_base, int32_t event
                 break;
 
             case WIFI_PROV_CRED_FAIL: 
-                wifi_prov_mgr_reset_sm_state_on_failure();
+                thisObj->restart();
                 break;
 
             case WIFI_PROV_CRED_SUCCESS:
@@ -142,7 +153,7 @@ void BLEProv::eventHandler(void* arg, esp_event_base_t event_base, int32_t event
             case WIFI_PROV_END:
                 ESP_LOGI(TAG, "WIFI_PROV_END");
                 /* De-initialize manager once provisioning is finished */
-                wifi_prov_mgr_deinit();
+                thisObj->stop();
                 break;
                 
             default:

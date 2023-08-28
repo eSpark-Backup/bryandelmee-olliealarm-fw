@@ -12,9 +12,6 @@ static const char* TAG = "Main";
 
 static void wifi_event_handler(void* arg, esp_event_base_t event_base,
                                 int32_t event_id, void* event_data);
-static void ble_event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data);
-esp_err_t custom_prov_data_handler(uint32_t session_id, const uint8_t *inbuf, ssize_t inlen,
-                                          uint8_t **outbuf, ssize_t *outlen, void *priv_data);
 
 extern "C" void app_main(void)
 {
@@ -31,11 +28,9 @@ extern "C" void app_main(void)
 
     /*BLEProv*/
     BLEProv ble_prov = BLEProv();
-    // esp_event_handler_register(WIFI_PROV_EVENT, ESP_EVENT_ANY_ID, &ble_event_handler, NULL);
     ble_prov.setup();
     ble_prov.printServiceName();
     ble_prov.start();
-    wifi_prov_mgr_endpoint_register("custom-data", custom_prov_data_handler, NULL);
     /************/
 
     while (1)
@@ -44,61 +39,6 @@ extern "C" void app_main(void)
         vTaskDelay(1000/portTICK_PERIOD_MS);
     }
     
-}
-
-static void ble_event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data)
-{
-    if (event_base == WIFI_PROV_EVENT) {
-
-        switch (event_id) {
-
-            case WIFI_PROV_INIT:
-                ESP_LOGI(TAG,"WIFI_PROV_INIT");
-                break;
-            
-            case WIFI_PROV_START:
-                ESP_LOGI(TAG,"WIFI_PROV_START");
-                break;
-            
-            case WIFI_PROV_CRED_RECV: 
-                ESP_LOGI(TAG,"WIFI_PROV_CRED_RECV");
-                break;
-
-            case WIFI_PROV_CRED_FAIL: 
-                wifi_prov_mgr_reset_sm_state_on_failure();
-                break;
-
-            case WIFI_PROV_CRED_SUCCESS:
-                ESP_LOGI(TAG, "WIFI_PROV_CRED_SUCCESS");
-                break;
-            
-            case WIFI_PROV_END:
-                ESP_LOGI(TAG, "WIFI_PROV_END");
-                /* De-initialize manager once provisioning is finished */
-                wifi_prov_mgr_deinit();
-                break;
-                
-            default:
-                break;
-        }
-    }
-}
-
-esp_err_t custom_prov_data_handler(uint32_t session_id, const uint8_t *inbuf, ssize_t inlen,
-                                          uint8_t **outbuf, ssize_t *outlen, void *priv_data)
-{
-    if (inbuf) {
-        ESP_LOGI(TAG, "Received data: %.*s", inlen, (char *)inbuf);
-    }
-    char response[] = "SUCCESS";
-    *outbuf = (uint8_t *)strdup(response);
-    if (*outbuf == NULL) {
-        ESP_LOGE(TAG, "System out of memory");
-        return ESP_ERR_NO_MEM;
-    }
-    *outlen = strlen(response) + 1; /* +1 for NULL terminating byte */
-
-    return ESP_OK;
 }
 
 static void wifi_event_handler(void* arg, esp_event_base_t event_base,
