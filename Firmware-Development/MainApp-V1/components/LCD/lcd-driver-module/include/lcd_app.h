@@ -22,5 +22,7 @@ esp_err_t lcd_setup();
 void lcd_display();
 esp_err_t lcd_create_task(void* param);
 void lcd_app_run(void* parameter);
+void lcd_app_wait();
+void lcd_test();
 
 #endif

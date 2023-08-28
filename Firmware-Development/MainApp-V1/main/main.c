@@ -13,6 +13,7 @@
 #include <time.h>
 
 static const char *TAG = "MainAPP";
+bool volatile alarm_Trigger = false;
 
 void noozle_set_alarm_config_lcd(lcd_config_alarm_t* lcd_alarm_config ,int64_t* alarms, alarm_name_t alarm_name);
 
@@ -40,12 +41,15 @@ void app_main(void)
                nvs_open_namespace_rw(ALARM_NAMESPACE);
                nvs_read_key_value(ALARM_NAME, &alarm_name);
                nvs_close_handle();
+               ESP_LOGI(TAG,"alarm_name : %d", alarm_name);
                int64_t alarms[4];
                noozle_get_alarm_epoch(alarms);
                lcd_config_alarm_t lcd_alarm_config;
                noozle_set_alarm_config_lcd(&lcd_alarm_config, alarms, alarm_name);
-               if(alarm_name != ALARM_NONE)
+               if(alarm_name != ALARM_NONE){
+                    alarm_Trigger = false;
                     lcd_create_task(&lcd_alarm_config);
+               }
 
                break;
 
@@ -57,6 +61,8 @@ void app_main(void)
 
      while (1)
      {
+          if(alarm_Trigger)
+               noozle_set_alarm();
           epoch = time(NULL);
           ESP_LOGI(TAG,"%lld", epoch);
           ESP_LOGI(TAG,"%d",alarm_name);
@@ -71,11 +77,13 @@ void noozle_set_alarm_config_lcd(lcd_config_alarm_t* lcd_alarm_config ,int64_t* 
           lcd_alarm_config->start_time = alarms[TO_SLEEP];
           lcd_alarm_config->end_time = alarms[ALMOST_SLEEP];
           lcd_alarm_config->alarm_name = alarm_name; 
+          ESP_LOGI(TAG,"ALARM_SLEEP is configured in lcd_config_alarm_t");
      }
      else if(alarm_name == ALARM_WAKE)
      {
           lcd_alarm_config->start_time = alarms[TO_GET_UP];
           lcd_alarm_config->end_time = alarms[ALMOST_GETTING_UP];
           lcd_alarm_config->alarm_name = alarm_name; 
+          ESP_LOGI(TAG,"ALARM_WAKE is configured in lcd_config_alarm_t");
      }
 }
