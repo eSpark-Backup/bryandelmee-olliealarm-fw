@@ -9,7 +9,8 @@ static const char* TAG = "BLEProv";
 
 esp_err_t BLEProv::setup()
 {
-    ESP_RETURN_ON_ERROR(registerEventHandler(), TAG, "setup: registerEventHandler");
+    ESP_RETURN_ON_ERROR(setupEventGroup(), TAG, "setup: setupEventGroup");
+    ESP_RETURN_ON_ERROR(setupEventHandler(), TAG, "setup: setupEventHandler");
     ESP_RETURN_ON_ERROR(initProvisioningManager(), TAG, "setup: initProvisioningManager");
     ESP_RETURN_ON_ERROR(setServiceName(), TAG, "setup: setServiceName");
     ESP_RETURN_ON_ERROR(setServiceUUID(), TAG, "setup: setServiceUUID");
@@ -19,11 +20,10 @@ esp_err_t BLEProv::setup()
     return ESP_OK;
 }
 
-esp_err_t BLEProv::start()
+esp_err_t BLEProv::run()
 {
     /* Start provisioning service */
-    ESP_RETURN_ON_ERROR(wifi_prov_mgr_start_provisioning(security, pop, service_name, service_key), TAG, "start: wifi_prov_mgr_start_provisioning");
-    // wifi_prov_mgr_endpoint_register("custom-data", custom_prov_data_handler, NULL);
+    ESP_RETURN_ON_ERROR(wifi_prov_mgr_start_provisioning(security, pop, service_name, service_key), TAG, "run: wifi_prov_mgr_start_provisioning");
     return ESP_OK;
 }
 
@@ -35,6 +35,11 @@ esp_err_t BLEProv::restart()
 void BLEProv::stop() 
 {
     return wifi_prov_mgr_deinit();
+}
+
+void BLEProv::wait()
+{
+    xEventGroupWaitBits(this->event_group, BLEPROV_SUCCESS_BIT, false, true, portMAX_DELAY); 
 }
 
 /**
@@ -118,12 +123,23 @@ void BLEProv::setPOP(const char* pop)
     #endif
 }
 
-esp_err_t BLEProv::registerEventHandler()
+esp_err_t BLEProv::setupEventGroup()
 {
-    return esp_event_handler_register(WIFI_PROV_EVENT, ESP_EVENT_ANY_ID, &eventHandler, this);
+    event_group = xEventGroupCreate();
+    if(event_group == NULL)
+        return ESP_FAIL;
+
+    return ESP_OK;
 }
 
-void BLEProv::eventHandler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data)
+
+
+esp_err_t BLEProv::setupEventHandler()
+{
+    return esp_event_handler_register(WIFI_PROV_EVENT, ESP_EVENT_ANY_ID, &eventHandlerBLE, this);
+}
+
+void BLEProv::eventHandlerBLE(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data)
 {
     BLEProv *thisObj = (BLEProv*)arg; 
     if (event_base == WIFI_PROV_EVENT) {
@@ -147,6 +163,7 @@ void BLEProv::eventHandler(void* arg, esp_event_base_t event_base, int32_t event
                 break;
 
             case WIFI_PROV_CRED_SUCCESS:
+                xEventGroupSetBits(thisObj->event_group, thisObj->BLEPROV_SUCCESS_BIT);
                 ESP_LOGI(TAG, "WIFI_PROV_CRED_SUCCESS");
                 break;
             
