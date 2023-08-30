@@ -16,6 +16,30 @@ esp_err_t NVS::init()
     return nvs_flash_init();
 }
 
+esp_err_t NVS::setupKeyU8(const char* name_space, const char* key)
+{
+    uint8_t value = 0;
+    esp_err_t ret;
+    ret = readKeyU8(name_space, key, &value);
+
+    if(ret == ESP_ERR_NVS_NOT_FOUND)
+        ESP_RETURN_ON_ERROR(writeKeyU8(name_space, key, value), TAG, "setupKeyU8 : writeKeyU8");
+    
+    return ESP_OK;
+}
+
+esp_err_t NVS::setupKeyU32(const char* name_space, const char* key)
+{
+    uint32_t value = 0;
+    esp_err_t ret;
+    ret = readKeyU32(name_space, key, &value);
+
+    if(ret == ESP_ERR_NVS_NOT_FOUND)
+        ESP_RETURN_ON_ERROR(writeKeyU32(name_space, key, value), TAG, "setupKeyU32 : writeKeyU32");
+    
+    return ESP_OK;
+}
+
 /**
  * @brief Erase key-value pair with given key name & update the storage.
  * 
@@ -40,7 +64,45 @@ esp_err_t NVS::eraseKey(const char* name_space, const char* key)
 }
 
 /**
- * @brief Wrie an Unsigned 8-bit Key-Value pair to the NVS storage.
+ * @brief Write an Unsigned 32-bit Key-Value pair to the NVS storage.
+ * 
+ * @param name_space Open NVS storage with a given name_space from the default NVS partition.
+ * @param key   Key name
+ * @param value Value to be stored
+ * 
+ * @return esp_err_t ESP_OK/ESP_FAIL
+ */
+
+esp_err_t NVS::writeKeyU32(const char* name_space, const char* key, uint32_t value)
+{
+    ESP_RETURN_ON_ERROR(nvs_open(name_space, NVS_READWRITE, &handle), TAG, "writeKeyU32: nvs_open");
+    ESP_RETURN_ON_ERROR(nvs_set_u32(handle, key, value), TAG, "writeKeyU32: nvs_set_u8");
+    ESP_RETURN_ON_ERROR(nvs_commit(handle), TAG, "writeKeyU32: nvs_commit");
+    nvs_close(handle);
+    return ESP_OK;
+}
+
+/**
+ * @brief Read an Unsigned 32-bit Key-Value pair to the NVS storage.
+ * 
+ * @param name_space Open NVS storage with a given name_space from the default NVS partition.
+ * @param key   Key-name
+ * @param data  Variable to stored the retrieved data
+ * 
+ * @return esp_err_t ESP_OK/ESP_FAIL
+ */
+
+esp_err_t NVS::readKeyU32(const char* name_space, const char* key, uint32_t* data)
+{
+    ESP_RETURN_ON_ERROR(nvs_open(name_space, NVS_READWRITE, &handle), TAG, "readKey32: nvs_open");
+    ESP_RETURN_ON_ERROR(nvs_get_u32(handle, key, data), TAG, "readKey32: nvs_set_u8");
+    ESP_RETURN_ON_ERROR(nvs_commit(handle), TAG, "readKey32: nvs_commit");
+    nvs_close(handle);
+    return ESP_OK;
+}
+
+/**
+ * @brief Write an Unsigned 8-bit Key-Value pair to the NVS storage.
  * 
  * @param name_space Open NVS storage with a given name_space from the default NVS partition.
  * @param key   Key name
@@ -58,7 +120,7 @@ esp_err_t NVS::writeKeyU8(const char* name_space, const char* key, uint8_t value
 }
 
 /**
- * @brief 
+ * @brief Read an Unsigned 8-bit Key-Value pair to the NVS storage.
  * 
  * @param name_space Open NVS storage with a given name_space from the default NVS partition.
  * @param key   Key-name
