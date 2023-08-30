@@ -18,6 +18,7 @@ esp_err_t WIFI::setup()
     ESP_RETURN_ON_ERROR(setupEventHandler(), TAG, "setup: setupEventHandler()");
     ESP_RETURN_ON_ERROR(netifCreateWifiSTA(), TAG, "setup: netifCreateWifiSTA()");
     ESP_RETURN_ON_ERROR(init(), TAG, "setup: init()");
+    ESP_RETURN_ON_ERROR(esp_wifi_set_mode(WIFI_MODE_STA), TAG, "setup : esp_wifi_set_mode");
     ESP_RETURN_ON_ERROR(getConfig(), TAG, "setup: getConfig()");
 
     return ESP_OK;

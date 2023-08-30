@@ -49,7 +49,7 @@ void WIFI::eventHandlerWIFI(void *arg, esp_event_base_t eventBase, int32_t event
             break;
 
         case WIFI_EVENT_STA_DISCONNECTED:
-            (retries < 10) ? thisObj->connect() , retries++ : xEventGroupSetBits(thisObj->event_group, thisObj->WIFI_FAIL_BIT);
+            (retries < 5) ? thisObj->connect() , retries++ : xEventGroupSetBits(thisObj->event_group, thisObj->WIFI_FAIL_BIT);
             break;
 
         case WIFI_EVENT_STA_CONNECTED:

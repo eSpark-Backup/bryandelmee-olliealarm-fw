@@ -18,24 +18,30 @@ esp_err_t NVS::init()
 
 esp_err_t NVS::setupKeyU8(const char* name_space, const char* key)
 {
-    uint8_t value = 0;
+    uint8_t value;
     esp_err_t ret;
     ret = readKeyU8(name_space, key, &value);
 
     if(ret == ESP_ERR_NVS_NOT_FOUND)
-        ESP_RETURN_ON_ERROR(writeKeyU8(name_space, key, value), TAG, "setupKeyU8 : writeKeyU8");
+    {
+        value = ESP_FAIL; //1
+        ESP_RETURN_ON_ERROR(writeKeyU8(name_space, key, 1), TAG, "setupKeyU8 : writeKeyU8");
+    }
     
     return ESP_OK;
 }
 
 esp_err_t NVS::setupKeyU32(const char* name_space, const char* key)
 {
-    uint32_t value = 0;
+    uint32_t value;
     esp_err_t ret;
     ret = readKeyU32(name_space, key, &value);
 
     if(ret == ESP_ERR_NVS_NOT_FOUND)
+    {
+        value = ESP_FAIL; //1
         ESP_RETURN_ON_ERROR(writeKeyU32(name_space, key, value), TAG, "setupKeyU32 : writeKeyU32");
+    }
     
     return ESP_OK;
 }
@@ -95,7 +101,7 @@ esp_err_t NVS::writeKeyU32(const char* name_space, const char* key, uint32_t val
 esp_err_t NVS::readKeyU32(const char* name_space, const char* key, uint32_t* data)
 {
     ESP_RETURN_ON_ERROR(nvs_open(name_space, NVS_READWRITE, &handle), TAG, "readKey32: nvs_open");
-    ESP_RETURN_ON_ERROR(nvs_get_u32(handle, key, data), TAG, "readKey32: nvs_set_u8");
+    ESP_RETURN_ON_ERROR(nvs_get_u32(handle, key, data), TAG, "readKey32: nvs_get_u32");
     ESP_RETURN_ON_ERROR(nvs_commit(handle), TAG, "readKey32: nvs_commit");
     nvs_close(handle);
     return ESP_OK;
