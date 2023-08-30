@@ -75,3 +75,19 @@ esp_err_t Noozle::bootCountUpdate()
     ESP_LOGI(TAG, "boot count = %lu", boot_count);
     return ESP_OK;
 }
+
+void Noozle::checkProvStatusAndRunBleOrWifi()
+{
+    esp_err_t ret = getProvStatus();
+    if(ret == ESP_FAIL)
+    {
+        connectBLE();
+        setProvStatus(0); /*0 : Device Provisioned */
+    }
+    else
+    {
+        esp_err_t ret = connectWifi();
+        if(ret != ESP_OK)
+            setProvStatus(1);  /*1 : Device is not Provisioned */
+    }
+}

@@ -19,4 +19,5 @@ class Noozle
         esp_err_t setProvStatus(uint8_t status);
         esp_err_t getProvStatus();
         esp_err_t bootCountUpdate();
+        void checkProvStatusAndRunBleOrWifi();
 };
