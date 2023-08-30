@@ -9,10 +9,12 @@ static const char* TAG = "MAIN";
 #include "NVS.hpp"
 #include "wifi.hpp"
 #include "BLEProv.hpp"
+// #include "Noozle.hpp"
 
 WIFI* wifi;
 BLEProv* ble;
 NVS* nvs;
+// Noozle* app;
 
 #define NAME_SPACE "Noozle"
 #define BOOT_KEY "Boot"
@@ -27,7 +29,6 @@ extern "C" void app_main(void)
     nvs->init();
     nvs->setupKeyU32(NAME_SPACE, BOOT_KEY);
     nvs->setupKeyU8(NAME_SPACE, PROV_STATUS_KEY);
-
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
     
@@ -57,6 +58,15 @@ extern "C" void app_main(void)
             ble->wait();
             uint8_t prov_status = 1;
             nvs->writeKeyU8(NAME_SPACE, PROV_STATUS_KEY, prov_status);
+        }
+        else
+        {
+            wifi->run();
+            if(ESP_FAIL == wifi->wait())
+            {
+                uint8_t prov_status = 0;
+                nvs->writeKeyU8(NAME_SPACE, PROV_STATUS_KEY, prov_status);
+            }
         }
     }
             
