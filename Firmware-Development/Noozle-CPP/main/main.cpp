@@ -33,21 +33,48 @@ extern "C" void app_main(void)
             esp_sleep_wakeup_cause_t wakeup_cause = esp_sleep_get_wakeup_cause();
             if(wakeup_cause == ESP_SLEEP_WAKEUP_EXT0)
             {
-                lcd_backlight_on();
                 app->setProvStatus(1);
                 app->connectBLE();
+                /*LED - BLINK 3Times on EXT0 wakeup (after provisioning)*/
+                lcd_backlight_on();
+                vTaskDelay(1000/portTICK_PERIOD_MS);
+                lcd_backlight_off();
+                vTaskDelay(1000/portTICK_PERIOD_MS);
+                lcd_backlight_on();
+                vTaskDelay(1000/portTICK_PERIOD_MS);
+                lcd_backlight_off();
+                vTaskDelay(1000/portTICK_PERIOD_MS);
+                lcd_backlight_on();
+                vTaskDelay(1000/portTICK_PERIOD_MS);
+                lcd_backlight_off();
+                vTaskDelay(1000/portTICK_PERIOD_MS);
             }
             else if(wakeup_cause == ESP_SLEEP_WAKEUP_TIMER)
             {
                 esp_err_t ret = app->connectWifi();
                 if(ret != ESP_OK)
                     app->setProvStatus(1); /*1 : Device is not Provisioned */
+                
+                /*LED - BLINK 2Times on Timer wakeup (After Connect Wifi)*/
+                lcd_backlight_on();
+                vTaskDelay(1000/portTICK_PERIOD_MS);
+                lcd_backlight_off();
+                vTaskDelay(1000/portTICK_PERIOD_MS);
+                lcd_backlight_on();
+                vTaskDelay(1000/portTICK_PERIOD_MS);
+                lcd_backlight_off();
+                vTaskDelay(1000/portTICK_PERIOD_MS);
             }
             break;
         }
         default:
         {
             app->checkProvStatusAndRunBleOrWifi();
+            /*LED - BLINK 1Time on RST (after initial provisioning or connectWifi)*/
+            lcd_backlight_on();
+            vTaskDelay(1000/portTICK_PERIOD_MS);
+            lcd_backlight_off();
+            vTaskDelay(1000/portTICK_PERIOD_MS);
         }
             break;
     }
@@ -55,8 +82,7 @@ extern "C" void app_main(void)
     while (1)
     {
         ESP_LOGI(TAG, "HELLO WORLD!");
-        vTaskDelay( (3*1000) /portTICK_PERIOD_MS);
-        esp_sleep_enable_timer_wakeup(30 * 1000000);
+        esp_sleep_enable_timer_wakeup(10 * 1000000);
         esp_sleep_enable_ext0_wakeup(GPIO_NUM_20, 0);
         esp_deep_sleep_start();
     }
