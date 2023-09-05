@@ -15,7 +15,7 @@ io_expander::io_expander()
 
 io_expander::~io_expander()
 {
-    deinitI2C();
+    // deinitI2C();
 }
 
 
@@ -30,7 +30,8 @@ esp_err_t io_expander::initI2C(void)
     conf.scl_io_num = GPIO_NUM_41;
     conf.sda_pullup_en = GPIO_PULLUP_ENABLE;
     conf.scl_pullup_en = GPIO_PULLUP_ENABLE;
-    conf.master.clk_speed = 100000;
+    conf.master.clk_speed = (uint32_t) 100000;
+    conf.clk_flags = 0;
  
     ESP_RETURN_ON_ERROR(i2c_param_config(PCA9636_I2C_MASTER_NUM, &conf), TAG, "initI2C: i2c_param_config()");
     ESP_RETURN_ON_ERROR(i2c_driver_install(PCA9636_I2C_MASTER_NUM, conf.mode, I2C_MASTER_RX_BUF_DISABLE, I2C_MASTER_TX_BUF_DISABLE, 0), TAG, "initI2C : i2c_driver_install");
