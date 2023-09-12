@@ -5,6 +5,8 @@
 #include "esp_wifi.h"
 #include <functional>
 
+#define NOOZLE_POP_TOKEN "abcd1234"
+
 static const char* TAG = "BLEProv";
 
 esp_err_t BLEProv::setup()
@@ -15,7 +17,7 @@ esp_err_t BLEProv::setup()
     ESP_RETURN_ON_ERROR(setServiceName(), TAG, "setup: Setting up Service Name for BLE");
     ESP_RETURN_ON_ERROR(setServiceUUID(), TAG, "setup: Setting up Service UUID for BLE");
     setSecurity(WIFI_PROV_SECURITY_1);
-    setPOP("abcd1234");
+    setPOP(NOOZLE_POP_TOKEN);
 
     return ESP_OK;
 }
