@@ -1,7 +1,7 @@
 #include "Noozle.hpp"
 #include "esp_check.h"
 
-#define NAME_SPACE "Noozle"
+#define SPACE_LABEL "Device_Info"
 #define BOOT_KEY "Boot"
 #define PROV_STATUS_KEY "Prov_Status"
 
@@ -29,8 +29,8 @@ esp_err_t Noozle::setupNVS()
 {
     ESP_RETURN_ON_ERROR(nvs->init(), TAG, "setupNVS: nvs->init()");
     /*Setup Keys in the NVS with default values*/
-    ESP_RETURN_ON_ERROR(nvs->setupKeyU32(NAME_SPACE, BOOT_KEY), TAG, "setupNVS : nvs->setupKeyU32(NAME_SPACE, BOOT_KEY)");
-    ESP_RETURN_ON_ERROR(nvs->setupKeyU8(NAME_SPACE, PROV_STATUS_KEY), TAG, "setupNVS :nvs->setupKeyU8(NAME_SPACE, PROV_STATUS_KEY)");
+    ESP_RETURN_ON_ERROR(nvs->setupKeyU32(SPACE_LABEL, BOOT_KEY), TAG, "setupNVS : nvs->setupKeyU32(SPACE_LABEL, BOOT_KEY)");
+    ESP_RETURN_ON_ERROR(nvs->setupKeyU8(SPACE_LABEL, PROV_STATUS_KEY), TAG, "setupNVS :nvs->setupKeyU8(SPACE_LABEL, PROV_STATUS_KEY)");
     return ESP_OK;
 }
 
@@ -52,14 +52,14 @@ esp_err_t Noozle::setProvStatus(uint8_t status)
 {
     uint8_t prov_status = status;
     ESP_LOGI(TAG,"setProvStatus = %u", prov_status);
-    ESP_RETURN_ON_ERROR(nvs->writeKeyU8(NAME_SPACE, PROV_STATUS_KEY, prov_status), TAG, "setProvStatus: nvs->writeKeyU8()");
+    ESP_RETURN_ON_ERROR(nvs->writeKeyU8(SPACE_LABEL, PROV_STATUS_KEY, prov_status), TAG, "setProvStatus: nvs->writeKeyU8()");
     return ESP_OK;
 }
 
 esp_err_t Noozle::getProvStatus()
 {
     uint8_t prov_status;
-    ESP_RETURN_ON_ERROR(nvs->readKeyU8(NAME_SPACE, PROV_STATUS_KEY, &prov_status), TAG, "getProvStatus : readKeyU8");
+    ESP_RETURN_ON_ERROR(nvs->readKeyU8(SPACE_LABEL, PROV_STATUS_KEY, &prov_status), TAG, "getProvStatus : readKeyU8");
     ESP_LOGI(TAG,"getProvStatus = %u", prov_status);
     if(prov_status == 1)
         return ESP_FAIL;
@@ -69,9 +69,9 @@ esp_err_t Noozle::getProvStatus()
 esp_err_t Noozle::bootCountUpdate()
 {
     uint32_t boot_count = 0;
-    ESP_RETURN_ON_ERROR(nvs->readKeyU32(NAME_SPACE, BOOT_KEY, &boot_count), TAG, "bootCountUpdate: readKeyU32");
+    ESP_RETURN_ON_ERROR(nvs->readKeyU32(SPACE_LABEL, BOOT_KEY, &boot_count), TAG, "bootCountUpdate: readKeyU32");
     boot_count++;
-    ESP_RETURN_ON_ERROR(nvs->writeKeyU32(NAME_SPACE, BOOT_KEY, boot_count), TAG, "bootCountUpdate: writeKeyU32");
+    ESP_RETURN_ON_ERROR(nvs->writeKeyU32(SPACE_LABEL, BOOT_KEY, boot_count), TAG, "bootCountUpdate: writeKeyU32");
     ESP_LOGI(TAG, "boot count = %lu", boot_count);
     return ESP_OK;
 }
