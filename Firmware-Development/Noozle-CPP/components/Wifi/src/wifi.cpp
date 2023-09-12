@@ -14,19 +14,19 @@ static const char* TAG = "Wifi-Moudle";
 
 esp_err_t WIFI::setup()
 {
-    ESP_RETURN_ON_ERROR(setupEventGroup(), TAG, "setup: setupEventGroup()");
-    ESP_RETURN_ON_ERROR(setupEventHandler(), TAG, "setup: setupEventHandler()");
-    ESP_RETURN_ON_ERROR(netifCreateWifiSTA(), TAG, "setup: netifCreateWifiSTA()");
-    ESP_RETURN_ON_ERROR(init(), TAG, "setup: init()");
-    ESP_RETURN_ON_ERROR(esp_wifi_set_mode(WIFI_MODE_STA), TAG, "setup : esp_wifi_set_mode");
-    ESP_RETURN_ON_ERROR(getConfig(), TAG, "setup: getConfig()");
+    ESP_RETURN_ON_ERROR(setupEventGroup(), TAG, "setup: Setting up WiFi event group");
+    ESP_RETURN_ON_ERROR(setupEventHandler(), TAG, "setup: Setting up WiFi callbacks");
+    ESP_RETURN_ON_ERROR(netifCreateWifiSTA(), TAG, "setup: Setting up default WiFi STA");
+    ESP_RETURN_ON_ERROR(init(), TAG, "setup: Initialize WiFi");
+    ESP_RETURN_ON_ERROR(esp_wifi_set_mode(WIFI_MODE_STA), TAG, "setup : Setting WiFi mode to STA");
+    ESP_RETURN_ON_ERROR(getConfig(), TAG, "setup: Fetching saved WiFi configurations");
 
     return ESP_OK;
 }
 
 esp_err_t WIFI::run()
 {
-    ESP_RETURN_ON_ERROR(esp_wifi_start(), TAG, "run: esp_wifi_start()");
+    ESP_RETURN_ON_ERROR(esp_wifi_start(), TAG, "run: Starts WiFi");
     return ESP_OK;
 }
 

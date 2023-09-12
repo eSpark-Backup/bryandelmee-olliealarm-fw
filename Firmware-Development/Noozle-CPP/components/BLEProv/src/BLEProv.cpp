@@ -9,11 +9,11 @@ static const char* TAG = "BLEProv";
 
 esp_err_t BLEProv::setup()
 {
-    ESP_RETURN_ON_ERROR(setupEventGroup(), TAG, "setup: setupEventGroup");
-    ESP_RETURN_ON_ERROR(setupEventHandler(), TAG, "setup: setupEventHandler");
-    ESP_RETURN_ON_ERROR(initProvisioningManager(), TAG, "setup: initProvisioningManager");
-    ESP_RETURN_ON_ERROR(setServiceName(), TAG, "setup: setServiceName");
-    ESP_RETURN_ON_ERROR(setServiceUUID(), TAG, "setup: setServiceUUID");
+    ESP_RETURN_ON_ERROR(setupEventGroup(), TAG, "setup: Setting up event groups for BLE");
+    ESP_RETURN_ON_ERROR(setupEventHandler(), TAG, "setup: Setting up event handler for BLE");
+    ESP_RETURN_ON_ERROR(initProvisioningManager(), TAG, "setup: Initialize Wi-Fi provisioning manager");
+    ESP_RETURN_ON_ERROR(setServiceName(), TAG, "setup: Setting up Service Name for BLE");
+    ESP_RETURN_ON_ERROR(setServiceUUID(), TAG, "setup: Setting up Service UUID for BLE");
     setSecurity(WIFI_PROV_SECURITY_1);
     setPOP("abcd1234");
 
@@ -23,7 +23,7 @@ esp_err_t BLEProv::setup()
 esp_err_t BLEProv::run()
 {
     /* Start provisioning service */
-    ESP_RETURN_ON_ERROR(wifi_prov_mgr_start_provisioning(security, pop, service_name, service_key), TAG, "run: wifi_prov_mgr_start_provisioning");
+    ESP_RETURN_ON_ERROR(wifi_prov_mgr_start_provisioning(security, pop, service_name, service_key), TAG, "run: Starts wi-fi provisioning manager");
     return ESP_OK;
 }
 
