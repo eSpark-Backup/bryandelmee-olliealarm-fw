@@ -7,15 +7,6 @@
 
 class BLEProv
 {
-    private:
-        char service_name[12];
-        uint8_t custom_service_uuid[16];
-        const char *service_key = NULL;
-        const char *pop = NULL;
-        wifi_prov_security_t security;
-        EventGroupHandle_t event_group;
-        const int BLEPROV_SUCCESS_BIT =  BIT0;
-
     public:
         BLEProv(/* args */){}
         ~BLEProv(){}
@@ -35,5 +26,14 @@ class BLEProv
         static void eventHandlerBLE(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data);
 
         void printServiceName();
+        
+    private:
+        char service_name[12];
+        uint8_t custom_service_uuid[16];
+        const char *service_key = NULL;
+        const char *pop = NULL;
+        wifi_prov_security_t security;
+        EventGroupHandle_t event_group;
+        const int BLEPROV_SUCCESS_BIT =  BIT0;
         
 };

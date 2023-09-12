@@ -6,10 +6,6 @@
 
 class Noozle
 {
-    private:
-        NVS* nvs;
-        WIFI* wifi;
-        BLEProv* ble;
     public:
         Noozle();
         esp_err_t setup();
@@ -20,4 +16,9 @@ class Noozle
         esp_err_t getProvStatus();
         esp_err_t bootCountUpdate();
         void checkProvStatusAndRunBleOrWifi();
+        
+    private:
+        NVS* nvs;
+        WIFI* wifi;
+        BLEProv* ble;
 };
