@@ -56,38 +56,35 @@ esp_err_t Noozle::setProvStatus(uint8_t status)
     return ESP_OK;
 }
 
-esp_err_t Noozle::getProvStatus()
+uint8_t Noozle::getProvStatus()
 {
     uint8_t prov_status;
     ESP_RETURN_ON_ERROR(nvs->readKeyU8(SPACE_LABEL, PROV_STATUS_KEY, &prov_status), TAG, "getProvStatus : Reads provisioning status from NVS");
     ESP_LOGI(TAG,"getProvStatus = %u", prov_status);
-    if(prov_status == 1)
-        return ESP_FAIL;
-    return ESP_OK;
+    return prov_status;
 }
 
 esp_err_t Noozle::bootCountUpdate()
 {
     uint32_t boot_count = 0;
     ESP_RETURN_ON_ERROR(nvs->readKeyU32(SPACE_LABEL, BOOT_KEY, &boot_count), TAG, "bootCountUpdate: Read boot-count from NVS");
-    boot_count++;
-    ESP_RETURN_ON_ERROR(nvs->writeKeyU32(SPACE_LABEL, BOOT_KEY, boot_count), TAG, "bootCountUpdate: Writes boot-count in NVS");
+    ESP_RETURN_ON_ERROR(nvs->writeKeyU32(SPACE_LABEL, BOOT_KEY, ++boot_count), TAG, "bootCountUpdate: Writes boot-count in NVS");
     ESP_LOGI(TAG, "boot count = %lu", boot_count);
     return ESP_OK;
 }
 
 void Noozle::checkProvStatusAndRunBleOrWifi()
 {
-    esp_err_t ret = getProvStatus();
-    if(ret == ESP_FAIL)
+    uint8_t ret = getProvStatus();
+    if(ret == PROVISIONING_STATUS_FAIL)
     {
         connectBLE();
-        setProvStatus(0); /*0 : Device Provisioned */
+        setProvStatus(PROVISIONING_STATUS_OK); /*0 : Device Provisioned */
     }
     else
     {
         esp_err_t ret = connectWifi();
         if(ret != ESP_OK)
-            setProvStatus(1);  /*1 : Device is not Provisioned */
+            setProvStatus(PROVISIONING_STATUS_FAIL);  /*1 : Device is not Provisioned */
     }
 }

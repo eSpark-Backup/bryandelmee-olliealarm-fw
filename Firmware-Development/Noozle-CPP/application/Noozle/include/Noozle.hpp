@@ -4,6 +4,8 @@
 #include "wifi.hpp"
 #include "BLEProv.hpp"
 
+enum prov_status_t : uint8_t { PROVISIONING_STATUS_OK, PROVISIONING_STATUS_FAIL };
+
 class Noozle
 {
     public:
@@ -13,7 +15,7 @@ class Noozle
         esp_err_t connectWifi();
         esp_err_t connectBLE();
         esp_err_t setProvStatus(uint8_t status);
-        esp_err_t getProvStatus();
+        uint8_t getProvStatus();
         esp_err_t bootCountUpdate();
         void checkProvStatusAndRunBleOrWifi();
         
