@@ -2,10 +2,10 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_spiffs.h"
+#include "codec.hpp"
 
 static const char* TAG = "MAIN";
 
-#include "codec.hpp"
 void audioTask(void* para);
 
 extern "C" void app_main(void)
