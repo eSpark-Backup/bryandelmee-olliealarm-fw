@@ -18,8 +18,8 @@ esp_err_t codec::setup()
 {
     /* Enable ES8388 Audio Codec Chip using the GPIO-Expander */
     io_expander io = io_expander();
-    io.setOutputPin(1);
-    io.setPinHigh(1);
+    io.setOutputPin(ES8388_EN_PIN);
+    io.setPinHigh(ES8388_EN_PIN);
     io.deinitI2C();
 
     audio_hal_codec_config_t es8388_cfg = {
@@ -34,7 +34,7 @@ esp_err_t codec::setup()
         },
     };
 
-    ESP_RETURN_ON_ERROR(es8388_init(&es8388_cfg, GPIO_NUM_40, GPIO_NUM_41), TAG, "setup: Initialize Audio Codec");
+    ESP_RETURN_ON_ERROR(es8388_init(&es8388_cfg, ES8388_SDA_PIN, ES8388_SCL_PIN), TAG, "setup: Initialize Audio Codec");
     ESP_RETURN_ON_ERROR(es8388_config_i2s(es8388_cfg.codec_mode, &es8388_cfg.i2s_iface), TAG, "setup: Configures the codec I2S");
     ESP_RETURN_ON_ERROR(es8388_ctrl_state(AUDIO_HAL_CODEC_MODE_DECODE, AUDIO_HAL_CTRL_START), TAG, "setup: Setting up Codec Mode");
     ESP_RETURN_ON_ERROR(es8388_set_voice_volume(0), TAG, "setup: Setting Volume");
@@ -50,6 +50,5 @@ esp_err_t codec::play(const char* wav)
 
 esp_err_t codec::setVol(uint8_t vol)
 {
-    ESP_RETURN_ON_ERROR(es8388_set_voice_volume(vol), TAG, "Set Volume Level");
-    return ESP_OK;
+    return es8388_set_voice_volume(vol);
 }

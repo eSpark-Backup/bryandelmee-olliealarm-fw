@@ -39,15 +39,13 @@ esp_err_t WIFI::run()
  */
 esp_err_t WIFI::netifCreateWifiSTA()
 {
-    esp_err_t ret = ESP_OK;
-
     esp_netif_config_t cfg = ESP_NETIF_DEFAULT_WIFI_STA();
     netif = esp_netif_new(&cfg);
     if(netif == NULL)
         return ESP_FAIL;
-    ret |= esp_netif_attach_wifi_station(netif);
-    ret |= esp_wifi_set_default_wifi_sta_handlers();
-    return ret;
+    ESP_RETURN_ON_ERROR(esp_netif_attach_wifi_station(netif), TAG, "Attaches wifi station interface to supplied netif");
+    ESP_RETURN_ON_ERROR(esp_wifi_set_default_wifi_sta_handlers(), TAG, "Sets default wifi event handlers for STA interface");
+    return ESP_OK;
 }
 
 /**
@@ -81,8 +79,8 @@ esp_err_t WIFI::getConfig()
 esp_err_t WIFI::setConfig(const char *ssid, const char* password)
 {
     /* Copy the SSID & Password into wifi 'config' */
-    memcpy(config.sta.ssid, ssid, strlen(ssid));
-    memcpy(config.sta.password, password, strlen(password));
+    strcpy((char*)config.sta.ssid, ssid);
+    strcpy((char*)config.sta.password, password);
     /* Update Wifi configurations in NVS */
     return esp_wifi_set_config(WIFI_IF_STA, &config);
 }

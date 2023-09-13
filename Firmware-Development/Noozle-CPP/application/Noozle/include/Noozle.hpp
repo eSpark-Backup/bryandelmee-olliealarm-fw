@@ -4,7 +4,7 @@
 #include "wifi.hpp"
 #include "BLEProv.hpp"
 
-enum prov_status_t : uint8_t { PROVISIONING_STATUS_OK, PROVISIONING_STATUS_FAIL };
+enum prov_status_t : uint8_t { PROVISIONING_STATUS_FAIL, PROVISIONING_STATUS_OK };
 
 class Noozle
 {

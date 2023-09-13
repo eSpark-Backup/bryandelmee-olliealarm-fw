@@ -12,7 +12,7 @@ esp_err_t es_i2c_init(int sda_pin, int scl_pin)
         .scl_io_num = scl_pin,
         .sda_pullup_en = GPIO_PULLUP_ENABLE,
         .scl_pullup_en = GPIO_PULLUP_ENABLE,
-        .master.clk_speed = 100000
+        .master.clk_speed = ES8388_I2C_CLK
     };
     ESP_RETURN_ON_ERROR(i2c_param_config(I2C_NUM_0, (const i2c_config_t*) &es_i2c_cfg ), TAG, "i2c_param_config");  
     ESP_RETURN_ON_ERROR(i2c_driver_install(I2C_NUM_0, es_i2c_cfg.mode, 0, 0, 0), TAG, "i2c_driver_install");  

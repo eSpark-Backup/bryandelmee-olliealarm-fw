@@ -22,9 +22,14 @@ esp_err_t NVS::setupKeyU8(const char* space_label, const char* key)
     esp_err_t ret;
     ret = readKeyU8(space_label, key, &value);
 
+    /* 
+        readKey function is used here to verify that the 'KEY' is present in the nvs-namespace.
+        So, if 'KEY' is already present then it simply returns ESP_OK.
+        But, if 'KEY' is not present, we have to define it in the nvs-namespace by simply writing it with a default-value 0.
+    */
     if(ret == ESP_ERR_NVS_NOT_FOUND)
     {
-        value = ESP_FAIL; //1
+        value = 0;
         ESP_RETURN_ON_ERROR(writeKeyU8(space_label, key, 1), TAG, "setupKeyU8 : Writes an U8 Key-value");
     }
     
@@ -37,9 +42,14 @@ esp_err_t NVS::setupKeyU32(const char* space_label, const char* key)
     esp_err_t ret;
     ret = readKeyU32(space_label, key, &value);
 
+    /* 
+        readKey function is used here to verify that the 'KEY' is present in the nvs-namespace.
+        So, if 'KEY' is already present then it simply returns ESP_OK.
+        But, if 'KEY' is not present, we have to define it in the nvs-namespace by simply writing it with a default-value 0.
+    */
     if(ret == ESP_ERR_NVS_NOT_FOUND)
     {
-        value = ESP_FAIL; //1
+        value = 0; 
         ESP_RETURN_ON_ERROR(writeKeyU32(space_label, key, value), TAG, "setupKeyU32 : Writes a U32 Key-value");
     }
     
@@ -93,15 +103,15 @@ esp_err_t NVS::writeKeyU32(const char* space_label, const char* key, uint32_t va
  * 
  * @param space_label Open NVS storage with a given space_label from the default NVS partition.
  * @param key   Key-name
- * @param data  Variable to stored the retrieved data
+ * @param value  Variable to stored the retrieved value
  * 
  * @return esp_err_t ESP_OK/ESP_FAIL
  */
 
-esp_err_t NVS::readKeyU32(const char* space_label, const char* key, uint32_t* data)
+esp_err_t NVS::readKeyU32(const char* space_label, const char* key, uint32_t* value)
 {
     ESP_RETURN_ON_ERROR(nvs_open(space_label, NVS_READWRITE, &handle), TAG, "readKey32: Open NVS with the given space_label");
-    ESP_RETURN_ON_ERROR(nvs_get_u32(handle, key, data), TAG, "readKey32: Read U32 key-value from NVS.");
+    ESP_RETURN_ON_ERROR(nvs_get_u32(handle, key, value), TAG, "readKey32: Read U32 key-value from NVS.");
     ESP_RETURN_ON_ERROR(nvs_commit(handle), TAG, "readKey32: Update NVS-Storage");
     nvs_close(handle);
     return ESP_OK;
@@ -130,14 +140,14 @@ esp_err_t NVS::writeKeyU8(const char* space_label, const char* key, uint8_t valu
  * 
  * @param space_label Open NVS storage with a given space_label from the default NVS partition.
  * @param key   Key-name
- * @param data  Variable to stored the retrieved data
+ * @param value  Variable to stored the retrieved value
  * 
  * @return esp_err_t ESP_OK/ESP_FAIL
  */
-esp_err_t NVS::readKeyU8(const char* space_label, const char* key, uint8_t* data)
+esp_err_t NVS::readKeyU8(const char* space_label, const char* key, uint8_t* value)
 {
     ESP_RETURN_ON_ERROR(nvs_open(space_label, NVS_READWRITE, &handle), TAG, "readKeyU8: Open NVS with the given space_label");
-    ESP_RETURN_ON_ERROR(nvs_get_u8(handle, key, data), TAG, "readKeyU8: Reads U8 key-value");
+    ESP_RETURN_ON_ERROR(nvs_get_u8(handle, key, value), TAG, "readKeyU8: Reads U8 key-value");
     ESP_RETURN_ON_ERROR(nvs_commit(handle), TAG, "readKeyU8: Update NVS-Storage");
     nvs_close(handle);
     return ESP_OK;
@@ -167,15 +177,15 @@ esp_err_t NVS::writeKey(const char* space_label, const char* key, void* value, s
  * 
  * @param space_label Open NVS storage with a given space_label from the default NVS partition.
  * @param key   Key-name
- * @param data  Variable to stored the retrieved data
+ * @param value  Variable to stored the retrieved value
  * 
  * @return esp_err_t ESP_OK/ESP_FAIL
  */
-esp_err_t NVS::readKey(const char* space_label, const char* key, void* data)
+esp_err_t NVS::readKey(const char* space_label, const char* key, void* value)
 {
     size_t size;
     ESP_RETURN_ON_ERROR(nvs_open(space_label, NVS_READWRITE, &handle), TAG, "readKey: Open NVS with the given space_label");
-    ESP_RETURN_ON_ERROR(nvs_get_blob(handle, key, data, &size), TAG, "readKey: Reads a blob Key-value");
+    ESP_RETURN_ON_ERROR(nvs_get_blob(handle, key, value, &size), TAG, "readKey: Reads a blob Key-value");
     ESP_RETURN_ON_ERROR(nvs_commit(handle), TAG, "readKey: Update NVS-Storage");
     nvs_close(handle);
     return ESP_OK;

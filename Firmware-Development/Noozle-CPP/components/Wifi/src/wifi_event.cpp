@@ -1,5 +1,8 @@
 #include "wifi.hpp"
 #include "esp_log.h"
+#include "esp_check.h"
+
+#define WIFI_MAX_RETRIES 5
 
 static const char* TAG = "WIFI-EVENT-MODULE";
 
@@ -31,10 +34,9 @@ esp_err_t WIFI::setupEventGroup()
 
 esp_err_t WIFI::setupEventHandler()
 {
-    esp_err_t ret = ESP_OK;
-    ret |= esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &eventHandlerWIFI, this, &instance_any_id);
-    ret |= esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &eventHandlerIP, this, &instance_got_ip);
-    return ret;
+    ESP_RETURN_ON_ERROR(esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &eventHandlerWIFI, this, &instance_any_id), TAG, "Register Wi-FI event handler");
+    ESP_RETURN_ON_ERROR(esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &eventHandlerIP, this, &instance_got_ip), TAG, "Register IP event handler");
+    return ESP_OK;
 }
 
 void WIFI::eventHandlerWIFI(void *arg, esp_event_base_t eventBase, int32_t eventID, void *eventData)
@@ -49,7 +51,7 @@ void WIFI::eventHandlerWIFI(void *arg, esp_event_base_t eventBase, int32_t event
             break;
 
         case WIFI_EVENT_STA_DISCONNECTED:
-            (retries < 5) ? thisObj->connect() , retries++ : xEventGroupSetBits(thisObj->event_group, thisObj->WIFI_FAIL_BIT);
+            (retries < WIFI_MAX_RETRIES) ? thisObj->connect() , retries++ : xEventGroupSetBits(thisObj->event_group, thisObj->WIFI_FAIL_BIT);
             break;
 
         case WIFI_EVENT_STA_CONNECTED:

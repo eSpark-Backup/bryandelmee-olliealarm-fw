@@ -6,6 +6,10 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
+#define IO_EXPANDER_SDA         GPIO_NUM_40
+#define IO_EXPANDER_SCL         GPIO_NUM_41
+#define IO_EXPANDER_CLOCK_SPEED 100000
+
 static const char* TAG = "IO_EXPANDER";
 
 io_expander::io_expander()
@@ -26,11 +30,11 @@ esp_err_t io_expander::initI2C(void)
 {  
     i2c_config_t conf;
     conf.mode = I2C_MODE_MASTER;
-    conf.sda_io_num = GPIO_NUM_40;
-    conf.scl_io_num = GPIO_NUM_41;
+    conf.sda_io_num = IO_EXPANDER_SDA;
+    conf.scl_io_num = IO_EXPANDER_SCL;
     conf.sda_pullup_en = GPIO_PULLUP_ENABLE;
     conf.scl_pullup_en = GPIO_PULLUP_ENABLE;
-    conf.master.clk_speed = (uint32_t) 100000;
+    conf.master.clk_speed = (uint32_t) IO_EXPANDER_CLOCK_SPEED;
     conf.clk_flags = 0;
  
     ESP_RETURN_ON_ERROR(i2c_param_config(PCA9636_I2C_MASTER_NUM, &conf), TAG, "initI2C: Setting up I2C bus configuration");
@@ -52,8 +56,7 @@ esp_err_t io_expander::deinitI2C(void)
  */
 esp_err_t io_expander::i2cRead(uint8_t reg_addr, uint8_t *data, size_t len)
 {
-    ESP_RETURN_ON_ERROR(i2c_master_write_read_device(PCA9636_I2C_MASTER_NUM, PCA9536_DEVICE_ADDR, &reg_addr, 1, data, len, I2C_MASTER_TIMEOUT_MS / portTICK_PERIOD_MS), TAG, "i2cRead: Reading bytes on I2C  ");
-    return ESP_OK;
+    return i2c_master_write_read_device(PCA9636_I2C_MASTER_NUM, PCA9536_DEVICE_ADDR, &reg_addr, 1, data, len, I2C_MASTER_TIMEOUT_MS / portTICK_PERIOD_MS);
 }
 
 /**
@@ -62,8 +65,7 @@ esp_err_t io_expander::i2cRead(uint8_t reg_addr, uint8_t *data, size_t len)
 esp_err_t io_expander::i2cWrite(uint8_t reg_addr, uint8_t data)
 {
     uint8_t write_buf[2] = {reg_addr, data};
-    ESP_RETURN_ON_ERROR(i2c_master_write_to_device(PCA9636_I2C_MASTER_NUM, PCA9536_DEVICE_ADDR, write_buf, sizeof(write_buf), I2C_MASTER_TIMEOUT_MS / portTICK_PERIOD_MS), TAG, "i2cWrite: Writing Bytes on I2C");
-    return ESP_OK;
+    return i2c_master_write_to_device(PCA9636_I2C_MASTER_NUM, PCA9536_DEVICE_ADDR, write_buf, sizeof(write_buf), I2C_MASTER_TIMEOUT_MS / portTICK_PERIOD_MS);
 }
 
 esp_err_t io_expander::setOutputPin(uint8_t io_num)

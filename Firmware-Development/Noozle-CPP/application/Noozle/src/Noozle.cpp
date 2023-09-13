@@ -88,3 +88,4 @@ void Noozle::checkProvStatusAndRunBleOrWifi()
             setProvStatus(PROVISIONING_STATUS_FAIL);  /*1 : Device is not Provisioned */
     }
 }
+
