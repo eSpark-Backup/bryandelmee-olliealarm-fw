@@ -50,5 +50,26 @@ esp_err_t codec::play(const char* wav)
 
 esp_err_t codec::setVol(uint8_t vol)
 {
-    return es8388_set_voice_volume(vol);
+    ESP_RETURN_ON_ERROR(es8388_set_voice_volume(vol), TAG, "Set Volume Level");
+    return ESP_OK;
+}
+
+/**
+ * @brief Enables or Disables the Codec's Enable Pin using IO Expander
+ * 
+ * @param true : to enable the codec
+ * @param false : to disable the codec
+ */
+void codec::codec_en(bool en){
+    io_expander io = io_expander();
+    if(en){
+        ESP_LOGI(TAG, "Enable");
+        io.setPinHigh(1);
+    }
+    else{
+        ESP_LOGI(TAG, "Disable");        
+        io.setPinLow(1);
+    }
+    io.readPin(1);
+
 }

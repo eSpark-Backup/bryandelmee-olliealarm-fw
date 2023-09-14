@@ -95,4 +95,21 @@ esp_err_t io_expander::setPinLow(uint8_t io_num)
     return ESP_OK;
 }
 
+/**
+ * @brief Reads the 8 Bits of IO Expander out Register (first 4 bits are 4 gpio expander pins)
+ * 
+ * @param io_num : IO pin you want to read (0-3)
+ * 
+ * @return 1 : IO 0 is High
+        2 : IO 1 is High
+        4 : IO 2 is High
+        8 : IO 3 is High
+ */
+esp_err_t io_expander::readPin(uint8_t io_num){
+    uint8_t pca9536_data;
+    ESP_RETURN_ON_ERROR(i2cRead(PCA9536_REG_OUTPUT, &pca9536_data, 1), TAG, "setPinLow:  Reading output register to get all pins states");
+    pca9536_data = pca9536_data & (1 << io_num);
+    ESP_LOGI(TAG, "Expander read : %u", pca9536_data);  
+    return ESP_OK;
+}
 
