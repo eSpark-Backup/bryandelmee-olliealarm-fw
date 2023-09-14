@@ -6,85 +6,37 @@
 #include "esp_sleep.h"
 #include "esp_netif.h"
 #include "freertos/FreeRTOS.h"
-static const char* TAG = "MAIN";
+#include "freertos/task.h"
 
-#include "Noozle.hpp"
-Noozle* app;
+TaskHandle_t lcd_task_handle = NULL;
 
-#define LCD_GPIO_BL     (GPIO_NUM_38)
-esp_err_t lcd_backlight_setup();
-esp_err_t lcd_backlight_on();
-esp_err_t lcd_backlight_off();
+
+static const char* TAG = "MAIN of LCD-CPP Task";
+
+#include "display.hpp"
+
+void lcd_app_run( void* parameter );
 
 extern "C" void app_main(void)
 {
-    app = new Noozle();
-    app->setup();
-    
-    lcd_backlight_setup();
-
-    esp_reset_reason_t rst_reason = esp_reset_reason();
-    switch (rst_reason)
-    {
-        case ESP_RST_DEEPSLEEP:
-        {
-            esp_sleep_wakeup_cause_t wakeup_cause = esp_sleep_get_wakeup_cause();
-            if(wakeup_cause == ESP_SLEEP_WAKEUP_TIMER)
-            {
-                esp_err_t ret = app->connectWifi();
-                if(ret != ESP_OK)
-                    app->setProvStatus(PROVISIONING_STATUS_FAIL); /*1 : Device is not Provisioned */
-                
-                /*LED - BLINK 2Times on Timer wakeup (After Connect Wifi)*/
-                lcd_backlight_on();
-                vTaskDelay(1000/portTICK_PERIOD_MS);
-                lcd_backlight_off();
-                vTaskDelay(1000/portTICK_PERIOD_MS);
-                lcd_backlight_on();
-                vTaskDelay(1000/portTICK_PERIOD_MS);
-                lcd_backlight_off();
-                vTaskDelay(1000/portTICK_PERIOD_MS);
-            }
-            break;
-        }
-        default:
-        {
-            app->checkProvStatusAndRunBleOrWifi();
-            /*LED - BLINK 1Time on RST (after initial provisioning or connectWifi)*/
-            lcd_backlight_on();
-            vTaskDelay(1000/portTICK_PERIOD_MS);
-            lcd_backlight_off();
-            vTaskDelay(1000/portTICK_PERIOD_MS);
-        }
-            break;
-    }
-
+    // mydisplay.update(DAY);
+    xTaskCreatePinnedToCore(lcd_app_run, "lcd_task", 1024*5, NULL, 10, &lcd_task_handle, 1);
     while (1)
     {
-        ESP_LOGI(TAG, "HELLO WORLD!");
-        esp_sleep_enable_timer_wakeup(10 * 1000000);
-        esp_deep_sleep_start();
+        // mydisplay.operate();
+        ESP_LOGI(TAG, "hello world");
+        vTaskDelay(pdMS_TO_TICKS(1));
     }
 }
 
-esp_err_t lcd_backlight_setup()
+void lcd_app_run( void* parameter )
 {
-    gpio_config_t bl_gpio_conf = {
-        .pin_bit_mask = 1ULL << LCD_GPIO_BL,
-        .mode = GPIO_MODE_OUTPUT,
-        .pull_up_en = GPIO_PULLUP_DISABLE,
-        .pull_down_en = GPIO_PULLDOWN_ENABLE,
-        .intr_type = GPIO_INTR_DISABLE
-    };
-    return gpio_config(&bl_gpio_conf);
-}
-
-esp_err_t lcd_backlight_on()
-{
-    return gpio_set_level(LCD_GPIO_BL, 1);
-}
-
-esp_err_t lcd_backlight_off()
-{
-    return gpio_set_level(LCD_GPIO_BL, 0);
+    DISPLAY mydisplay;
+    mydisplay.setup();
+    mydisplay.timer(10);
+    while (1)
+    {
+        mydisplay.operate();
+        vTaskDelay(pdMS_TO_TICKS(1));
+    }
 }
