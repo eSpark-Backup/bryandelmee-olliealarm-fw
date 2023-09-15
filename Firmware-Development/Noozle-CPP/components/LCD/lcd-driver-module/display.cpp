@@ -12,10 +12,12 @@
 
 
 static const char* TAG = "DISPLAY";
+time_of_day_t current_screen;
 
 /* Function prototypes*/
 void lcd_change_screen(void *param);
 void lcd_set_screen(uint8_t scr_num);
+esp_err_t off();
 
 
 /**
@@ -51,7 +53,7 @@ esp_err_t DISPLAY::setup()
  * @return esp_err_t
 */
 esp_err_t DISPLAY::timer(uint32_t time){
-    time  = 5 * 1000000;
+    time  = time * 1000000; //hard coded for testing purposes
     const esp_timer_create_args_t my_timer_args = {
     .callback = &lcd_change_screen,
     .name = "My Timer"};
@@ -73,17 +75,37 @@ void DISPLAY::operate(){
 */
 void lcd_change_screen(void *param)
 { 
-    static uint8_t ui_scr_num = 4;
+    // static uint8_t ui_scr_num = 4;
 
-    lcd_set_screen(ui_scr_num);
-    if(ui_scr_num == 4)
-        ui_scr_num = 1;
-    else if(ui_scr_num == 1)
-        ui_scr_num = 2;
-    else if(ui_scr_num == 2)
-        ui_scr_num = 3;
-    else
-        ui_scr_num = 4;
+    // lcd_set_screen(ui_scr_num);
+    // if(ui_scr_num == 4)
+    //     ui_scr_num = 1;
+    // else if(ui_scr_num == 1)
+    //     ui_scr_num = 2;
+    // else if(ui_scr_num == 2)
+    //     ui_scr_num = 3;
+    // else
+    //     ui_scr_num = 4;
+    static bool screen_changed = false;
+    if(!screen_changed){
+        time_of_day_t next_animation;
+        switch (current_screen)
+        {
+        case NIGHT:
+            next_animation = DAY;
+            break;
+        
+        default:
+            next_animation = (time_of_day_t)(current_screen + 1);
+            break;
+        }
+        lcd_set_screen(next_animation);
+        screen_changed = true;
+    }
+    else{
+        off();
+    }
+
 }
 
 /**
@@ -95,6 +117,7 @@ void lcd_change_screen(void *param)
 */
 void lcd_set_screen(uint8_t scr_num)
 {
+    current_screen = (time_of_day_t)scr_num;
      switch (scr_num)
      {
      case 1:
@@ -120,8 +143,28 @@ void lcd_set_screen(uint8_t scr_num)
      }
 }
 
+/**
+ * @brief Update the screen depending  upon the time_of_day enum passed
+ * @param DAY
+ * @param NIGHT
+ * @param DAWN
+ * @param DUSK
+*/
 esp_err_t DISPLAY::update(time_of_day_t time_of_day){
-
     lcd_set_screen(time_of_day); //currently passing 1 will change later
     return ESP_OK;
+}
+
+/**
+ * @brief Turn the LCD backlight off
+*/
+esp_err_t DISPLAY::off(){
+    esp_err_t ret;
+    ret = lcd_backlight_off();
+    return ret;
+}
+esp_err_t off(){
+    esp_err_t ret;
+    ret = lcd_backlight_off();
+    return ret;
 }
