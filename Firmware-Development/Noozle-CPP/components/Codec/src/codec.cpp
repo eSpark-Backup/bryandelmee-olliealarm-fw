@@ -71,5 +71,6 @@ void codec::codec_en(bool en){
         io.setPinLow(1);
     }
     io.readPin(1);
-
+    io.deinitI2C();
+    // io.~io_expander();
 }

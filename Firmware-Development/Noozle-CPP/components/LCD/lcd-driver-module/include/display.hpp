@@ -12,4 +12,5 @@ class DISPLAY
         void operate();
         esp_err_t update(alarm_screen_t time_of_day);
         esp_err_t off();
+        esp_err_t on();
 };

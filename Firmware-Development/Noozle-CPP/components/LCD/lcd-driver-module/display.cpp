@@ -163,6 +163,13 @@ esp_err_t DISPLAY::off(){
     ret = lcd_backlight_off();
     return ret;
 }
+
+esp_err_t DISPLAY::on(){
+    esp_err_t ret;
+    ret = lcd_backlight_on();
+    return ret;
+}
+
 esp_err_t off(){
     esp_err_t ret;
     ret = lcd_backlight_off();
