@@ -105,11 +105,16 @@ esp_err_t io_expander::setPinLow(uint8_t io_num)
         4 : IO 2 is High
         8 : IO 3 is High
  */
-esp_err_t io_expander::readPin(uint8_t io_num){
-    uint8_t pca9536_data;
-    ESP_RETURN_ON_ERROR(i2cRead(PCA9536_REG_OUTPUT, &pca9536_data, 1), TAG, "setPinLow:  Reading output register to get all pins states");
-    pca9536_data = pca9536_data & (1 << io_num);
-    ESP_LOGI(TAG, "Expander read : %u", pca9536_data);  
-    return ESP_OK;
+bool io_expander::readPin(uint8_t io_num){
+    uint8_t pinState;
+    ESP_RETURN_ON_ERROR(i2cRead(PCA9536_REG_OUTPUT, &pinState, 1), TAG, "setPinLow:  Reading output register to get all pins states");
+    pinState &= (1 << io_num);
+    ESP_LOGI(TAG, "Expander read : %u", pinState);  
+    if(pinState){
+        return true;
+    }
+    else{
+        return false;
+    }
 }
 

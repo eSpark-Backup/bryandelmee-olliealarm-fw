@@ -12,7 +12,7 @@
 
 
 static const char* TAG = "DISPLAY";
-time_of_day_t current_screen;
+alarm_screen_t current_screen;
 
 /* Function prototypes*/
 void lcd_change_screen(void *param);
@@ -88,7 +88,7 @@ void lcd_change_screen(void *param)
     //     ui_scr_num = 4;
     static bool screen_changed = false;
     if(!screen_changed){
-        time_of_day_t next_animation;
+        alarm_screen_t next_animation;
         switch (current_screen)
         {
         case NIGHT:
@@ -96,7 +96,7 @@ void lcd_change_screen(void *param)
             break;
         
         default:
-            next_animation = (time_of_day_t)(current_screen + 1);
+            next_animation = (alarm_screen_t)(current_screen + 1);
             break;
         }
         lcd_set_screen(next_animation);
@@ -117,7 +117,7 @@ void lcd_change_screen(void *param)
 */
 void lcd_set_screen(uint8_t scr_num)
 {
-    current_screen = (time_of_day_t)scr_num;
+    current_screen = (alarm_screen_t)scr_num;
      switch (scr_num)
      {
      case 1:
@@ -150,7 +150,7 @@ void lcd_set_screen(uint8_t scr_num)
  * @param DAWN
  * @param DUSK
 */
-esp_err_t DISPLAY::update(time_of_day_t time_of_day){
+esp_err_t DISPLAY::update(alarm_screen_t time_of_day){
     lcd_set_screen(time_of_day); //currently passing 1 will change later
     return ESP_OK;
 }

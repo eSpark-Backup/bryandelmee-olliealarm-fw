@@ -12,7 +12,7 @@ class io_expander
         esp_err_t setPinHigh(uint8_t io_num);
         esp_err_t setPinLow(uint8_t io_num);
         esp_err_t deinitI2C();
-        esp_err_t readPin(uint8_t io_num);
+        bool readPin(uint8_t io_num);
         
     private:
         esp_err_t initI2C();
