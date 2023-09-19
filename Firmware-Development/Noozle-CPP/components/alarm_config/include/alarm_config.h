@@ -10,6 +10,10 @@
 #define HALF_MIN_EPOCH 30
 #define FIFTEEN_SEC_EPOCH 15
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef esp_err_t (*func)(char file_location[] ) ; 
 
 // /* time */
@@ -26,7 +30,7 @@ typedef struct{
     char end_strftime_buf[64];
     struct tm end_timeinfo;
     func audio_fptr;
-    char file_name[29];
+    char file_name[24];
     
 }alarm_config;
 
@@ -38,3 +42,7 @@ bool alarm_ring_time(alarm_config* alarm);
 void ring_alarm(alarm_config* alarm);
 void show_alarm_info(alarm_config* alarm);
 time_t return_current_time();
+
+#ifdef __cplusplus
+}
+#endif

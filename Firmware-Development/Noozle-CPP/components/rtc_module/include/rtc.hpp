@@ -26,6 +26,7 @@ class RTC{
             bool checkDay(tm alarmStartTime);
             bool alarmHour(tm alarmStartTime);
             int8_t minDifference(tm alramStartTime);
+            int8_t secDifference(tm alramStartTime);
 
 
             /* variables */

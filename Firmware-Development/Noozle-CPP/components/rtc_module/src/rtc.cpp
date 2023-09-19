@@ -127,9 +127,19 @@ bool RTC::alarmHour(tm alarmStartTime){
 
 int8_t RTC::minDifference(tm alramStartTime){
     if(alarmHour(alramStartTime)){
-        return (alramStartTime.tm_min - realtimeinfo.tm_min);
+        if((alramStartTime.tm_min - realtimeinfo.tm_min) < 60){
+            return (alramStartTime.tm_min - realtimeinfo.tm_min);
+        }
+        return 80;  //epochs greater than 1 hr
     }
     else{
-        return 255;  //epochs greater than 1 hr
+        return 80;  //epochs greater than 1 hr
     }
+}
+
+int8_t RTC::secDifference(tm alramStartTime){
+        if((alramStartTime.tm_sec - realtimeinfo.tm_sec) <= 60){
+            return (alramStartTime.tm_sec - realtimeinfo.tm_sec);
+        }
+        return 80;  //epochs greater than 1 hr
 }
