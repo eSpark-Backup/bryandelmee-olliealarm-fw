@@ -45,7 +45,7 @@ esp_err_t cloud_api_parse_ollie_id(const char* jsonString, char** noozle_dev_id)
         return ESP_FAIL;
     }
 
-    char *targetName = noozle_get_device_name();  // Noozle Device Name to fetch ID.
+    char *targetName = "OLLIE123";  // Noozle Device Name to fetch ID.
 
     // Iterate through the 'data' array to find the matching 'name'
     cJSON *item;
@@ -160,8 +160,13 @@ esp_err_t cloud_api_parse_repeated_alarms_epoch(cJSON* root, int64_t* alarm_epoc
 
 esp_err_t save_alarms_in_nvs(int64_t* alarm_epoch, size_t size)
 {
-    nvs_open_namespace_rw(ALARM_NAMESPACE);
-    esp_err_t err = nvs_write_key_value(ALARM_KEY, alarm_epoch, size);
-    nvs_close_handle();
-    return err;
+    nvs_handle_t handle;
+    nvs_open(ALARM_NAMESPACE, NVS_READWRITE, &handle);
+    // nvs_open_namespace_rw(ALARM_NAMESPACE);
+    esp_err_t err = nvs_set_u32(handle, ALARM_KEY, alarm_epoch);
+    nvs_close(handle);
+    // NVS cloudNVS;
+    // cloudNVS.init();
+    // cloutNVS.writeKeyu32(ALARM_NAMESPACE, ALARM_KEY, (uint32_t)size);
+    return ESP_OK;
 }

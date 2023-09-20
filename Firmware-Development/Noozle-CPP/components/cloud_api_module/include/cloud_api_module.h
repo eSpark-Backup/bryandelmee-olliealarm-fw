@@ -11,6 +11,7 @@
 #include "freertos/task.h"
 #include "freertos/semphr.h"
 #include "freertos/event_groups.h"
+#include "nvs_flash.h"
 
 /* Cloud-API */
 #include "esp_http_client.h"
@@ -18,12 +19,17 @@
 
 /* RTC MOUDLE*/
 #include "rtc_module.h"
+#define MAX_HTTP_OUTPUT_BUFFER 2048
 
-#include "noozle_factory_setup.h"
+// #include "noozle_factory_setup.h"
 
 #define ALARM_NAMESPACE "ALARM"
 #define ALARM_KEY "alarm_epoch"
 #define ALARM_NAME "alarm_name"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef enum{
     NOOZLE_TIME_API = 0,
@@ -65,5 +71,9 @@ esp_err_t save_alarms_in_nvs(int64_t* alarm_epoch, size_t size);
 
 void cloud_free_buf();
 void cloud_copy_response(esp_http_client_event_t *evt);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

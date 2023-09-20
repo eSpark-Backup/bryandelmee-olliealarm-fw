@@ -10,6 +10,7 @@
 #include "esp_netif.h"
 #include "esp_http_client.h"
 #include "esp_event.h"
+#include "cloud_api_module.h"
 #include "freertos/FreeRTOS.h"
 
 #define MAX_HTTP_RECV_BUFFER 512
