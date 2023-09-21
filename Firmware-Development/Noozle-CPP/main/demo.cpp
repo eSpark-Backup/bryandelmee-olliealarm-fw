@@ -21,9 +21,11 @@
 
 void audio_task(void *pv);
 void display_task(void *pv);
+void button_task(void *pv);
 
 TaskHandle_t displayhandle = NULL;
 TaskHandle_t audiohandle = NULL;
+TaskHandle_t buttonhandle = NULL;
     DISPLAY display;
     codec audio;
 
@@ -69,36 +71,42 @@ extern "C" void app_main(void)
     }
 
 
-    display.setup();
-    display.update(DAY);
-    audio.setup();
-
-  gpio_set_direction(BUTTON_GPIO, GPIO_MODE_INPUT);
-    xTaskCreatePinnedToCore(display_task,"Display task", 2*2048, NULL, 10, &displayhandle, 1);
-    xTaskCreate(audio_task,"audio task", 2*2048, NULL, 4, &audiohandle);
+    gpio_set_direction(BUTTON_GPIO, GPIO_MODE_INPUT);
+    xTaskCreatePinnedToCore(display_task,"Display task", 2*2048, NULL, 10, &displayhandle, 0);
+    // xTaskCreatePinnedToCore(audio_task,"audio task", 2*2048, NULL, 10, &audiohandle, 1);
+    xTaskCreate(audio_task,"audio task", 2*2048, NULL, 10, &audiohandle);
+    xTaskCreate(button_task,"button task", 2*2048, NULL, 10, &buttonhandle);
     while(1)
     {
-        if (gpio_get_level(BUTTON_GPIO) == 0)
-        {
-            
-            enter_sleep();
-        }
+
     }
 }
 
 void display_task(void *pv){
+    display.setup();
+    display.update(DAY);
     while(1){
         display.operate();
-        vTaskDelay(1/portTICK_PERIOD_MS);
     }
 }
 
 
 void audio_task(void *pv){
+    audio.setup();
     while(1){
-        audio.setVol(90);
+        audio.setVol(100);
         audio.play(WAV_FILE);   
         audio.setVol(0);
-        vTaskDelay(1000/portTICK_PERIOD_MS);
+        vTaskDelay(500/portTICK_PERIOD_MS);
+    }
+}
+void button_task(void *pv){
+    while(1){
+
+        if (gpio_get_level(BUTTON_GPIO) == 0)
+        {
+            
+            enter_sleep();
+        } 
     }
 }
