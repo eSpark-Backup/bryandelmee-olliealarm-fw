@@ -45,7 +45,20 @@ esp_err_t cloud_api_parse_ollie_id(const char* jsonString, char** noozle_dev_id)
         return ESP_FAIL;
     }
 
-    char *targetName = "OLLIE123";  // Noozle Device Name to fetch ID.
+    char service_name[12];
+
+    uint8_t eth_mac[6];
+    const char *ssid_prefix = "PROV_";
+    ret = esp_wifi_get_mac(WIFI_IF_STA, eth_mac);   /* esp_wifi_init() must be called before, else it'll return an error.  */
+    ESP_LOGI(TAG, "Service : %s%02X%02X%02X", ssid_prefix, eth_mac[3], eth_mac[4], eth_mac[5]);
+    /* Make a string from ssid_prefix & MAC-Address index 3,4,5 & sets it in the service name */
+    snprintf((const char*)service_name, sizeof(service_name), "%s%02X%02X%02X",
+             ssid_prefix, eth_mac[3], eth_mac[4], eth_mac[5]);
+
+    char *targetName = (char *)malloc(sizeof(service_name));
+    strcpy(targetName,(const char*)service_name);
+    ESP_LOGI(TAG, "device_name: %s" , targetName);
+
 
     // Iterate through the 'data' array to find the matching 'name'
     cJSON *item;
@@ -53,8 +66,8 @@ esp_err_t cloud_api_parse_ollie_id(const char* jsonString, char** noozle_dev_id)
         cJSON *name = cJSON_GetObjectItemCaseSensitive(item, "name");
         if (cJSON_IsString(name) && (strcmp(name->valuestring, targetName) == 0)) {
             cJSON *id = cJSON_GetObjectItemCaseSensitive(item, "_id");
-            if (cJSON_IsString(id)) {
-                ESP_LOGI(TAG, "device_name: %s , id[%d] : %s", targetName, strlen(id->valuestring), id->valuestring);
+            if (cJSON_IsString(id)) {  
+                    ESP_LOGI(TAG, "device_name: %s" , targetName);
                 //Update noozle_device_id.
                 if(*noozle_dev_id != NULL){
                     free(*noozle_dev_id);
@@ -117,6 +130,7 @@ esp_err_t cloud_api_success_status(cJSON* root)
 esp_err_t cloud_api_parse_repeated_alarms_epoch(cJSON* root, int64_t* alarm_epoch)
 {
     cJSON *data = cJSON_GetObjectItemCaseSensitive(root, "data");
+    nvs_flash_init();
     
     if (data == NULL || !cJSON_IsArray(data)) {
         printf("Data field not found or is not an array.\n");
@@ -130,6 +144,44 @@ esp_err_t cloud_api_parse_repeated_alarms_epoch(cJSON* root, int64_t* alarm_epoc
         
         cJSON *scene_name = cJSON_GetObjectItemCaseSensitive(scene, "scene_name");
         printf("Scene: %s\n", scene_name->valuestring);
+
+        cJSON *days = cJSON_GetObjectItemCaseSensitive(scene, "days");
+        cJSON *day = NULL;
+        int8_t weekday_bits = 0b00000000;
+        cJSON_ArrayForEach(day, days)
+        {
+            printf("day: %s\n", day->valuestring);
+            
+            if(strcmp(day->valuestring, "Sun") == 0){
+                weekday_bits |= 0b01000000;
+            }
+            else if(strcmp(day->valuestring, "Mon") == 0){
+                weekday_bits |= 0b00100000;
+            }                
+            else if(strcmp(day->valuestring, "Tue") == 0){
+                weekday_bits |= 0b00010000;
+            }                
+            else if(strcmp(day->valuestring, "Wed") == 0){
+                weekday_bits |= 0b00001000;
+            }                
+            else if(strcmp(day->valuestring, "Thu") == 0){
+                weekday_bits |= 0b00000100;
+            }
+            else if(strcmp(day->valuestring, "Fri") == 0){
+                weekday_bits |= 0b00000010;
+            }
+            else if(strcmp(day->valuestring, "Sat") == 0){
+                weekday_bits |= 0b00000001;
+            }
+
+            nvs_handle_t handle;
+            ESP_RETURN_ON_ERROR(nvs_open("weekdays", NVS_READWRITE, &handle), TAG, "opening NVS Namespace of weekdays");
+            ESP_RETURN_ON_ERROR(nvs_set_u8(handle, "weekday_bits" , weekday_bits), TAG, "writing weekday_bits epoch");
+            ESP_RETURN_ON_ERROR(nvs_commit(handle), TAG, "Updated NVS\n");
+            nvs_close(handle);
+                
+        }
+        printf("weekday_bits %d: ", weekday_bits);
         
         cJSON *scene_sleep_time = cJSON_GetObjectItemCaseSensitive(scene, "scene_sleep_time");
         
@@ -139,7 +191,6 @@ esp_err_t cloud_api_parse_repeated_alarms_epoch(cJSON* root, int64_t* alarm_epoc
         }
         
         int sleep_time_size = cJSON_GetArraySize(scene_sleep_time);
-        
         for (int j = 0; j < sleep_time_size; j++) {
             cJSON *sleep_time_item = cJSON_GetArrayItem(scene_sleep_time, j);
             
@@ -150,6 +201,14 @@ esp_err_t cloud_api_parse_repeated_alarms_epoch(cJSON* root, int64_t* alarm_epoc
             printf("Time: %d\n", time->valueint);
             printf("Scene Sleep Time Name: %s\n", name->valuestring);
             printf("Brightness: %lf\n", brightness->valuedouble);
+
+            nvs_handle_t handle;
+            ESP_RETURN_ON_ERROR(nvs_open(sleep_scene_string[j], NVS_READWRITE, &handle), TAG, "opening NVS Namespace of sleep_time");
+            ESP_RETURN_ON_ERROR(nvs_set_u32(handle, "time" , time->valueint), TAG, "writing time epoch");
+            ESP_RETURN_ON_ERROR(nvs_set_u32(handle, "brightness" , brightness->valuedouble), TAG, "writing brightness value");
+            ESP_RETURN_ON_ERROR(nvs_commit(handle), TAG, "Updated NVS\n");
+            nvs_close(handle);
+
             
             alarm_epoch[j] = time->valueint;
             printf("\n");

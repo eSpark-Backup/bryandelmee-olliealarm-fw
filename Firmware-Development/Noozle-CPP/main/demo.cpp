@@ -84,7 +84,7 @@ extern "C" void app_main(void)
 
 void display_task(void *pv){
     display.setup();
-    display.update(DAY);
+    display.update(DUSK);
     while(1){
         display.operate();
     }
@@ -108,5 +108,6 @@ void button_task(void *pv){
             
             enter_sleep();
         } 
+        vTaskDelay(100/portTICK_PERIOD_MS);
     }
 }

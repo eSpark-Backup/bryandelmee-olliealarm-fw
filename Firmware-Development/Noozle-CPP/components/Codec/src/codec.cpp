@@ -60,17 +60,20 @@ esp_err_t codec::setVol(uint8_t vol)
  * @param true : to enable the codec
  * @param false : to disable the codec
  */
-void codec::codec_en(bool en){
-    io_expander io = io_expander();
-    if(en){
-        ESP_LOGI(TAG, "Enable");
-        io.setPinHigh(1);
-    }
-    else{
-        ESP_LOGI(TAG, "Disable");        
-        io.setPinLow(1);
-    }
-    io.readPin(1);
-    io.deinitI2C();
-    // io.~io_expander();
+esp_err_t codec::codec_en(bool en){
+    // io_expander io = io_expander();
+    // if(en){
+    //     ESP_LOGI(TAG, "Enable");
+    //     io.setPinHigh(AMP_SHUTDOWN_PIN);
+    // }
+    // else{
+    //     ESP_LOGI(TAG, "Disable");        
+    //     io.setPinLow(AMP_SHUTDOWN_PIN);
+    // }
+    // io.readPin(AMP_SHUTDOWN_PIN);
+    // io.deinitI2C();
+    // // io.~io_expander();
+    ESP_RETURN_ON_ERROR(es8388_set_voice_mute(en), TAG, "Codec en/disable");
+    return ESP_OK;
+    
 }

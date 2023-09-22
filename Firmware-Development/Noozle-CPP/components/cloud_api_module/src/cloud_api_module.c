@@ -1,4 +1,7 @@
 #include "cloud_api_module.h"
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
 static const char* TAG = "Cloud-API-Module";
 
@@ -9,7 +12,7 @@ const char* noozle_time_api = "http://dev.noozle.nl:3000/time/current";
 const char* noozle_get_id_api = "http://dev.noozle.nl:3000/ollie/getAll";
 const char* noozle_repeated_alarm_api = "http://dev.noozle.nl:3000/scenes/getRepeatedAlarmsByOllieID";
 
-char* noozle_device_id = "64fb2a4f6d2ea7b4e90e9a74";
+char* noozle_device_id = NULL;
 uint32_t noozle_device_id_len;
 
 esp_err_t noozle_cloud_service(noozle_api_t API)
@@ -48,22 +51,28 @@ esp_err_t noozle_cloud_service(noozle_api_t API)
 esp_err_t cloud_api_request(const char* api, esp_http_client_method_t http_method, void* user_data)
 {
     esp_err_t ret = ESP_OK;
-    const char *post_data = "{\"ollie_id\":\"64fb2a4f6d2ea7b4e90e9a74\"}";
+
     char output_buffer[MAX_HTTP_OUTPUT_BUFFER + 1] = {0};
     esp_http_client_config_t config = { .url = api , .event_handler = cloud_http_event_handler };
     esp_http_client_handle_t client = esp_http_client_init(&config);
     ret |= esp_http_client_set_url(client, api);
     ret |= esp_http_client_set_method(client, http_method);
-    ret |= esp_http_client_set_header(client, "Content-Type", "application/json");
 
-    ret |= esp_http_client_open(client, strlen(post_data));
-    // ret |= esp_http_client_set_user_data(client, post_data);
+    int data_read;
 
+    ret |= esp_http_client_set_user_data(client, noozle_device_id);
+    if(http_method == HTTP_METHOD_GET){
+        esp_err_t err = esp_http_client_open(client, 0);
+        int content_length = esp_http_client_fetch_headers(client);
+        data_read = esp_http_client_read_response(client, output_buffer, MAX_HTTP_OUTPUT_BUFFER);
+
+    }
 
     if(http_method == HTTP_METHOD_POST){
-        int wlen = esp_http_client_write(client, post_data, strlen(post_data));
-        int data_read = esp_http_client_read_response(client, output_buffer, MAX_HTTP_OUTPUT_BUFFER);
-        ret |= esp_http_client_set_post_field(client, noozle_device_id, noozle_device_id_len);
+        ret |= esp_http_client_set_header(client, "Content-Type", "application/json");
+        ret |= esp_http_client_open(client, strlen(noozle_device_id));
+        int wlen = esp_http_client_write(client, noozle_device_id, strlen(noozle_device_id));
+        data_read = esp_http_client_read_response(client, output_buffer, MAX_HTTP_OUTPUT_BUFFER);
     }
         
         
