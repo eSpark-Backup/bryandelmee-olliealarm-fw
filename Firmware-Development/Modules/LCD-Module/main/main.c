@@ -21,11 +21,11 @@ RTC_DATA_ATTR bool startup_sleep = true;
 
 void app_main(void)
 {
-    if(startup_sleep == true){
-        startup_sleep = false;
-        esp_sleep_enable_timer_wakeup(10 * 1000000);
-        esp_deep_sleep_start();
-    }
+    // if(startup_sleep == true){
+    //     startup_sleep = false;
+    //     esp_sleep_enable_timer_wakeup(10 * 1000000);
+    //     esp_deep_sleep_start();
+    // }
     pca9536_i2c_master_init();
     pca9536_set_pin_mode_output(PCA9536_IO1);
     pca9536_set_pin_high(PCA9536_IO1);
@@ -54,17 +54,18 @@ void app_main(void)
     ESP_LOGI(TAG, "es8388_init = %s", esp_err_to_name(ret));
     es8388_config_i2s(es8388_cfg.codec_mode, &es8388_cfg.i2s_iface);
     es8388_ctrl_state(AUDIO_HAL_CODEC_MODE_DECODE, AUDIO_HAL_CTRL_START);
-    es8388_set_voice_volume(90);
+    es8388_set_voice_volume(80);
     size_t bytes_written = 0;
     
     lcd_create_task();
 
     while (1)
     {
-        if(ui_scr_num == 1 || ui_scr_num == 4)
-            i2s_write(TEST_I2S_NUM, test_pcm_start, test_pcm_end - test_pcm_start, &bytes_written, portMAX_DELAY);
-        else
+        // if(ui_scr_num == 1 || ui_scr_num == 4)
+        //     i2s_write(TEST_I2S_NUM, test_pcm_start, test_pcm_end - test_pcm_start, &bytes_written, portMAX_DELAY);
+        // else
             i2s_write(TEST_I2S_NUM, bird_pcm_start, bird_pcm_end - bird_pcm_start, &bytes_written, portMAX_DELAY);
+            vTaskDelay(1/portTICK_PERIOD_MS);
     }
     
 }

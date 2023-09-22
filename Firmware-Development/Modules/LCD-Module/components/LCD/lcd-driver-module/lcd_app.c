@@ -44,11 +44,12 @@ void lcd_app_run( void* parameter )
       .name = "My Timer"};
     esp_timer_handle_t timer_handler;
     ESP_ERROR_CHECK(esp_timer_create(&my_timer_args, &timer_handler));
-    ESP_ERROR_CHECK(esp_timer_start_periodic(timer_handler, 30 * 1000000));
+    ESP_ERROR_CHECK(esp_timer_start_periodic(timer_handler, 10 * 1000000));
     
     while (1)
     {
         lcd_display();
+        vTaskDelay(10/portTICK_PERIOD_MS);
     }
 }
 
@@ -68,8 +69,8 @@ void lcd_change_scr_timer_callback(void *param)
     if(count == 2)
     {
         count = 0;
-        esp_sleep_enable_timer_wakeup(60 * 1000000);
-        esp_deep_sleep_start();
+        // esp_sleep_enable_timer_wakeup(60 * 1000000);
+        // esp_deep_sleep_start();
     }
 
     lcd_get_screen(ui_scr_num);
