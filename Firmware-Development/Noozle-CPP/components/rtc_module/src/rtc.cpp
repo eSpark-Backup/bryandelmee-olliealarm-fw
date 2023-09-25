@@ -6,10 +6,9 @@ static const char* TAG = "RTC";
 const int CONNECTED_BIT = BIT0;
 enum time_of_day_t : uint8_t { DAY =1, DAWN =2, DUSK =3, NIGHT =4};
 
-
-
-unsigned long offset = 0; /**/
 bool overflow = false;
+
+unsigned long offset = 0; 
 
 time_t RTC::initialize()
 {
@@ -36,10 +35,12 @@ void RTC::syncRtc(){   //syncs the time from internet
 
 }
 
+/* THIS FUNCTION NEEDS TO BE CALLED ON EVERY LOOP ITERATION*/
 time_t RTC::updateTime(){
     time(time_ptr);  //update epoch time
     localtime_r(time_ptr, realtimeinfo_ptr);  //convert current epoch to tm struct
     strftime(realtime_buf, sizeof(realtime_buf), "%c", realtimeinfo_ptr);  //updates the human time char array
+    ESP_LOGI(TAG, "The current date/time in Pakistan is: %s", realtime_buf);
     return *time_ptr;
 }
 

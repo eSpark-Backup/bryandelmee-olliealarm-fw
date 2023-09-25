@@ -32,12 +32,7 @@
 extern "C" {
 #endif
 
-static const char* sleep_scene_string[] = {
-    "Almost Asleep", 
-    "To Sleep", 
-    "Almost Getting", 
-    "To get up"
-    };
+
 
 typedef enum{
     NOOZLE_TIME_API = 0,

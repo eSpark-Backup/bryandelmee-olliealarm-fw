@@ -1,5 +1,12 @@
 #include "cloud_api_module.h"
 
+const char* sleep_scene_string[] = {
+    "Almost Asleep", 
+    "To Sleep", 
+    "Almost Getting", 
+    "To get up"
+    };
+
 static const char* TAG = "cloud_api_json_parsing";
 esp_err_t cloud_api_parse_current_time(const char* jsonString, uint64_t* time)
 {

@@ -1,3 +1,6 @@
+#ifndef alarm_config_H
+#define alarm_config_H
+
 #include <time.h>
 #include "esp_netif_sntp.h"
 #include "esp_log.h"
@@ -46,3 +49,5 @@ time_t return_current_time();
 #ifdef __cplusplus
 }
 #endif
+
+#endif  //alarm_config_H

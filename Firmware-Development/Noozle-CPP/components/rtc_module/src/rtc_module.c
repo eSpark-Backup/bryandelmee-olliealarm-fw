@@ -1,7 +1,8 @@
 #include "rtc_module.h"
 
-unsigned long offset = 0; /**/
-bool overflow = false;
+bool overflow1 = false;
+
+unsigned long offset1 = 0; /**/
 
 void getTime(char * s){
 	struct tm timeinfo = getTimeStruct();
@@ -15,12 +16,12 @@ struct tm getTimeStruct(){
   localtime_r(&now, &timeinfo);
   time_t tt = mktime (&timeinfo);
     
-  if (overflow){
+  if (overflow1){
 	  tt += 63071999;
   }
-  tt += offset;
+  tt += offset1;
   struct tm * tn = localtime(&tt);
-  if (overflow){
+  if (overflow1){
 	  tn->tm_year += 64;
   }
   return *tn;

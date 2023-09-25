@@ -1,5 +1,5 @@
-#ifndef RTC_MODULE_H
-#define RTC_MODULE_H
+#ifndef rtc_H
+#define rtc_H
 
 
 #include <stdio.h>
@@ -10,6 +10,7 @@
 #include "esp_log.h"
 
 enum WEEKDAY {SUN, MON, TUE, WED, THU, FRI, SAT};
+
 
 
 class RTC{

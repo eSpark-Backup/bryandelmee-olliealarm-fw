@@ -16,8 +16,12 @@
 #include "codec.hpp"
 #include <dirent.h>
 #include "esp_spiffs.h"
+#include "Noozle.hpp"
+#include "esp_system.h"
+#include "esp_sleep.h"
+#include "cloud_api_module.h"
 
-
+/* FUNCTION PROTOTYPES*/
 void display_task(void *pv);
 void audio_task(void *pv);
 void deep_sleep(uint64_t sleepTimeUs);
@@ -25,69 +29,85 @@ void update_battery_status();
 alarm_config createAlarm(time_t realtime);
 
 #define WAV_FILE "/spiffs/audio/Piano.wav"
-#define SLEEP_WAKEUP_OFFSET 15
 
 const char* TAG = "MAIN";
+
+/* TASK HANDLES*/
 TaskHandle_t audiohandle = NULL;
 TaskHandle_t displayhandle = NULL;
+
+/*RTC ATRR VAR*/
 RTC_DATA_ATTR bool alarmState = false;
+
+/*GLOBAL OBJECT*/
 DISPLAY display;
 codec audio;
+Noozle *app;
 
-void display_task(void *pv){
-    while(1){
-        display.operate();
-        vTaskDelay(1/portTICK_PERIOD_MS);
-    }
-}
-
-void audio_task(void *pv){
-    audio.setup();
-    while(1){
-        audio.setVol(90);
-        audio.play(WAV_FILE);   
-        audio.setVol(0);
-        vTaskDelay(1000/portTICK_PERIOD_MS);
-    }
-}
 
 extern "C" void app_main(void)
 {
-    WIFI wifi;
-    // alarm_config alarm;
-    nvs_flash_init();
-    ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
-    wifi.setup();
-    wifi.run();
-    wifi.wait();
+    app = new Noozle();
+    app->setup();
+    esp_err_t err = ESP_OK;
 
-    RTC clock;
-    clock.initialize();
-    clock.syncRtc();
-    clock.updateTime();
-
-    alarm_config Alarm_1;//using as current alarm
-    alarm_config Alarm_2 = createAlarm(clock.real_time);
-    alarm_config Alarm_3 = createAlarm(Alarm_2.start_time);
-    alarm_config Alarm_4 = createAlarm(Alarm_3.start_time);
-
-    alarm_config myAlarms[] = {Alarm_4, Alarm_2, Alarm_3};
-
-    /*SELECTING CLOSEST ALARM*/
-    int size = sizeof(myAlarms)/248;
-    time_t lowest = myAlarms[0].start_time;
-    int nearestAlarm;
-    for(int i = 0; i < size; i++){
-        if(myAlarms[i].start_time < lowest){
-            lowest = myAlarms[i].start_time; 
-            nearestAlarm = i;
-        }
+    /* HANDLE PROVISIONING*/
+    if(app->getProvStatus() == PROVISIONING_STATUS_FAIL){
+        app->connectBLE();
+        app->setProvStatus(PROVISIONING_STATUS_OK);
+        err = app->connectWifi();
     }
+    else if(app->getProvStatus() == PROVISIONING_STATUS_OK){
+        err = app->connectWifi();
+    }
+        
 
-    Alarm_1 = myAlarms[nearestAlarm];
+    /* SETUP RTC */
+    // RTC clock;
+    // clock.initialize();
+    // clock.syncRtc();
+    // clock.updateTime();
+    
+    /* RESET REASON */
+    esp_reset_reason_t rst_reason = esp_reset_reason();
+    switch (rst_reason)
+    {
+    case ESP_RST_DEEPSLEEP:
+    {
+        esp_sleep_wakeup_cause_t wakeup_cause = esp_sleep_get_wakeup_cause();
+        if(wakeup_cause == ESP_SLEEP_WAKEUP_EXT0){
+            //User needs WIFI PROV 
+            ESP_LOGI(TAG, "RE PROV");  
+        }
+        else if(wakeup_cause == ESP_SLEEP_WAKEUP_TIMER){
+            //Normal Sequence
+            ESP_LOGI(TAG, "CONTINUE NORMAL SEQUENCE");  
+        }   
+        break;
+    }        
+    case ESP_RST_POWERON:
+        ESP_LOGI(TAG, "POWER ON");
+        break;
+    default:
+        ESP_LOGI(TAG, "UNKNOWN RESET");
+        break;
+    };
 
-    ESP_LOGI(TAG, "SIZE OF MY ALARMS ARRAY %d", size);   
+    /*FETCH OLLIE DEVICE ID CORRESPONDING TO DEVICE PROV_ NAME*/    
+    noozle_cloud_service(NOOZLE_TIME_API); //sync time using API
+    noozle_cloud_service(NOOZLE_GET_ID_API);    //fetches Ollie ID
+    noozle_cloud_service(NOOZLE_REPEATED_ALARM_API); //Uses Ollie ID to get repeated Alarms
+    
+    /* SET ALARMS FROM NVS TO NOOZLE APPLICATION*/
+    app->setAlarmsFromNvs();
+    app->updateTime();
+
+    /* Set nearest Alarm*/
+    app->setNearestAlarm();
+
+    /* Update Battery Status*/
+    app->updateBatteryStatus();
+    app->checkAlarm();
     
 
     /*SPIFFS SETUP*/
@@ -113,53 +133,14 @@ extern "C" void app_main(void)
         printf("Found file: %s\n", de->d_name);
     }
 
-    // DISPLAY display;
-    // display.setup();
-
-    codec audio;
-    audio.setup();
+    // codec audio;
+    // audio.setup();
 
     while(1){
-        clock.updateTime();
-        if(alarmState)
-        {
-            while(clock.real_time <= Alarm_1.end_time){
-                clock.updateTime();
-                audio.setVol(80);
-                audio.play(Alarm_1.file_name);
-                audio.setVol(0);
-            }
-            ESP_LOGI(TAG, "Alarm Ringing");
-            /* here this passed alarm can be deleted*/
-            alarmState = false;
-        }
-        else if(!alarmState)
-        {   
-            
-            show_alarm_info(&Alarm_1);
-            update_battery_status();
-            int8_t minuteDifference = clock.minDifference(Alarm_1.start_timeinfo);
-            int8_t secondDifference = clock.secDifference(Alarm_1.start_timeinfo);
-            if( minuteDifference >= 60)
-            {
-                ESP_LOGI(TAG, "ESP CAN GO 1HR DEEP SLEEP");
-                deep_sleep(60*60*1000*1000);
-            }
-            else if(minuteDifference < 60 && minuteDifference > 0)
-            {
-                ESP_LOGI(TAG, "ESP CAN GO DEEP SLEEP FOR %d Mins ideal ", minuteDifference );
-                uint64_t calculatedSleepUs = ((minuteDifference * 60) + (secondDifference - SLEEP_WAKEUP_OFFSET)) * 1000000;
-                alarmState = true;
-                deep_sleep(calculatedSleepUs);
-            }
-            else if(minuteDifference < 0){
-                    ESP_LOGI(TAG, "Alarm Passed waiting for new alarm");
-            }
-            ESP_LOGI(TAG, "----------------------------------------- = %d", minuteDifference);
-
-        }
+        app->updateTime();
+        // ESP_LOGI(TAG,"weekday = %d", clock.realtimeinfo.tm_wday );
         vTaskDelay(1000/portTICK_PERIOD_MS);
-        }
+    }
 
 }
 
@@ -191,3 +172,21 @@ alarm_config createAlarm(time_t realtime){
     return thisAlarm;
 }
 
+    /* TASK FUNCTIONS*/
+
+void display_task(void *pv){
+    while(1){
+        display.operate();
+        vTaskDelay(1/portTICK_PERIOD_MS);
+    }
+}
+
+void audio_task(void *pv){
+    audio.setup();
+    while(1){
+        audio.setVol(90);
+        audio.play(WAV_FILE);   
+        audio.setVol(0);
+        vTaskDelay(1000/portTICK_PERIOD_MS);
+    }
+}

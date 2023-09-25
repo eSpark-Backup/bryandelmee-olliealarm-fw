@@ -20,6 +20,8 @@ static const char* TAG = "MAIN";
 void bits_to_bool(uint8_t bits);
 Noozle* app;
 
+
+
 bool weekday[7];
 
 
