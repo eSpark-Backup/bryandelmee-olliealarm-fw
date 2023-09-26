@@ -228,11 +228,7 @@ esp_err_t save_alarms_in_nvs(int64_t* alarm_epoch, size_t size)
 {
     nvs_handle_t handle;
     nvs_open(ALARM_NAMESPACE, NVS_READWRITE, &handle);
-    // nvs_open_namespace_rw(ALARM_NAMESPACE);
     esp_err_t err = nvs_set_u32(handle, ALARM_KEY, alarm_epoch);
     nvs_close(handle);
-    // NVS cloudNVS;
-    // cloudNVS.init();
-    // cloutNVS.writeKeyu32(ALARM_NAMESPACE, ALARM_KEY, (uint32_t)size);
     return ESP_OK;
 }

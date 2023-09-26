@@ -30,7 +30,7 @@ esp_err_t NVS::setupKeyU8(const char* space_label, const char* key)
     if(ret == ESP_ERR_NVS_NOT_FOUND)
     {
         value = 0;
-        ESP_RETURN_ON_ERROR(writeKeyU8(space_label, key, 1), TAG, "setupKeyU8 : Writes an U8 Key-value");
+        ESP_RETURN_ON_ERROR(writeKeyU8(space_label, key, value), TAG, "setupKeyU8 : Writes an U8 Key-value");
     }
     
     return ESP_OK;

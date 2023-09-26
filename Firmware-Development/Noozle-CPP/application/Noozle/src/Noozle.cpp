@@ -148,9 +148,11 @@ void Noozle::updateTime(){
 void Noozle::setNearestAlarm(){
     /* CHECK DAY*/
     uint32_t wakeDiff = 0, sleepDiff = 0;
+    wakeDiff = wakeAlarm->start_time - rtc->real_time;
+    sleepDiff = sleepAlarm->start_time - rtc->real_time;
     int thisDay = rtc->realtimeinfo.tm_wday;
     int nextDay = (thisDay < 7) ? thisDay+1 : 0;
-    if(weekday[thisDay] == 1){
+    if(weekday[thisDay] == 1 && !((wakeDiff & 1 << 31)  && (sleepDiff & 1 << 31))){ //(check current day) && (check if both alarms are not negative)
         ESP_LOGI(TAG, "TODAY IS ALARM");
 
         sleepAlarm->start_timeinfo.tm_year = rtc->realtimeinfo.tm_year;
@@ -178,7 +180,7 @@ void Noozle::setNearestAlarm(){
         wakeDiff = wakeAlarm->start_time - rtc->real_time;
         sleepDiff = sleepAlarm->start_time - rtc->real_time;
     }
-    else if(weekday[nextDay] == 1){ //have check for saturday 7+1 = 8 and 8 is not a day
+    else if(weekday[nextDay] == 1){ 
         ESP_LOGI(TAG, "TOMORROW IS ALARM");
         sleepAlarm->start_timeinfo.tm_year = rtc->realtimeinfo.tm_year;
         sleepAlarm->start_timeinfo.tm_mon = rtc->realtimeinfo.tm_mon;
@@ -205,9 +207,12 @@ void Noozle::setNearestAlarm(){
         wakeDiff = wakeAlarm->start_time - rtc->real_time;
         sleepDiff = sleepAlarm->start_time - rtc->real_time;
     }
-    
 
-    if(wakeDiff < sleepDiff){
+    if((wakeDiff & 1 << 31)  && (sleepDiff & 1 << 31)){
+        nearestAlarm = NULL;
+        ESP_LOGI(TAG, "BOTH ALARMS PASSED\n");
+    }
+    else if(wakeDiff < sleepDiff){
         nearestAlarm = wakeAlarm;
         ESP_LOGI(TAG, "NEAREST ALARM = WAKE ALARM");
     }
@@ -249,14 +254,17 @@ void Noozle::setDeepSleep(){
                 }
                 else if(epochDiff < 0){
                     ESP_LOGI(TAG, "Alarm Passed waiting for new alarm");
+                    nearestAlarm = NULL;
+                    noozleStatus = FETCH_ALARM;
                     alarmState = false;
                 }
     }
     else{  // go to deep sleep if no nearest alarm
         ESP_LOGI(TAG, "No Nearest Alarm");
         calculatedSleepUs = (unsigned int)(60*60*1000*1000);
-        deep_sleep(calculatedSleepUs);
         alarmState = false;
+        noozleStatus = SET_ALARMS;
+        deep_sleep(calculatedSleepUs);
     }
 
 }

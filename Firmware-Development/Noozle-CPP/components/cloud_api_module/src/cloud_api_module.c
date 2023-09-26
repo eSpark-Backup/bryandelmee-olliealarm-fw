@@ -24,7 +24,6 @@ esp_err_t noozle_cloud_service(noozle_api_t API)
             uint64_t time;
             ret |= cloud_api_request(noozle_time_api, HTTP_METHOD_GET, NULL);
             cloud_api_parse_current_time(cloud_buffer, &time);
-            // time = 1695752450000; //testing a case
             ESP_LOGI(TAG, "CURRENT TIME : %llu", time);
             setEpochTime(time, 0);
             break;

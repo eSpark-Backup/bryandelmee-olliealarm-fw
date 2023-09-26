@@ -32,7 +32,8 @@ enum app_status_t {
     RING_ALARM,
     UPDATE_TIME,
     PROV,
-    FORCED_PROV
+    FORCED_PROV,
+    CONNECT_WIFI
 
 };
 
