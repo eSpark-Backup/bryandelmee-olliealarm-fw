@@ -1,10 +1,10 @@
 #include "alarm_config.h"
-
+#define WAV_FILE "/spiffs/audio/Piano.wav"
 time_t now;
 char strftime_buf[64];
 struct tm timeinfo;
 
-static const char *ALARM_TAG = "TEST_ALARM_CONFIG";
+static const char *ALARM_TAG = "ALARM_CONFIG";
 
 
 time_t init_time(){
@@ -48,6 +48,7 @@ void set_alarm_start_time(alarm_config* alarm, time_t time){
     strftime(alarm->start_strftime_buf, sizeof(alarm->start_strftime_buf), "%c", &(alarm->start_timeinfo));
     ESP_LOGI(ALARM_TAG, "Setting Alarm Start Time to : %llu", alarm->start_time);
     ESP_LOGI(ALARM_TAG, "Alarm Start Human time is: %s", alarm->start_strftime_buf);
+    strcpy(alarm->file_name, WAV_FILE);
 
 }
 
@@ -70,10 +71,15 @@ bool alarm_ring_time(alarm_config* alarm){
 }
 
 void ring_alarm(alarm_config* alarm){
+    ESP_LOGI(ALARM_TAG, "WAITING FOR ALARM ");
+    while(init_time() < alarm->start_time){
+        vTaskDelay(500/portTICK_PERIOD_MS);
+        ESP_LOGI(ALARM_TAG, ".");
+    }
     while(init_time() < alarm->end_time){
         ESP_LOGI(ALARM_TAG, "PLaying Alarm");
         // ESP_LOGE(ALARM_TAG, "No playwav function");
-        alarm->audio_fptr(alarm->file_name);
+        // alarm->audio_fptr(alarm->file_name); //causing guru meditation
         // playwav
         vTaskDelay(1000/portTICK_PERIOD_MS);
     }

@@ -26,9 +26,9 @@ class RTC{
             void syncRtc();
             bool checkDay(tm alarmStartTime);
             bool alarmHour(tm alarmStartTime);
-            int8_t minDifference(tm alramStartTime);
+            int8_t minDifference(tm alramStartTime, time_t currentAlarmEpoch);
             int8_t secDifference(tm alramStartTime);
-
+            time_t epochDifference(time_t currentAlarmEpoch);
 
             /* variables */
             time_t real_time; 

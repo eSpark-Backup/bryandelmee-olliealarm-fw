@@ -9,6 +9,8 @@
 
 static const char* TAG = "Noozle";
 extern char* sleep_scene_string[];
+RTC_DATA_ATTR bool alarmState = false;
+extern app_status_t noozleStatus;
 
 Noozle::Noozle()
 {
@@ -31,7 +33,7 @@ esp_err_t Noozle::setup()
     ESP_RETURN_ON_ERROR(wifi->setup(), TAG, "setup : Setting up Wi-Fi");
     ESP_RETURN_ON_ERROR(ble->setup(), TAG, "setup : Setting up BLE");
     rtc->initialize();
-
+    spiff();
     return ESP_OK;
 }
 
@@ -104,27 +106,22 @@ void Noozle::setAlarmsFromNvs(){
     nvs->readKeyU32(sleep_scene_string[ALMOST_SLEEP], "time", &time);
     set_alarm_start_time(sleepAlarm, (time_t)time);
     ESP_LOGI(TAG, "Almost Asleep time NVS : %ld\n", time);
-    vTaskDelay(1000/portTICK_PERIOD_MS);
 
     nvs->readKeyU32(sleep_scene_string[TO_SLEEP], "time", &time);
     set_alarm_end_time(sleepAlarm, (time_t)time);
     ESP_LOGI(TAG, "To SLeep time NVS : %ld\n", time);
-    vTaskDelay(1000/portTICK_PERIOD_MS);
 
     nvs->readKeyU32(sleep_scene_string[ALMOST_GETTING_UP], "time", &time);
     set_alarm_start_time(wakeAlarm, (time_t)time);
     ESP_LOGI(TAG, "Almost Getting up time NVS : %ld\n", time);
-    vTaskDelay(1000/portTICK_PERIOD_MS);
 
     nvs->readKeyU32(sleep_scene_string[TO_GET_UP], "time", &time);
     set_alarm_end_time(wakeAlarm, (time_t)time);
     ESP_LOGI(TAG, "To get up time NVS : %ld\n", time);
-    vTaskDelay(1000/portTICK_PERIOD_MS);
 
     nvs->readKeyU8("weekdays", "weekday_bits", &weekday_bits);
     ESP_LOGI(TAG, "Week days in binary: %d\n", weekday_bits);
     bits_to_bool(weekday_bits);
-    vTaskDelay(1000/portTICK_PERIOD_MS);
 }
 
 void Noozle::bits_to_bool(uint8_t bits){
@@ -150,8 +147,10 @@ void Noozle::updateTime(){
 
 void Noozle::setNearestAlarm(){
     /* CHECK DAY*/
-    
-    if(weekday[rtc->realtimeinfo.tm_wday]){
+    uint32_t wakeDiff = 0, sleepDiff = 0;
+    int thisDay = rtc->realtimeinfo.tm_wday;
+    int nextDay = (thisDay < 7) ? thisDay+1 : 0;
+    if(weekday[thisDay] == 1){
         ESP_LOGI(TAG, "TODAY IS ALARM");
 
         sleepAlarm->start_timeinfo.tm_year = rtc->realtimeinfo.tm_year;
@@ -162,7 +161,6 @@ void Noozle::setNearestAlarm(){
         sleepAlarm->end_timeinfo.tm_mon = rtc->realtimeinfo.tm_mon;
         sleepAlarm->end_timeinfo.tm_mday = rtc->realtimeinfo.tm_mday;
 
-        // wakeAlarm->start_timeinfo.tm_wday = rtc->realtimeinfo.tm_wday;
         wakeAlarm->start_timeinfo.tm_year = rtc->realtimeinfo.tm_year;
         wakeAlarm->start_timeinfo.tm_mon = rtc->realtimeinfo.tm_mon;
         wakeAlarm->start_timeinfo.tm_mday = rtc->realtimeinfo.tm_mday;
@@ -176,43 +174,148 @@ void Noozle::setNearestAlarm(){
 
         set_alarm_start_time(wakeAlarm, mktime(&wakeAlarm->start_timeinfo));
         set_alarm_end_time(wakeAlarm, mktime(&wakeAlarm->end_timeinfo));
-
+        
+        wakeDiff = wakeAlarm->start_time - rtc->real_time;
+        sleepDiff = sleepAlarm->start_time - rtc->real_time;
     }
-    uint32_t wakeDiff, sleepDiff;
-    wakeDiff = wakeAlarm->start_time - rtc->real_time;
-    sleepDiff = sleepAlarm->start_time - rtc->real_time;
+    else if(weekday[nextDay] == 1){ //have check for saturday 7+1 = 8 and 8 is not a day
+        ESP_LOGI(TAG, "TOMORROW IS ALARM");
+        sleepAlarm->start_timeinfo.tm_year = rtc->realtimeinfo.tm_year;
+        sleepAlarm->start_timeinfo.tm_mon = rtc->realtimeinfo.tm_mon;
+        sleepAlarm->start_timeinfo.tm_mday = rtc->realtimeinfo.tm_mday;
+
+        sleepAlarm->end_timeinfo.tm_year = rtc->realtimeinfo.tm_year;
+        sleepAlarm->end_timeinfo.tm_mon = rtc->realtimeinfo.tm_mon;
+        sleepAlarm->end_timeinfo.tm_mday = rtc->realtimeinfo.tm_mday;
+
+        wakeAlarm->start_timeinfo.tm_year = rtc->realtimeinfo.tm_year;
+        wakeAlarm->start_timeinfo.tm_mon = rtc->realtimeinfo.tm_mon;
+        wakeAlarm->start_timeinfo.tm_mday = rtc->realtimeinfo.tm_mday;
+
+        wakeAlarm->end_timeinfo.tm_year = rtc->realtimeinfo.tm_year;
+        wakeAlarm->end_timeinfo.tm_mon = rtc->realtimeinfo.tm_mon;
+        wakeAlarm->end_timeinfo.tm_mday = rtc->realtimeinfo.tm_mday;
+
+        set_alarm_start_time(sleepAlarm, mktime(&sleepAlarm->start_timeinfo)+86400);
+        set_alarm_end_time(sleepAlarm, mktime(&sleepAlarm->end_timeinfo)+86400);
+
+        set_alarm_start_time(wakeAlarm, mktime(&wakeAlarm->start_timeinfo)+86400);
+        set_alarm_end_time(wakeAlarm, mktime(&wakeAlarm->end_timeinfo)+86400);
+        
+        wakeDiff = wakeAlarm->start_time - rtc->real_time;
+        sleepDiff = sleepAlarm->start_time - rtc->real_time;
+    }
+    
 
     if(wakeDiff < sleepDiff){
         nearestAlarm = wakeAlarm;
+        ESP_LOGI(TAG, "NEAREST ALARM = WAKE ALARM");
     }
     else if( sleepDiff < wakeDiff){
         nearestAlarm = sleepAlarm;
+        ESP_LOGI(TAG, "NEAREST ALARM = SLEEP ALARM");
+    }
+    else if(wakeDiff == sleepDiff){
+        nearestAlarm = NULL;
+        ESP_LOGI(TAG, "NEAREST ALARM = NULL ALARM");
     }
     ESP_LOGI(TAG, "DIFFS wake : %ld sleep : %ld", wakeDiff, sleepDiff);
 }
 
-void Noozle::checkAlarm(){
-    // rtc->minDifference(nearestAlarm.start_timeinfo);
-     int8_t minuteDifference = rtc->minDifference(nearestAlarm->start_timeinfo);
-            int8_t secondDifference = rtc->secDifference(nearestAlarm->start_timeinfo);
-            if( minuteDifference >= 60)
-            {
-                ESP_LOGI(TAG, "ESP CAN GO 1HR DEEP SLEEP");
-                // deep_sleep(60*60*1000*1000);
-            }
-            else if(minuteDifference < 60 && minuteDifference > 0)
-            {
-                ESP_LOGI(TAG, "ESP CAN GO DEEP SLEEP FOR %d Mins ideal ", minuteDifference );
-                uint64_t calculatedSleepUs = ((minuteDifference * 60) + (secondDifference - SLEEP_WAKEUP_OFFSET)) * 1000000;
-                // alarmState = true;
-                // deep_sleep(calculatedSleepUs);
-            }
-            else if(minuteDifference < 0){
+void Noozle::setDeepSleep(){
+    uint64_t calculatedSleepUs;
+    if(nearestAlarm != NULL){
+        // int8_t minuteDifference = rtc->minDifference(nearestAlarm->start_timeinfo, nearestAlarm->start_time);
+        time_t epochDiff = rtc->epochDifference(nearestAlarm->start_time);
+        // int8_t secondDifference = rtc->secDifference(nearestAlarm->start_timeinfo);
+        ESP_LOGI(TAG, " EPOCH DIFFERNECE B/W Alarm and Current Time= %lld", epochDiff);
+                if( epochDiff >= 3600)
+                {
+                    ESP_LOGI(TAG, "ESP CAN GO 1HR DEEP SLEEP");
+                    calculatedSleepUs = (unsigned int)(60*60*1000*1000);
+                    alarmState = false;
+                    noozleStatus = DEEP_SLEEP;
+                    deep_sleep(calculatedSleepUs);
+
+                }
+                else if(epochDiff < 3600 && epochDiff > 0)
+                {
+                    ESP_LOGI(TAG, "ESP CAN GO DEEP SLEEP FOR %lld Mins ideal ", epochDiff/60 );
+                    // calculatedSleepUs = ((minuteDifference) + (secondDifference - SLEEP_WAKEUP_OFFSET)) * 1000000;
+                    calculatedSleepUs = (epochDiff - SLEEP_WAKEUP_OFFSET)*1000000;
+                    alarmState = true;
+                    noozleStatus = RING_ALARM;
+                    deep_sleep(calculatedSleepUs);
+                }
+                else if(epochDiff < 0){
                     ESP_LOGI(TAG, "Alarm Passed waiting for new alarm");
-            }
-            ESP_LOGI(TAG, "----------------------------------------- = %d", minuteDifference);
+                    alarmState = false;
+                }
+    }
+    else{  // go to deep sleep if no nearest alarm
+        ESP_LOGI(TAG, "No Nearest Alarm");
+        calculatedSleepUs = (unsigned int)(60*60*1000*1000);
+        deep_sleep(calculatedSleepUs);
+        alarmState = false;
+    }
+
+}
+
+
+void deep_sleep(uint64_t sleepTimeUs){
+    uint64_t timer = sleepTimeUs;
+    ESP_LOGI(TAG, "Activating Deep Sleep for %llu = us", timer);
+    esp_sleep_enable_timer_wakeup(timer);
+    /* disabled ext0
+    gpio_set_direction(GPIO_NUM_20, GPIO_MODE_INPUT);
+    rtc_gpio_hold_en(GPIO_NUM_20);
+    esp_sleep_enable_ext0_wakeup(GPIO_NUM_20, 0);
+    */
+    esp_deep_sleep_start();
+}
+
+bool Noozle::alarmStatus(){
+    if(alarmState == true){
+        return true;
+    }
+    return false;
+
+}
+
+void Noozle::checkAlarm(){
+    if(alarmState == true){
+        ring_alarm(nearestAlarm);
+    }
+    else if(alarmState == false){
+        ESP_LOGI(TAG, "ITS NOT ALARM TIME");
+    }
 }
 
 void Noozle::updateBatteryStatus(){
     ESP_LOGI(TAG, "UPDATE BATTERY STATUS");
+}
+
+void Noozle::spiff(){
+    /*SPIFFS SETUP*/
+    esp_vfs_spiffs_conf_t config = {
+      .base_path = "/spiffs",
+      .partition_label = NULL,
+      .max_files = 5,
+      .format_if_mount_failed = true,
+    };
+    esp_vfs_spiffs_register(&config);
+
+    DIR* dir = opendir("/spiffs/audio");
+    if (dir == NULL) {
+        return;
+    }
+
+    while (true) {
+        struct dirent* de = readdir(dir);
+        if (!de) {
+            break;
+        }
+
+        printf("Found file: %s\n", de->d_name);
+    }
 }
