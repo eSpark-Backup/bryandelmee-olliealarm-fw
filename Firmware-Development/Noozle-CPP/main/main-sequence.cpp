@@ -1,24 +1,15 @@
 #include <stdio.h>
-#include "driver/gpio.h"
-#include <driver/i2c.h>
-#include "driver/rtc_io.h"
 #include "esp_check.h"
-#include "esp_timer.h"
-#include "esp_sleep.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "rtc.hpp"
-#include "NVS.hpp"
-#include "wifi.hpp"
 #include "display.hpp"
-#include "alarm_config.h"
 #include "codec.hpp"
 #include "Noozle.hpp"
-#include "esp_system.h"
 #include "cloud_api_module.h"
 
 /*STATUS*/
 RTC_DATA_ATTR app_status_t noozleStatus = FORCED_PROV;
+RTC_DATA_ATTR app_status_t lastStatus;
 
 
 /* FUNCTION PROTOTYPES*/
@@ -54,11 +45,15 @@ extern "C" void app_main(void)
         esp_sleep_wakeup_cause_t wakeup_cause = esp_sleep_get_wakeup_cause();
         if(wakeup_cause == ESP_SLEEP_WAKEUP_EXT0){
             ESP_LOGI(TAG, "FORCED PROV");  
-            noozleStatus = FORCED_PROV;
+            if(lastStatus != LIGHT_SLEEP){
+                noozleStatus = FORCED_PROV;
+            }else if(lastStatus == LIGHT_SLEEP){
+                noozleStatus = UPDATE_BATTERY;
+            }
         }
         else if(wakeup_cause == ESP_SLEEP_WAKEUP_TIMER){
-            ESP_LOGI(TAG, "CONTINUE NORMAL SEQUENCE");  
-            noozleStatus = RING_ALARM;
+            ESP_LOGI(TAG, "CONTINUE ALARM SEQUENCE");  
+            noozleStatus = SET_NEAREST;   //if directely called ring alarm after deepsleep nearest alarm is garbage, so first se nearest again
         }   
         break;
     }        
@@ -111,6 +106,7 @@ extern "C" void app_main(void)
             
             case FETCH_ID:{
                 noozle_cloud_service(NOOZLE_GET_ID_API);    
+                noozle_cloud_service(NOOZLE_BATTERY_UPDATE_API);
                 noozleStatus = FETCH_ALARM;
                 break;
             }
@@ -155,14 +151,14 @@ extern "C" void app_main(void)
                 break;
             }
         }
-        vTaskDelay( 500/portTICK_PERIOD_MS );
+        vTaskDelay( 50/portTICK_PERIOD_MS );
        
     }
 
 }
 
  
-/* TASK FUNCTIONS*/
+/* xTASK FUNCTIONS*/
 
 void display_task(void *pv){
     while(1){

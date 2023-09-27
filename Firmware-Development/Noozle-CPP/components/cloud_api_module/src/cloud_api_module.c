@@ -11,9 +11,12 @@ size_t cloud_buffer_len = 0;
 const char* noozle_time_api = "http://dev.noozle.nl:3000/time/current";
 const char* noozle_get_id_api = "http://dev.noozle.nl:3000/ollie/getAll";
 const char* noozle_repeated_alarm_api = "http://dev.noozle.nl:3000/scenes/getRepeatedAlarmsByOllieID";
+const char* noozle_update_battery_api = "http://dev.noozle.nl:3000/ollie/updateChargeStatus";
 
 char* noozle_device_id = NULL;
+char* noozle_battery_json = NULL;
 uint32_t noozle_device_id_len;
+uint32_t noozle_battery_json_len;
 
 esp_err_t noozle_cloud_service(noozle_api_t API)
 {
@@ -31,13 +34,19 @@ esp_err_t noozle_cloud_service(noozle_api_t API)
         case NOOZLE_GET_ID_API:
             cloud_free_buf();
             ret |= cloud_api_request(noozle_get_id_api, HTTP_METHOD_GET, NULL);
-            ret |= cloud_api_parse_ollie_id(cloud_buffer, &noozle_device_id);
+            ret |= cloud_api_parse_ollie_id(cloud_buffer, &noozle_device_id, &noozle_battery_json);
+            printf("%s\n",noozle_battery_json);
             break;
 
         case NOOZLE_REPEATED_ALARM_API:
             cloud_free_buf();
             ret |= cloud_api_request(noozle_repeated_alarm_api, HTTP_METHOD_POST, NULL);
             ret |= cloud_api_parse_repeated_alarms(cloud_buffer);
+            break;
+
+        case NOOZLE_BATTERY_UPDATE_API:
+            cloud_free_buf();
+            ret |= cloud_api_request(noozle_update_battery_api, HTTP_METHOD_POST, NULL);
             break;
 
         default:
@@ -67,11 +76,21 @@ esp_err_t cloud_api_request(const char* api, esp_http_client_method_t http_metho
 
     }
 
+
     if(http_method == HTTP_METHOD_POST){
-        ret |= esp_http_client_set_header(client, "Content-Type", "application/json");
-        ret |= esp_http_client_open(client, strlen(noozle_device_id));
-        int wlen = esp_http_client_write(client, noozle_device_id, strlen(noozle_device_id));
-        data_read = esp_http_client_read_response(client, output_buffer, MAX_HTTP_OUTPUT_BUFFER);
+        if(api == noozle_update_battery_api){
+            ret |= esp_http_client_set_header(client, "Content-Type", "application/json");
+            ret |= esp_http_client_open(client, strlen(noozle_battery_json));
+            int wlen = esp_http_client_write(client, noozle_battery_json, strlen(noozle_battery_json));
+            data_read = esp_http_client_read_response(client, output_buffer, MAX_HTTP_OUTPUT_BUFFER);
+        }
+        else if(api == noozle_repeated_alarm_api){
+            ret |= esp_http_client_set_header(client, "Content-Type", "application/json");
+            ret |= esp_http_client_open(client, strlen(noozle_device_id));
+            int wlen = esp_http_client_write(client, noozle_device_id, strlen(noozle_device_id));
+            data_read = esp_http_client_read_response(client, output_buffer, MAX_HTTP_OUTPUT_BUFFER);
+        }
+
     }
         
         

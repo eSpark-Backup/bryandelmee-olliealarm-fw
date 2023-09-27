@@ -11,6 +11,7 @@ static const char* TAG = "Noozle";
 extern char* sleep_scene_string[];
 RTC_DATA_ATTR bool alarmState = false;
 extern app_status_t noozleStatus;
+extern app_status_t lastStatus;
 
 Noozle::Noozle()
 {
@@ -249,6 +250,7 @@ void Noozle::setDeepSleep(){
                     // calculatedSleepUs = ((minuteDifference) + (secondDifference - SLEEP_WAKEUP_OFFSET)) * 1000000;
                     calculatedSleepUs = (epochDiff - SLEEP_WAKEUP_OFFSET)*1000000;
                     alarmState = true;
+                    lastStatus = LIGHT_SLEEP;
                     noozleStatus = RING_ALARM;
                     deep_sleep(calculatedSleepUs);
                 }

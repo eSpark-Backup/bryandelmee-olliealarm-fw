@@ -33,7 +33,7 @@ esp_err_t cloud_api_parse_current_time(const char* jsonString, uint64_t* time)
     return ESP_OK;
 }
 extern uint32_t noozle_device_id_len;
-esp_err_t cloud_api_parse_ollie_id(const char* jsonString, char** noozle_dev_id)
+esp_err_t cloud_api_parse_ollie_id(const char* jsonString, char** noozle_dev_id, char** noozle_batt_json)
 {
     esp_err_t ret = ESP_FAIL;
     // Parse the JSON string
@@ -87,6 +87,22 @@ esp_err_t cloud_api_parse_ollie_id(const char* jsonString, char** noozle_dev_id)
                 snprintf(*noozle_dev_id, noozle_device_id_len+1, "{\"ollie_id\":\"%s\"}", id->valuestring);
                 ESP_LOGI(TAG,"noozle_device_id : %s", *noozle_dev_id);
                 ret = ESP_OK;
+
+                //create battery update json
+                cJSON *battery_root;
+                char *out;
+                battery_root = cJSON_CreateObject();
+                cJSON_AddItemToObject(battery_root, "ollie_id", cJSON_CreateString(id->valuestring));
+                cJSON_AddItemToObject(battery_root, "status", cJSON_CreateString("Charging"));
+                cJSON_AddItemToObject(battery_root, "percentage", cJSON_CreateNumber(55));
+            
+                out = cJSON_Print(battery_root);
+                // printf("%s\n",out);
+
+                *noozle_batt_json = out;
+                printf("%s\n",*noozle_batt_json);
+                // // printf("%s\n",*noozle_batt_json);
+
                 // break;
             }
         }
