@@ -76,6 +76,7 @@ void ring_alarm(alarm_config* alarm){
         vTaskDelay(500/portTICK_PERIOD_MS);
         ESP_LOGI(ALARM_TAG, ".");
     }
+
     while(init_time() < alarm->end_time){
         ESP_LOGI(ALARM_TAG, "PLaying Alarm");
         // ESP_LOGE(ALARM_TAG, "No playwav function");
@@ -83,6 +84,7 @@ void ring_alarm(alarm_config* alarm){
         // playwav
         vTaskDelay(1000/portTICK_PERIOD_MS);
     }
+    
 }
 
 void show_alarm_info(alarm_config* alarm){

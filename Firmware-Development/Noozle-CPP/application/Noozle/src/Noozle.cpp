@@ -208,8 +208,13 @@ void Noozle::setNearestAlarm(){
         wakeDiff = wakeAlarm->start_time - rtc->real_time;
         sleepDiff = sleepAlarm->start_time - rtc->real_time;
     }
-
-    if((wakeDiff & 1 << 31)  && (sleepDiff & 1 << 31)){
+    
+    
+    if(wakeDiff == sleepDiff){
+        nearestAlarm = NULL;
+        ESP_LOGI(TAG, "NEAREST ALARM = NULL ALARM");
+    }
+    else if((wakeDiff & 1 << 31)  && (sleepDiff & 1 << 31)){
         nearestAlarm = NULL;
         ESP_LOGI(TAG, "BOTH ALARMS PASSED\n");
     }
@@ -221,10 +226,6 @@ void Noozle::setNearestAlarm(){
         nearestAlarm = sleepAlarm;
         ESP_LOGI(TAG, "NEAREST ALARM = SLEEP ALARM");
     }
-    else if(wakeDiff == sleepDiff){
-        nearestAlarm = NULL;
-        ESP_LOGI(TAG, "NEAREST ALARM = NULL ALARM");
-    }
     ESP_LOGI(TAG, "DIFFS wake : %ld sleep : %ld", wakeDiff, sleepDiff);
 }
 
@@ -235,7 +236,7 @@ void Noozle::setDeepSleep(){
         time_t epochDiff = rtc->epochDifference(nearestAlarm->start_time);
         // int8_t secondDifference = rtc->secDifference(nearestAlarm->start_timeinfo);
         ESP_LOGI(TAG, " EPOCH DIFFERNECE B/W Alarm and Current Time= %lld", epochDiff);
-                if( epochDiff >= 3600)
+                if( epochDiff >= 3600)  //Alarm after 60 mins or 1 hr
                 {
                     ESP_LOGI(TAG, "ESP CAN GO 1HR DEEP SLEEP");
                     calculatedSleepUs = (unsigned int)(60*60*1000*1000);
@@ -244,17 +245,16 @@ void Noozle::setDeepSleep(){
                     deep_sleep(calculatedSleepUs);
 
                 }
-                else if(epochDiff < 3600 && epochDiff > 0)
+                else if(epochDiff < 3600 && epochDiff > 0)  //Alarm under 60 mins
                 {
                     ESP_LOGI(TAG, "ESP CAN GO DEEP SLEEP FOR %lld Mins ideal ", epochDiff/60 );
                     // calculatedSleepUs = ((minuteDifference) + (secondDifference - SLEEP_WAKEUP_OFFSET)) * 1000000;
                     calculatedSleepUs = (epochDiff - SLEEP_WAKEUP_OFFSET)*1000000;
                     alarmState = true;
-                    lastStatus = LIGHT_SLEEP;
-                    noozleStatus = RING_ALARM;
+                    noozleStatus = SET_ALARMS;
                     deep_sleep(calculatedSleepUs);
                 }
-                else if(epochDiff < 0){
+                else if(epochDiff < 0){  //negative epoch means alarm passed
                     ESP_LOGI(TAG, "Alarm Passed waiting for new alarm");
                     nearestAlarm = NULL;
                     noozleStatus = FETCH_ALARM;
@@ -276,11 +276,11 @@ void deep_sleep(uint64_t sleepTimeUs){
     uint64_t timer = sleepTimeUs;
     ESP_LOGI(TAG, "Activating Deep Sleep for %llu = us", timer);
     esp_sleep_enable_timer_wakeup(timer);
-    /* disabled ext0
-    gpio_set_direction(GPIO_NUM_20, GPIO_MODE_INPUT);
-    rtc_gpio_hold_en(GPIO_NUM_20);
-    esp_sleep_enable_ext0_wakeup(GPIO_NUM_20, 0);
-    */
+    // // enabled ext0
+    // gpio_set_direction(GPIO_NUM_20, GPIO_MODE_INPUT);
+    // rtc_gpio_hold_en(GPIO_NUM_20);
+    // esp_sleep_enable_ext0_wakeup(GPIO_NUM_20, 0);
+
     esp_deep_sleep_start();
 }
 
@@ -303,6 +303,7 @@ void Noozle::checkAlarm(){
 
 void Noozle::updateBatteryStatus(){
     ESP_LOGI(TAG, "UPDATE BATTERY STATUS");
+    noozle_cloud_service(NOOZLE_BATTERY_UPDATE_API);
 }
 
 void Noozle::spiff(){

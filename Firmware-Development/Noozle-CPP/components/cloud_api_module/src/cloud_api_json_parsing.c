@@ -87,37 +87,41 @@ esp_err_t cloud_api_parse_ollie_id(const char* jsonString, char** noozle_dev_id,
                 snprintf(*noozle_dev_id, noozle_device_id_len+1, "{\"ollie_id\":\"%s\"}", id->valuestring);
                 ESP_LOGI(TAG,"noozle_device_id : %s", *noozle_dev_id);
                 ret = ESP_OK;
-
-                //create battery update json
-                cJSON *battery_root;
-                char *out;
-                battery_root = cJSON_CreateObject();
-                cJSON_AddItemToObject(battery_root, "ollie_id", cJSON_CreateString(id->valuestring));
-                cJSON_AddItemToObject(battery_root, "status", cJSON_CreateString("Charging"));
-                cJSON_AddItemToObject(battery_root, "percentage", cJSON_CreateNumber(55));
-            
-                out = cJSON_Print(battery_root);
-                // printf("%s\n",out);
-
-                *noozle_batt_json = out;
-                printf("%s\n",*noozle_batt_json);
-                // // printf("%s\n",*noozle_batt_json);
-
                 // break;
             }
         }
             
     }
-    // free(targetName);
-    // targetName = NULL;
+    free(targetName);
+    targetName = NULL;
     cJSON_Delete(root);
     return ret;
+}
+
+esp_err_t cloud_api_create_battery_status_json(char** noozle_dev_id, char** noozle_batt_json){
+    //create battery update json
+    printf("NOOZLEP POINTER ADDR = %p\n", noozle_dev_id);
+    cJSON *battery_root = cJSON_Parse(*noozle_dev_id);   /* causing guru med when alarm ringing end and comes to update battery status*/
+    char *out;
+    // battery_root = cJSON_CreateObject();
+    // cJSON_AddItemToObject(battery_root, "ollie_id", cJSON_CreateString(id->valuestring));
+    cJSON_AddItemToObject(battery_root, "status", cJSON_CreateString("Charging"));
+    cJSON_AddItemToObject(battery_root, "percentage", cJSON_CreateNumber(96));
+
+    out = cJSON_Print(battery_root);
+    // printf("%s\n",out);
+
+    *noozle_batt_json = out;
+    printf("%s\n",*noozle_batt_json);
+    cJSON_Delete(battery_root); 
+    return ESP_OK;
 }
 
 esp_err_t cloud_api_parse_repeated_alarms(const char* jsonString)
 {
     esp_err_t ret = ESP_OK;
     int64_t alarm_epoch[4];
+
     // Parse the JSON string
     cJSON* root = cJSON_Parse(jsonString);
     if (root == NULL) {
@@ -157,6 +161,19 @@ esp_err_t cloud_api_parse_repeated_alarms_epoch(cJSON* root, int64_t* alarm_epoc
     
     if (data == NULL || !cJSON_IsArray(data)) {
         printf("Data field not found or is not an array.\n");
+        for(int i = 0; i<4; i++){  //set nvs alarms time to 0 and week days to 0
+            nvs_handle_t handle;
+            ESP_RETURN_ON_ERROR(nvs_open(sleep_scene_string[i], NVS_READWRITE, &handle), TAG, "opening NVS Namespace of sleep_time");
+            ESP_RETURN_ON_ERROR(nvs_set_u32(handle, "time" , 0), TAG, "writing time epoch 0");
+            ESP_RETURN_ON_ERROR(nvs_set_u32(handle, "brightness" , 0), TAG, "writing brightness value 0");
+
+            ESP_RETURN_ON_ERROR(nvs_open("weekdays", NVS_READWRITE, &handle), TAG, "opening NVS Namespace of weekdays");
+            ESP_RETURN_ON_ERROR(nvs_set_u8(handle, "weekday_bits" , 0), TAG, "writing weekday_bits epoch");
+            ESP_RETURN_ON_ERROR(nvs_commit(handle), TAG, "Updated NVS\n");
+
+            ESP_RETURN_ON_ERROR(nvs_commit(handle), TAG, "NVS data reset\n");
+            nvs_close(handle);
+        }
         return ESP_FAIL;
     }
     

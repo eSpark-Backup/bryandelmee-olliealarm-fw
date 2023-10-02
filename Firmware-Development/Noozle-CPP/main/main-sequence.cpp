@@ -10,6 +10,7 @@
 /*STATUS*/
 RTC_DATA_ATTR app_status_t noozleStatus = FORCED_PROV;
 RTC_DATA_ATTR app_status_t lastStatus;
+RTC_DATA_ATTR bool wifi_status = false;
 
 
 /* FUNCTION PROTOTYPES*/
@@ -36,6 +37,8 @@ extern "C" void app_main(void)
     app->setup();
     esp_err_t err = ESP_OK;
 
+    wifi_status = false;
+
     /* CHECK RESET REASON */
     esp_reset_reason_t rst_reason = esp_reset_reason();
     switch (rst_reason)
@@ -45,15 +48,11 @@ extern "C" void app_main(void)
         esp_sleep_wakeup_cause_t wakeup_cause = esp_sleep_get_wakeup_cause();
         if(wakeup_cause == ESP_SLEEP_WAKEUP_EXT0){
             ESP_LOGI(TAG, "FORCED PROV");  
-            if(lastStatus != LIGHT_SLEEP){
                 noozleStatus = FORCED_PROV;
-            }else if(lastStatus == LIGHT_SLEEP){
-                noozleStatus = UPDATE_BATTERY;
-            }
         }
         else if(wakeup_cause == ESP_SLEEP_WAKEUP_TIMER){
             ESP_LOGI(TAG, "CONTINUE ALARM SEQUENCE");  
-            noozleStatus = SET_NEAREST;   //if directely called ring alarm after deepsleep nearest alarm is garbage, so first se nearest again
+                noozleStatus = noozleStatus;            
         }   
         break;
     }        
@@ -61,6 +60,7 @@ extern "C" void app_main(void)
     {
         ESP_LOGI(TAG, "POWER ON");  
             if(app->getProvStatus() != PROVISIONING_STATUS_OK){
+                ESP_LOGI(TAG, "1 STATUS = %d", app->getProvStatus());
                 noozleStatus = FORCED_PROV;
             }
             else{
@@ -89,11 +89,17 @@ extern "C" void app_main(void)
             }
 
             case CONNECT_WIFI:{
-                app->connectWifi();
+                if(wifi_status != true){
+                    app->connectWifi();
+                    wifi_status = true;
+                }
+                wifi_status = true;
                     if( err != ESP_OK){
                         noozleStatus = FORCED_PROV;
+                        break;
                     }else{
                         noozleStatus = FETCH_TIME;
+                        break;
                     }
                 break;
             }
@@ -106,8 +112,13 @@ extern "C" void app_main(void)
             
             case FETCH_ID:{
                 noozle_cloud_service(NOOZLE_GET_ID_API);    
-                noozle_cloud_service(NOOZLE_BATTERY_UPDATE_API);
-                noozleStatus = FETCH_ALARM;
+                if(lastStatus == RING_ALARM){
+                        noozleStatus = UPDATE_BATTERY;
+                        lastStatus = UPDATE_BATTERY;
+                    }
+                    else{
+                        noozleStatus = FETCH_ALARM;
+                }
                 break;
             }
 
@@ -124,11 +135,18 @@ extern "C" void app_main(void)
 
             case RING_ALARM:{
                 app->checkAlarm();
+                lastStatus = RING_ALARM;
                 noozleStatus = UPDATE_BATTERY;
                 break;
             }
             
             case UPDATE_BATTERY:{
+                ESP_LOGI(TAG, "UPDATE BATTERY CASE");
+                if(wifi_status != true){
+                    app->connectWifi();
+                    wifi_status = true;
+                }
+                noozle_cloud_service(NOOZLE_GET_ID_API);
                 app->updateBatteryStatus();
                 noozleStatus = DEEP_SLEEP;
                 break;
@@ -142,6 +160,7 @@ extern "C" void app_main(void)
 
             case SET_NEAREST:{
                 app->setNearestAlarm();
+                lastStatus = SET_NEAREST;
                 noozleStatus = RING_ALARM;
                 break;
             }

@@ -14,7 +14,7 @@ const char* noozle_repeated_alarm_api = "http://dev.noozle.nl:3000/scenes/getRep
 const char* noozle_update_battery_api = "http://dev.noozle.nl:3000/ollie/updateChargeStatus";
 
 char* noozle_device_id = NULL;
-char* noozle_battery_json = NULL;
+RTC_DATA_ATTR  char* noozle_battery_json = NULL;
 uint32_t noozle_device_id_len;
 uint32_t noozle_battery_json_len;
 
@@ -35,7 +35,6 @@ esp_err_t noozle_cloud_service(noozle_api_t API)
             cloud_free_buf();
             ret |= cloud_api_request(noozle_get_id_api, HTTP_METHOD_GET, NULL);
             ret |= cloud_api_parse_ollie_id(cloud_buffer, &noozle_device_id, &noozle_battery_json);
-            printf("%s\n",noozle_battery_json);
             break;
 
         case NOOZLE_REPEATED_ALARM_API:
@@ -46,6 +45,7 @@ esp_err_t noozle_cloud_service(noozle_api_t API)
 
         case NOOZLE_BATTERY_UPDATE_API:
             cloud_free_buf();
+            ret |= cloud_api_create_battery_status_json(&noozle_device_id, &noozle_battery_json);
             ret |= cloud_api_request(noozle_update_battery_api, HTTP_METHOD_POST, NULL);
             break;
 

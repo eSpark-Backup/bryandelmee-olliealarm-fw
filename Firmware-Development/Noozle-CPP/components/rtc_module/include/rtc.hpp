@@ -22,7 +22,7 @@ class RTC{
             void setTime(int sc, int mn, int hr, int dy, int mt, int yr, int ms);
             void setEpochTime(uint64_t epoch);
             time_t initialize();
-            time_t updateTime();
+            time_t* updateTime();
             void syncRtc();
             bool checkDay(tm alarmStartTime);
             bool alarmHour(tm alarmStartTime);

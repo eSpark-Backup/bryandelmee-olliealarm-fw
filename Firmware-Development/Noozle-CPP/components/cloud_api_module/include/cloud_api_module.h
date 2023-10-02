@@ -71,6 +71,7 @@ esp_err_t cloud_api_parse_ollie_id(const char* jsonString, char** noozle_dev_id,
 esp_err_t cloud_api_parse_repeated_alarms(const char* jsonString);
 esp_err_t cloud_api_success_status(cJSON* root);
 esp_err_t cloud_api_parse_repeated_alarms_epoch(cJSON* root, int64_t* alarm_epoch);
+esp_err_t cloud_api_create_battery_status_json(char** noozle_dev_id, char** noozle_batt_json);
 esp_err_t save_alarms_in_nvs(int64_t* alarm_epoch, size_t size);
 
 void cloud_free_buf();

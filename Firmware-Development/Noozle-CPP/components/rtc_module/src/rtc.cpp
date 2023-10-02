@@ -36,12 +36,12 @@ void RTC::syncRtc(){   //syncs the time from internet
 }
 
 /* THIS FUNCTION NEEDS TO BE CALLED ON EVERY LOOP ITERATION*/
-time_t RTC::updateTime(){
+time_t* RTC::updateTime(){
     time(time_ptr);  //update epoch time
     localtime_r(time_ptr, realtimeinfo_ptr);  //convert current epoch to tm struct
     strftime(realtime_buf, sizeof(realtime_buf), "%c", realtimeinfo_ptr);  //updates the human time char array
     ESP_LOGI(TAG, "The current date/time in Pakistan is: %s", realtime_buf);
-    return *time_ptr;
+    return time_ptr;
 }
 
 void RTC::getTime(char * s){
