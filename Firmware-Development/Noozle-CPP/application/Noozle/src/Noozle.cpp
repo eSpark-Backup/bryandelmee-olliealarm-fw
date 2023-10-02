@@ -7,6 +7,15 @@
 #define SLEEP_WAKEUP_OFFSET 15
 
 
+/* FUNCTION PROTOTYPES*/
+void display_task(void *pv);
+void audio_task(void *pv);
+
+
+/* TASK HANDLES*/
+TaskHandle_t displayhandle = NULL;
+TaskHandle_t audiohandle = NULL;
+
 static const char* TAG = "Noozle";
 extern char* sleep_scene_string[];
 RTC_DATA_ATTR bool alarmState = false;
@@ -294,11 +303,38 @@ bool Noozle::alarmStatus(){
 
 void Noozle::checkAlarm(){
     if(alarmState == true){
-        ring_alarm(nearestAlarm);
+        // ring_alarm(nearestAlarm);
+        ESP_LOGI(TAG, "WAITING FOR ALARM ");
+        while(rtc->real_time < nearestAlarm->start_time){
+            vTaskDelay(500/portTICK_PERIOD_MS);
+            ESP_LOGI(TAG, ".");
+            rtc->updateTime();
+        }
+        xTaskCreatePinnedToCore(display_task,"Display task", 2*2048, NULL, 10, &displayhandle, 0);
+        xTaskCreate(audio_task,"audio task", 2*2048, NULL, 10, &audiohandle);
+        // vTaskDelay(10000/portTICK_PERIOD_MS);
+
+        // codec audio;
+        // audio.setup();
+        // audio.setVol(90);
+
+        while(rtc->real_time < nearestAlarm->end_time){
+            ESP_LOGI(TAG, "PLaying Alarm");
+            // ESP_LOGE(ALARM_TAG, "No playwav function");
+            // alarm->audio_fptr(alarm->file_name); //causing guru meditation
+            // playwav  
+            // audio.play("/spiffs/audio/Piano.wav");
+            vTaskDelay(10/portTICK_PERIOD_MS);
+            rtc->updateTime();
+        }
+        vTaskDelete(displayhandle);
+        vTaskDelete(audiohandle);
+        // audio.setVol(0);
     }
     else if(alarmState == false){
         ESP_LOGI(TAG, "ITS NOT ALARM TIME");
     }
+
 }
 
 void Noozle::updateBatteryStatus(){
@@ -328,5 +364,28 @@ void Noozle::spiff(){
         }
 
         printf("Found file: %s\n", de->d_name);
+    }
+}
+
+/*DISPLAY TASK FUNCTION*/
+void display_task(void *pv){
+    DISPLAY display;
+    display.setup();
+    display.update(DAY);
+    display.timer(30);
+    while(1){
+        display.operate();
+        vTaskDelay(1/portTICK_PERIOD_MS);
+    }
+}
+
+void audio_task(void *pv){
+    codec audio;
+    audio.setup();
+    while(1){
+        audio.setVol(90);
+        audio.play("/spiffs/audio/Piano.wav");   
+        audio.setVol(0);
+        vTaskDelay(500/portTICK_PERIOD_MS);
     }
 }

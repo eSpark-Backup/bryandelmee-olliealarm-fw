@@ -53,10 +53,11 @@ esp_err_t DISPLAY::setup()
  * @return esp_err_t
 */
 esp_err_t DISPLAY::timer(uint32_t time){
-    time  = time * 1000000; //hard coded for testing purposes
+    time  = time * 1000000; //hard coded for testing purposes in microseconds
     const esp_timer_create_args_t my_timer_args = {
-    .callback = &lcd_change_screen,
-    .name = "My Timer"};
+        .callback = &lcd_change_screen,
+        .name = "My Timer"
+    };
     esp_timer_handle_t timer_handler;
     ESP_ERROR_CHECK(esp_timer_create(&my_timer_args, &timer_handler));
     ESP_ERROR_CHECK(esp_timer_start_periodic(timer_handler, time));

@@ -6,6 +6,8 @@
 #include "BLEProv.hpp"
 #include <time.h>
 #include "cloud_api_module.h"
+#include "codec.hpp"
+#include "display.hpp"
 #include "alarm_config.h"
 #include "esp_sleep.h"
 #include "esp_timer.h"

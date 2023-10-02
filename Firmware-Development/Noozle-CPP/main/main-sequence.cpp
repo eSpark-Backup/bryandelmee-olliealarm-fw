@@ -14,20 +14,20 @@ RTC_DATA_ATTR bool wifi_status = false;
 
 
 /* FUNCTION PROTOTYPES*/
-void display_task(void *pv);
-void audio_task(void *pv);
+// void display_task(void *pv);
+// void audio_task(void *pv);
 
 #define WAV_FILE "/spiffs/audio/Piano.wav"
 
 const char* TAG = "MAIN_SEQUENCE";
 
 /* TASK HANDLES*/
-TaskHandle_t audiohandle = NULL;
-TaskHandle_t displayhandle = NULL;
+// TaskHandle_t audiohandle = NULL;
+// TaskHandle_t displayhandle = NULL;
 
 /*GLOBAL OBJECT*/
-DISPLAY display;
-codec audio;
+// DISPLAY display;
+// codec audio;
 Noozle *app;
 
 extern "C" void app_main(void)
@@ -35,6 +35,7 @@ extern "C" void app_main(void)
     /* SETUP NOOZLE */
     app = new Noozle();
     app->setup();
+    heap_caps_malloc_extmem_enable(0);
     esp_err_t err = ESP_OK;
 
     wifi_status = false;
@@ -179,19 +180,19 @@ extern "C" void app_main(void)
  
 /* xTASK FUNCTIONS*/
 
-void display_task(void *pv){
-    while(1){
-        display.operate();
-        vTaskDelay(1/portTICK_PERIOD_MS);
-    }
-}
+// void display_task(void *pv){
+//     while(1){
+//         display.operate();
+//         vTaskDelay(1/portTICK_PERIOD_MS);
+//     }
+// }
 
-void audio_task(void *pv){
-    audio.setup();
-    while(1){
-        audio.setVol(90);
-        audio.play(WAV_FILE);   
-        audio.setVol(0);
-        vTaskDelay(1000/portTICK_PERIOD_MS);
-    }
-}
+// void audio_task(void *pv){
+//     audio.setup();
+//     while(1){
+//         audio.setVol(90);
+//         audio.play(WAV_FILE);   
+//         audio.setVol(0);
+//         vTaskDelay(1000/portTICK_PERIOD_MS);
+//     }
+// }
