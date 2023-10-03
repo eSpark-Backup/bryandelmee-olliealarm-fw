@@ -94,8 +94,8 @@ esp_err_t handshake_polling(sio_client_t *client)
         }
         esp_http_client_set_url(client->handshake_client, url);
         esp_http_client_set_method(client->handshake_client, HTTP_METHOD_GET);
-        esp_http_client_set_header(client->handshake_client, "Content-Type", "text/html");
-        esp_http_client_set_header(client->handshake_client, "Accept", "text/plain");
+        esp_http_client_set_header(client->handshake_client, "Content-Type", "application/json");
+        esp_http_client_set_header(client->handshake_client, "Accept", "*/*");
 
         freeIfNotNull(&url);
     }

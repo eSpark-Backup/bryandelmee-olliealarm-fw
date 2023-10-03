@@ -53,7 +53,7 @@ void parse_packet(Packet_t *packet)
 
         for (int i = 2; i < packet->len; i++)
         {
-            if (packet->data[i] == '{' || packet->data[i] == '[')
+            if (packet->data[i] == '{' )
             {
                 packet->json_start = packet->data + i;
                 break;
