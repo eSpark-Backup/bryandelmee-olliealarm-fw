@@ -52,7 +52,7 @@ class Noozle
         esp_err_t bootCountUpdate();
         void checkProvStatusAndRunBleOrWifi();
         void setAlarmsFromNvs();
-        void bits_to_bool(uint8_t bits);
+        void bits_to_bool(uint8_t bits, int scene_no);
         void updateTime();
         void setNearestAlarm();
         void updateBatteryStatus();
@@ -70,6 +70,10 @@ class Noozle
         alarm_config* sleepAlarm;
         alarm_config* nearestAlarm;
         uint8_t weekday_bits;
+        int numberOfScenes;
         bool weekday[7];
+        bool *p_weekday;
+        void readNoOfScenes(int* n);
+        void readSceneName(char* p_scene_name, uint8_t scene_number);
 
 };

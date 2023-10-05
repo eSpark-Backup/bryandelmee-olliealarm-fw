@@ -21,7 +21,7 @@ void bits_to_bool(uint8_t bits);
 Noozle* app;
 
 
-
+extern char* sleep_scene_string[];
 bool weekday[7];
 
 
@@ -29,9 +29,9 @@ extern "C" void app_main(void)
 {
     app = new Noozle();
     app->setup();
-    app->setProvStatus(PROVISIONING_STATUS_FAIL);
-    app->connectBLE();
-    app->setProvStatus(PROVISIONING_STATUS_OK);
+    // app->setProvStatus(PROVISIONING_STATUS_FAIL);
+    // app->connectBLE();
+    // app->setProvStatus(PROVISIONING_STATUS_OK);
     app->connectWifi();
 
 
@@ -41,33 +41,37 @@ extern "C" void app_main(void)
 
     noozle_cloud_service(NOOZLE_GET_ID_API);
 
-    noozle_cloud_service(NOOZLE_REPEATED_ALARM_API);
-    ESP_LOGI(TAG, "ALARMS FETCHED!\n");
-    vTaskDelay(1000/portTICK_PERIOD_MS);
-
-    uint32_t time;
-    alarmNVS.readKeyU32(sleep_scene_string[ALMOST_SLEEP], "time", &time);
-    ESP_LOGI(TAG, "Almost Asleep time NVS : %ld\n", time);
-    vTaskDelay(1000/portTICK_PERIOD_MS);
-
-    alarmNVS.readKeyU32(sleep_scene_string[TO_SLEEP], "time", &time);
-    ESP_LOGI(TAG, "To SLeep time NVS : %ld\n", time);
-    vTaskDelay(1000/portTICK_PERIOD_MS);
-
-    alarmNVS.readKeyU32(sleep_scene_string[ALMOST_GETTING_UP], "time", &time);
-    ESP_LOGI(TAG, "Almost Getting up time NVS : %ld\n", time);
-    vTaskDelay(1000/portTICK_PERIOD_MS);
-
-    alarmNVS.readKeyU32(sleep_scene_string[TO_GET_UP], "time", &time);
-    ESP_LOGI(TAG, "To get up time NVS : %ld\n", time);
-    vTaskDelay(1000/portTICK_PERIOD_MS);
-
-    uint8_t weekday_bits;
-    alarmNVS.readKeyU8("weekdays", "weekday_bits", &weekday_bits);
-    ESP_LOGI(TAG, "Week days in binary: %d\n", weekday_bits);
-    vTaskDelay(1000/portTICK_PERIOD_MS);
     
-    bits_to_bool(weekday_bits);
+    if(noozle_cloud_service(NOOZLE_REPEATED_ALARM_API) == ESP_OK){
+        ESP_LOGI(TAG, "ALARMS FETCHED!\n");
+        vTaskDelay(1000/portTICK_PERIOD_MS);
+
+        app->setAlarmsFromNvs();
+
+        // uint32_t time;
+        // alarmNVS.readKeyU32("Scene1", sleep_scene_string[ALMOST_SLEEP], &time);
+        // ESP_LOGI(TAG, "Almost Asleep time NVS : %ld\n", time);
+        // vTaskDelay(1000/portTICK_PERIOD_MS);
+
+        // alarmNVS.readKeyU32("Scene1", sleep_scene_string[TO_SLEEP], &time);
+        // ESP_LOGI(TAG, "To SLeep time NVS : %ld\n", time);
+        // vTaskDelay(1000/portTICK_PERIOD_MS);
+
+        // alarmNVS.readKeyU32("Scene1", sleep_scene_string[ALMOST_GETTING_UP], &time);
+        // ESP_LOGI(TAG, "Almost Getting up time NVS : %ld\n", time);
+        // vTaskDelay(1000/portTICK_PERIOD_MS);
+
+        // alarmNVS.readKeyU32("Scene1", sleep_scene_string[TO_GET_UP], &time);
+        // ESP_LOGI(TAG, "To get up time NVS : %ld\n", time);
+        // vTaskDelay(1000/portTICK_PERIOD_MS);
+
+        // uint8_t weekday_bits;
+        // alarmNVS.readKeyU8("Scene1", "weekday_bits", &weekday_bits);
+        // ESP_LOGI(TAG, "Week days in binary: %d\n", weekday_bits);
+        // vTaskDelay(1000/portTICK_PERIOD_MS);
+        
+        // bits_to_bool(weekday_bits);
+    }
 
     while (1)
     {

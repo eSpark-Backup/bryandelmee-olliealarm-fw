@@ -1,10 +1,17 @@
 #include "cloud_api_module.h"
 
-const char* sleep_scene_string[] = {
+char* sleep_scene_string[] = {
     "Almost Asleep", 
     "To Sleep", 
     "Almost Getting", 
     "To get up"
+    };
+
+char* sleep_scene_string_brightness[] = {
+    "bAlmost Asleep", 
+    "bTo Sleep", 
+    "bAlmost Getting", 
+    "bTo get up"
     };
 
 static const char* TAG = "cloud_api_json_parsing";
@@ -158,32 +165,59 @@ esp_err_t cloud_api_parse_repeated_alarms_epoch(cJSON* root, int64_t* alarm_epoc
 {
     cJSON *data = cJSON_GetObjectItemCaseSensitive(root, "data");
     nvs_flash_init();
+    nvs_handle_t handle;
     
     if (data == NULL || !cJSON_IsArray(data)) {
         printf("Data field not found or is not an array.\n");
-        for(int i = 0; i<4; i++){  //set nvs alarms time to 0 and week days to 0
-            nvs_handle_t handle;
-            ESP_RETURN_ON_ERROR(nvs_open(sleep_scene_string[i], NVS_READWRITE, &handle), TAG, "opening NVS Namespace of sleep_time");
-            ESP_RETURN_ON_ERROR(nvs_set_u32(handle, "time" , 0), TAG, "writing time epoch 0");
-            ESP_RETURN_ON_ERROR(nvs_set_u32(handle, "brightness" , 0), TAG, "writing brightness value 0");
+        // for(int i = 0; i<4; i++){  //set nvs alarms time to 0 and week days to 0
+        //     nvs_handle_t handle;
+        //     ESP_RETURN_ON_ERROR(nvs_open(sleep_scene_string[i], NVS_READWRITE, &handle), TAG, "opening NVS Namespace of sleep_time");
+        //     ESP_RETURN_ON_ERROR(nvs_set_u32(handle, "time" , 0), TAG, "writing time epoch 0");
+        //     ESP_RETURN_ON_ERROR(nvs_set_u32(handle, "brightness" , 0), TAG, "writing brightness value 0");
 
-            ESP_RETURN_ON_ERROR(nvs_open("weekdays", NVS_READWRITE, &handle), TAG, "opening NVS Namespace of weekdays");
-            ESP_RETURN_ON_ERROR(nvs_set_u8(handle, "weekday_bits" , 0), TAG, "writing weekday_bits epoch");
-            ESP_RETURN_ON_ERROR(nvs_commit(handle), TAG, "Updated NVS\n");
+        //     ESP_RETURN_ON_ERROR(nvs_open(sleep_scene_string[i], NVS_READWRITE, &handle), TAG, "opening NVS Namespace of weekdays");
+        //     ESP_RETURN_ON_ERROR(nvs_set_u8(handle, "weekday_bits" , 0), TAG, "writing weekday_bits epoch");
+        //     ESP_RETURN_ON_ERROR(nvs_commit(handle), TAG, "Updated NVS\n");
 
-            ESP_RETURN_ON_ERROR(nvs_commit(handle), TAG, "NVS data reset\n");
-            nvs_close(handle);
-        }
+        //     ESP_RETURN_ON_ERROR(nvs_commit(handle), TAG, "NVS data reset\n");
+        //     nvs_close(handle);
+        // }
+        nvs_open("Scene1", NVS_READWRITE, &handle);
+        nvs_erase_all(handle);
+        nvs_commit(handle);
+        nvs_close(handle);
         return ESP_FAIL;
     }
     
     int data_size = cJSON_GetArraySize(data);
     
-    for (int i = 0; i < data_size; i++) {
+    for (int8_t i = 0; i < data_size; i++) {
         cJSON *scene = cJSON_GetArrayItem(data, i);
         
         cJSON *scene_name = cJSON_GetObjectItemCaseSensitive(scene, "scene_name");
         printf("Scene: %s\n", scene_name->valuestring);
+
+        char array[65] = "scene";
+        // sprintf(array,"scene %d",i);
+        snprintf(array, 18,"scene %d",i);
+        ESP_LOGI(TAG, "sprintf : %s", array);
+
+        //Saving Scene name in NVS with namespace as "scene_name"
+        ESP_RETURN_ON_ERROR(nvs_open("scene_names", NVS_READWRITE, &handle), TAG, "opening NVS Namespace of scene_name");
+        ESP_RETURN_ON_ERROR(nvs_set_u32(handle, "no_scenes" , data_size), TAG, "no. of scenes");
+        ESP_RETURN_ON_ERROR(nvs_set_str(handle, array, scene_name->valuestring ), TAG, "name of the scene");
+
+        //reading from NVS just to check that we are saving correct or not
+        int value;
+        ESP_RETURN_ON_ERROR(nvs_get_u32(handle, "no_scenes", &value), TAG, "readKey32: Read U32 key-value from NVS.");
+        size_t required_size = 0;
+        ESP_RETURN_ON_ERROR(nvs_get_str(handle, array,NULL,&required_size), TAG, "readKey32: Read U32 key-value from NVS.");
+        char* server_name = malloc(required_size);
+        ESP_RETURN_ON_ERROR(nvs_get_str(handle, array, server_name,&required_size), TAG, "readKey32: Read U32 key-value from NVS.");
+        ESP_RETURN_ON_ERROR(nvs_commit(handle), TAG, "readKey32: Update NVS-Storage");
+        nvs_close(handle);
+        ESP_LOGI(TAG, "read no of scenes : %d", value);
+        ESP_LOGI(TAG, "read name of scene : %s", server_name);
 
         cJSON *days = cJSON_GetObjectItemCaseSensitive(scene, "days");
         cJSON *day = NULL;
@@ -215,7 +249,7 @@ esp_err_t cloud_api_parse_repeated_alarms_epoch(cJSON* root, int64_t* alarm_epoc
             }
 
             nvs_handle_t handle;
-            ESP_RETURN_ON_ERROR(nvs_open("weekdays", NVS_READWRITE, &handle), TAG, "opening NVS Namespace of weekdays");
+            ESP_RETURN_ON_ERROR(nvs_open(scene_name->valuestring, NVS_READWRITE, &handle), TAG, "opening NVS Namespace as sceneName");
             ESP_RETURN_ON_ERROR(nvs_set_u8(handle, "weekday_bits" , weekday_bits), TAG, "writing weekday_bits epoch");
             ESP_RETURN_ON_ERROR(nvs_commit(handle), TAG, "Updated NVS\n");
             nvs_close(handle);
@@ -241,11 +275,11 @@ esp_err_t cloud_api_parse_repeated_alarms_epoch(cJSON* root, int64_t* alarm_epoc
             printf("Time: %d\n", time->valueint);
             printf("Scene Sleep Time Name: %s\n", name->valuestring);
             printf("Brightness: %lf\n", brightness->valuedouble);
-
+            
             nvs_handle_t handle;
-            ESP_RETURN_ON_ERROR(nvs_open(sleep_scene_string[j], NVS_READWRITE, &handle), TAG, "opening NVS Namespace of sleep_time");
-            ESP_RETURN_ON_ERROR(nvs_set_u32(handle, "time" , time->valueint), TAG, "writing time epoch");
-            ESP_RETURN_ON_ERROR(nvs_set_u32(handle, "brightness" , brightness->valuedouble), TAG, "writing brightness value");
+            ESP_RETURN_ON_ERROR(nvs_open(scene_name->valuestring, NVS_READWRITE, &handle), TAG, "opening NVS Namespace of sleep_time");
+            ESP_RETURN_ON_ERROR(nvs_set_u32(handle, sleep_scene_string[j] , time->valueint), TAG, "writing time epoch");
+            ESP_RETURN_ON_ERROR(nvs_set_u32(handle, sleep_scene_string_brightness[j] , brightness->valuedouble), TAG, "writing brightness value (brightness+scene_sleep_string[j])");
             ESP_RETURN_ON_ERROR(nvs_commit(handle), TAG, "Updated NVS\n");
             nvs_close(handle);
 

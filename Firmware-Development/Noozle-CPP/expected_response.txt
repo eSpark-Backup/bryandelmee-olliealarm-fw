@@ -1,0 +1,248 @@
+THIS RESPONSE IS FROM test-cloud-module.cpp
+
+I (0) cpu_start: App cpu up.
+I (778) esp_psram: SPI SRAM memory test OK
+I (787) cpu_start: Pro cpu start user code
+I (787) cpu_start: cpu freq: 160000000 Hz
+I (787) cpu_start: Application information:
+I (790) cpu_start: Project name:     Noozle-CPP
+I (795) cpu_start: App version:      0a757a3-dirty
+I (800) cpu_start: Compile time:     Oct  4 2023 20:18:43
+I (807) cpu_start: ELF file SHA256:  5dbb199495ca4942...
+I (813) cpu_start: ESP-IDF:          v5.1.1-305-g697e3e8eac
+I (819) cpu_start: Min chip rev:     v0.0
+I (823) cpu_start: Max chip rev:     v0.99 
+I (828) cpu_start: Chip rev:         v0.1
+I (833) heap_init: Initializing. RAM available for dynamic allocation:
+I (840) heap_init: At 3FCAB680 len 0003E090 (248 KiB): DRAM
+I (846) heap_init: At 3FCE9710 len 00005724 (21 KiB): STACK/DRAM
+I (853) heap_init: At 600FE010 len 00001FD8 (7 KiB): RTCRAM
+I (860) esp_psram: Adding pool of 7168K of PSRAM memory to heap allocator
+I (867) spi_flash: detected chip: gd
+I (871) spi_flash: flash io: qio
+I (875) sleep: Configure to isolate all GPIO pins in sleep state
+I (882) sleep: Enable automatic switching of GPIO sleep configuration
+I (889) coexist: coex firmware version: 80b0d89
+I (894) coexist: coexist rom version e7ae62f
+I (899) app_start: Starting scheduler on CPU0
+I (904) app_start: Starting scheduler on CPU1
+I (904) main_task: Started on CPU0
+I (914) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations
+I (922) main_task: Calling app_main()
+I (942) pp: pp rom version: e7ae62f
+I (943) net80211: net80211 rom version: e7ae62f
+I (944) wifi:wifi driver task: 3fcbeabc, prio:23, stack:6656, core=0
+I (953) wifi:wifi firmware version: ce9244d
+I (953) wifi:wifi certification version: v7.0
+I (955) wifi:config NVS flash: enabled
+I (958) wifi:config nano formating: disabled
+I (962) wifi:Init data frame dynamic rx buffer num: 32
+I (967) wifi:Init management frame dynamic rx buffer num: 32
+I (973) wifi:Init management short buffer num: 32
+I (977) wifi:Init static tx buffer num: 16
+I (981) wifi:Init tx cache buffer num: 32
+I (985) wifi:Init static tx FG buffer num: 2
+I (989) wifi:Init static rx buffer size: 1600
+I (993) wifi:Init static rx buffer num: 10
+I (997) wifi:Init dynamic rx buffer num: 32
+I (1001) wifi_init: rx ba win: 6
+I (1004) wifi_init: tcpip mbox: 32
+I (1008) wifi_init: udp mbox: 6
+I (1012) wifi_init: tcp mbox: 6
+I (1016) wifi_init: tcp tx win: 5744
+I (1020) wifi_init: tcp rx win: 5744
+I (1025) wifi_init: tcp mss: 1440
+I (1029) wifi_init: WiFi IRAM OP enabled
+I (1033) wifi_init: WiFi RX IRAM OP enabled
+I (1038) wifi_prov_scheme_ble: BT memory released
+I (1043) BLEProv: WIFI_PROV_INIT
+I (1048) RTC: The current date/time in Pakistan is: Thu Jan  1 05:00:00 1970
+I (1135) phy_init: phy_version 610,2bff4c8,Jul 27 2023,20:22:14
+I (1163) wifi:mode : sta (34:85:18:8c:fd:f8)
+I (1164) wifi:enable tsf
+I (3569) wifi:new:<9,2>, old:<1,0>, ap:<255,255>, sta:<9,2>, prof:1
+I (3570) wifi:state: init -> auth (b0)
+I (3584) wifi:state: auth -> init (8a0)
+I (3585) wifi:new:<9,0>, old:<9,2>, ap:<255,255>, sta:<9,2>, prof:1
+I (3585) wifi:new:<9,2>, old:<9,0>, ap:<255,255>, sta:<9,2>, prof:1
+I (3589) wifi:state: init -> auth (b0)
+I (3632) wifi:state: auth -> assoc (0)
+I (3646) wifi:state: assoc -> run (10)
+I (3751) wifi:connected with eSpark Wifi, aid = 4, channel 9, 40D, bssid = 14:eb:b6:4b:c2:62
+I (3752) wifi:security: WPA2-PSK, phy: bgn, rssi: -79
+I (3754) wifi:pm start, type: 1
+
+I (3756) wifi:set rx beacon pti, rx_bcn_pti: 14, bcn_timeout: 25000, mt_pti: 14, mt_time: 10000
+I (3880) wifi:AP's beacon interval = 102400 us, DTIM period = 1
+I (5399) wifi:<ba-add>idx:0 (ifx:0, 14:eb:b6:4b:c2:62), tid:0, ssn:0, winSize:64
+I (7766) WIFI-EVENT-MODULE: got ip:192.168.68.125
+I (7766) esp_netif_handlers: sta ip: 192.168.68.125, mask: 255.255.252.0, gw: 192.168.68.1
+I (7953) wifi:<ba-add>idx:1 (ifx:0, 14:eb:b6:4b:c2:62), tid:1, ssn:0, winSize:64
+I (8605) Cloud-API-Module: {"success":true,"data":[{"_id":"64dbd142500db82a5dad3c80","name":"OLLIEDEVICE","status":"Not Charging","percentage":50,"user_id":"64db778f500db82a5dad3c46","sleep_mode_time":"Something","sleep_mode_intensity":2,"sleep_mode_warmth":3,"__v":0},{"_id":"64ddcfe8500db82a5dad3d92","name":"OLLIEDEVICE","status":"Not Charging","percentage":50,"user_id":"64db6605500db82a5dad3c3d","sleep_mode_time":"Something","sleep_mode_intensity":2,"sleep_mode_warmth":3,"__v":0},{"_id":"650c53716d2ea7b4e90ea0d3","name":"Bedroom","status":"Not Charging","percentage":50,"user_id":"6492eaaa6e46f2fd459e537c","sleep_mode_time":"Something","sleep_mode_intensity":2,"sleep_mode_warmth":3,"__v":0},{"_id":"650d9c746d2ea7b4e90ea2d9","name":"OLLIEDEVICE","status":"Not Charging","percentage":50,"user_id":"64c13fe509d9f58bf304e3ed","sleep_mode_time":"TimeOfDay(15:00)","sleep_mode_intensity":0.8007308959960943,"sleep_mode_warmth":0.6866622924804686,"__v":0},{"_id":"6516b7a0a928e0a9e87be6c2","name":"OLLIEDEVICE","status":"Not Charging","percentage":50,"user_id":"64c1426a09d9f58bf304e3fc","sleep_mode_time":"TimeOfDay(18:00)","sleep_mode_intensity":0.40431640625,"sleep_mode_warmth":0.581416015625,"__v":0},{"_id":"651d5caba928e0a9e87bebc0","name":"Bedroom","status":"Not Charging","percentage":50,"user_id":"64c13fe509d9f58bf304e3ed","sleep_mode_time":"Something","sleep_mode_intensity":2,"sleep_mode_warmth":3,"__v":0},{"_id":"651d5cb8a928e0a9e87bebc2","name":"WEbsocket","status":"Not Charging","percentage":50,"user_id":"64c13fe509d9f58bf304e3ed","sleep_mode_time":"Something","sleep_mode_intensity":2,"sleep_mode_warmth":3,"__v":0},{"_id":"651d7001a928e0a9e87bebfe","name":"testWebS","status":"Not Charging","percentage":50,"user_id":"64c13fe509d9f58bf304e3ed","sleep_mode_time":"Something","sleep_mode_intensity":2,"sleep_mode_warmth":3,"__v":0},{"_id":"651e662ca928e0a9e87bec2f","name":"PROV_8CFDF8","status":"Charging","percentage":96,"user_id":"65140044a928e0a9e87be37d","sleep_mode_time":"Something","sleep_mode_intensity":1,"sleep_mode_warmth":2,"__v":0}]}?��������
+I (8776) Status Code: 200
+I (8781) cloud_api_json_parsing: success == TRUE
+I (8784) cloud_api_json_parsing: Service : PROV_8CFDF8
+I (8790) cloud_api_json_parsing: device_name: PROV_8CFDF8
+I (8796) cloud_api_json_parsing: device_name: PROV_8CFDF8
+I (8802) cloud_api_json_parsing: noozle_device_id_len = 39
+I (8808) cloud_api_json_parsing: noozle_device_id : {"ollie_id":"651e662ca928e0a9e87bec2f"}
+I (11896) Cloud-API-Module: {"success":true,"data":[{"_id":"651eba68a928e0a9e87bf089","ollie_id":"651e662ca928e0a9e87bec2f","scene_name":"repeated01","isActive":true,"days":["Mon","Wed","Fri","Sun"],"scene_sleep_time":[{"scene_sleep_time_name":"Almost Asleep","time":1696503960,"brightness":0.5,"countdown_function":false,"soundname":null,"sound_minutes":null,"_id":"651eba68a928e0a9e87bf08a"},{"scene_sleep_time_name":"To Sleep","time":1696504020,"brightness":0.5,"countdown_function":false,"soundname":null,"sound_minutes":null,"_id":"651eba68a928e0a9e87bf08b"},{"scene_sleep_time_name":"Almost Getting up","time":1696511160,"brightness":0.5,"countdown_function":false,"soundname":null,"sound_minutes":null,"_id":"651eba68a928e0a9e87bf08c"},{"scene_sleep_time_name":"To get up","time":1696511220,"brightness":0.5,"countdown_function":false,"soundname":null,"sound_minutes":null,"_id":"651eba68a928e0a9e87bf08d"}],"__v":0},{"_id":"651ebb08a928e0a9e87bf0aa","ollie_id":"651e662ca928e0a9e87bec2f","scene_name":"reapeated02","isActive":true,"days":["Tue","Thu","Sat"],"scene_sleep_time":[{"scene_sleep_time_name":"Almost Asleep","time":1696531260,"brightness":0.5,"countdown_function":false,"soundname":null,"sound_minutes":null,"_id":"651ebb08a928e0a9e87bf0ab"},{"scene_sleep_time_name":"To Sleep","time":1696531320,"brightness":0.5,"countdown_function":false,"soundname":null,"sound_minutes":null,"_id":"651ebb08a928e0a9e87bf0ac"},{"scene_sleep_time_name":"Almost Getting up","time":1696462860,"brightness":0.5,"countdown_function":false,"soundname":null,"sound_minutes":null,"_id":"651ebb08a928e0a9e87bf0ad"},{"scene_sleep_time_name":"To get up","time":1696462920,"brightness":0.5,"countdown_function":false,"soundname":null,"sound_minutes":null,"_id":"651ebb08a928e0a9e87bf0ae"}],"__v":0},{"_id":"651ed31ea928e0a9e87bf163","ollie_id":"651e662ca928e0a9e87bec2f","scene_name":"thirdRepeat","isActive":true,"days":["Sun","Mon","Tue"],"scene_sleep_time":[{"scene_sleep_time_name":"Almost Asleep","time":1696531260,"brightness":0.5,"countdown_function":false,"soundname":null,"sound_minutes":null,"_id":"651ed31ea928e0a9e87bf164"},{"scene_sleep_time_name":"To Sleep","time":1696531320,"brightness":0.5,"countdown_function":false,"soundname":null,"sound_minutes":null,"_id":"651ed31ea928e0a9e87bf165"},{"scene_sleep_time_name":"Almost Getting up","time":1696462860,"brightness":0.5,"countdown_function":false,"soundname":null,"sound_minutes":null,"_id":"651ed31ea928e0a9e87bf166"},{"scene_sleep_time_name":"To get up","time":1696462920,"brightness":0.5,"countdown_function":false,"soundname":null,"sound_minutes":null,"_id":"651ed31ea928e0a9e87bf167"}],"__v":0}]}����)����
+I (12118) Status Code: 200
+I (12123) cloud_api_json_parsing: success == TRUE
+Scene: repeated01
+I (12128) cloud_api_json_parsing: sprintf : scene 0
+I (12134) cloud_api_json_parsing: read no of scenes : 3
+I (12139) cloud_api_json_parsing: read name of scene : repeated01
+day: Mon
+day: Wed
+day: Fri
+day: Sun
+weekday_bits 106: Time: 1696503960
+Scene Sleep Time Name: Almost Asleep
+Brightness: 0.500000
+
+Time: 1696504020
+Scene Sleep Time Name: To Sleep
+Brightness: 0.500000
+
+Time: 1696511160
+Scene Sleep Time Name: Almost Getting up
+Brightness: 0.500000
+
+Time: 1696511220
+Scene Sleep Time Name: To get up
+Brightness: 0.500000
+
+Scene: reapeated02
+I (12180) cloud_api_json_parsing: sprintf : scene 1
+I (12186) cloud_api_json_parsing: read no of scenes : 3
+I (12191) cloud_api_json_parsing: read name of scene : reapeated02
+day: Tue
+day: Thu
+day: Sat
+weekday_bits 21: Time: 1696531260
+Scene Sleep Time Name: Almost Asleep
+Brightness: 0.500000
+
+Time: 1696531320
+Scene Sleep Time Name: To Sleep
+Brightness: 0.500000
+
+Time: 1696462860
+Scene Sleep Time Name: Almost Getting up
+Brightness: 0.500000
+
+Time: 1696462920
+Scene Sleep Time Name: To get up
+Brightness: 0.500000
+
+Scene: thirdRepeat
+I (12231) cloud_api_json_parsing: sprintf : scene 2
+I (12238) cloud_api_json_parsing: read no of scenes : 3
+I (12243) cloud_api_json_parsing: read name of scene : thirdRepeat
+day: Sun
+day: Mon
+day: Tue
+weekday_bits 112: Time: 1696531260
+Scene Sleep Time Name: Almost Asleep
+Brightness: 0.500000
+
+Time: 1696531320
+Scene Sleep Time Name: To Sleep
+Brightness: 0.500000
+
+Time: 1696462860
+Scene Sleep Time Name: Almost Getting up
+Brightness: 0.500000
+
+Time: 1696462920
+Scene Sleep Time Name: To get up
+Brightness: 0.500000
+
+I (12283) MAIN: ALARMS FETCHED!
+
+I (13285) Noozle: read no of scenes : 3
+I (13285) Noozle: READFUNC : repeated01
+I (13286) Noozle: Week days in binary: 106
+
+WEEKDAY 0 = 1
+WEEKDAY 1 = 1
+WEEKDAY 2 = 0
+WEEKDAY 3 = 1
+WEEKDAY 4 = 0
+WEEKDAY 5 = 1
+WEEKDAY 6 = 0
+I (13297) ALARM_CONFIG: Setting Alarm Start Time to : 1696503960
+I (13304) ALARM_CONFIG: Alarm Start Human time is: Thu Oct  5 16:06:00 2023
+I (13311) Noozle: Almost Asleep time NVS : 1696503960
+
+I (13317) ALARM_CONFIG: Setting Alarm End Time to : 1696504020
+I (13324) ALARM_CONFIG: Alarm End Human time is: Thu Oct  5 16:07:00 2023
+I (13331) Noozle: To SLeep time NVS : 1696504020
+
+I (13337) ALARM_CONFIG: Setting Alarm Start Time to : 1696511160
+I (13343) ALARM_CONFIG: Alarm Start Human time is: Thu Oct  5 18:06:00 2023
+I (13351) Noozle: Almost Asleep time NVS : 1696511160
+
+I (13357) ALARM_CONFIG: Setting Alarm End Time to : 1696511220
+I (13363) ALARM_CONFIG: Alarm End Human time is: Thu Oct  5 18:07:00 2023
+I (13371) Noozle: To SLeep time NVS : 1696511220
+
+I (13376) Noozle: READFUNC : reapeated02
+I (13381) Noozle: Week days in binary: 21
+
+WEEKDAY 0 = 0
+WEEKDAY 1 = 0
+WEEKDAY 2 = 1
+WEEKDAY 3 = 0
+WEEKDAY 4 = 1
+WEEKDAY 5 = 0
+WEEKDAY 6 = 1
+I (13395) ALARM_CONFIG: Setting Alarm Start Time to : 1696531260
+I (13402) ALARM_CONFIG: Alarm Start Human time is: Thu Oct  5 23:41:00 2023
+I (13409) Noozle: Almost Asleep time NVS : 1696531260
+
+I (13415) ALARM_CONFIG: Setting Alarm End Time to : 1696531320
+I (13422) ALARM_CONFIG: Alarm End Human time is: Thu Oct  5 23:42:00 2023
+I (13429) Noozle: To SLeep time NVS : 1696531320
+
+I (13435) ALARM_CONFIG: Setting Alarm Start Time to : 1696462860
+I (13441) ALARM_CONFIG: Alarm Start Human time is: Thu Oct  5 04:41:00 2023
+I (13449) Noozle: Almost Asleep time NVS : 1696462860
+
+I (13455) ALARM_CONFIG: Setting Alarm End Time to : 1696462920
+I (13461) ALARM_CONFIG: Alarm End Human time is: Thu Oct  5 04:42:00 2023
+I (13469) Noozle: To SLeep time NVS : 1696462920
+
+I (13474) Noozle: READFUNC : thirdRepeat
+I (13479) Noozle: Week days in binary: 112
+
+WEEKDAY 0 = 1
+WEEKDAY 1 = 1
+WEEKDAY 2 = 1
+WEEKDAY 3 = 0
+WEEKDAY 4 = 0
+WEEKDAY 5 = 0
+WEEKDAY 6 = 0
+I (13493) ALARM_CONFIG: Setting Alarm Start Time to : 1696531260
+I (13500) ALARM_CONFIG: Alarm Start Human time is: Thu Oct  5 23:41:00 2023
+I (13507) Noozle: Almost Asleep time NVS : 1696531260
+
+I (13513) ALARM_CONFIG: Setting Alarm End Time to : 1696531320
+I (13520) ALARM_CONFIG: Alarm End Human time is: Thu Oct  5 23:42:00 2023
+I (13527) Noozle: To SLeep time NVS : 1696531320
+
+I (13533) ALARM_CONFIG: Setting Alarm Start Time to : 1696462860
+I (13539) ALARM_CONFIG: Alarm Start Human time is: Thu Oct  5 04:41:00 2023
+I (13547) Noozle: Almost Asleep time NVS : 1696462860
+
+I (13553) ALARM_CONFIG: Setting Alarm End Time to : 1696462920
+I (13559) ALARM_CONFIG: Alarm End Human time is: Thu Oct  5 04:42:00 2023
+I (13567) Noozle: To SLeep time NVS : 1696462920
+
+I (13572) MAIN: HELLO WORLD!
+I (14576) MAIN: HELLO WORLD!
+I (15576) MAIN: HELLO WORLD!
+I (16576) MAIN: HELLO WORLD!
+I (17576) MAIN: HELLO WORLD!
+I (18576) MAIN: HELLO WORLD!

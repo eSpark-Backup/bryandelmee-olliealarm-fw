@@ -112,40 +112,102 @@ void Noozle::checkProvStatusAndRunBleOrWifi()
 }
 
 void Noozle::setAlarmsFromNvs(){
-    uint32_t time;
-    nvs->readKeyU32(sleep_scene_string[ALMOST_SLEEP], "time", &time);
-    set_alarm_start_time(sleepAlarm, (time_t)time);
-    ESP_LOGI(TAG, "Almost Asleep time NVS : %ld\n", time);
 
-    nvs->readKeyU32(sleep_scene_string[TO_SLEEP], "time", &time);
-    set_alarm_end_time(sleepAlarm, (time_t)time);
-    ESP_LOGI(TAG, "To SLeep time NVS : %ld\n", time);
+    //Check how many scenes are saved in NVS
+    int n;
+    readNoOfScenes(&n);
+    numberOfScenes = n;
 
-    nvs->readKeyU32(sleep_scene_string[ALMOST_GETTING_UP], "time", &time);
-    set_alarm_start_time(wakeAlarm, (time_t)time);
-    ESP_LOGI(TAG, "Almost Getting up time NVS : %ld\n", time);
+    //loop for no. of scenes and fetch scenenames for accessing namespces in NVS
+    char *scene_name = "something";
+    for(int i = 0; i < n; i++){
+        readSceneName(scene_name, i);
+        ESP_LOGI(TAG, "READFUNC : %s", scene_name);
 
-    nvs->readKeyU32(sleep_scene_string[TO_GET_UP], "time", &time);
-    set_alarm_end_time(wakeAlarm, (time_t)time);
-    ESP_LOGI(TAG, "To get up time NVS : %ld\n", time);
+        //Allocate memory to Alarm structures
+        sleepAlarm = (alarm_config*)malloc(n*sizeof(alarm_config));
+        wakeAlarm = (alarm_config*)malloc(n*sizeof(alarm_config));
+        p_weekday = (bool*)malloc(n*sizeof(weekday));
 
-    nvs->readKeyU8("weekdays", "weekday_bits", &weekday_bits);
-    ESP_LOGI(TAG, "Week days in binary: %d\n", weekday_bits);
-    bits_to_bool(weekday_bits);
+        //Read weekdays of the particular scene first
+        nvs->readKeyU8(scene_name, "weekday_bits", &weekday_bits);
+        ESP_LOGI(TAG, "Week days in binary: %d\n", weekday_bits);
+        bits_to_bool(weekday_bits, i);
+
+        //Setting Sleep START and END of current scene
+        uint32_t time;
+        nvs->readKeyU32(scene_name, sleep_scene_string[ALMOST_SLEEP], &time);
+        set_alarm_start_time(&(sleepAlarm[i]), (time_t)time);
+        ESP_LOGI(TAG, "Almost Asleep time NVS : %ld\n", time);
+
+        nvs->readKeyU32(scene_name, sleep_scene_string[TO_SLEEP], &time);
+        set_alarm_end_time(&(sleepAlarm[i]), (time_t)time);
+        ESP_LOGI(TAG, "To SLeep time NVS : %ld\n", time);
+
+        //Setting Wake START and END of current scene
+        nvs->readKeyU32(scene_name, sleep_scene_string[ALMOST_GETTING_UP], &time);
+        set_alarm_start_time(&(sleepAlarm[i]), (time_t)time);
+        ESP_LOGI(TAG, "Almost Asleep time NVS : %ld\n", time);
+
+        nvs->readKeyU32(scene_name, sleep_scene_string[TO_GET_UP], &time);
+        set_alarm_end_time(&(sleepAlarm[i]), (time_t)time);
+        ESP_LOGI(TAG, "To SLeep time NVS : %ld\n", time);
+
+    }
+
+    
+
+    // uint32_t time;
+    // nvs->readKeyU32(sleep_scene_string[ALMOST_SLEEP], "time", &time);
+    // set_alarm_start_time(sleepAlarm, (time_t)time);
+    // ESP_LOGI(TAG, "Almost Asleep time NVS : %ld\n", time);
+
+    // nvs->readKeyU32(sleep_scene_string[TO_SLEEP], "time", &time);
+    // set_alarm_end_time(sleepAlarm, (time_t)time);
+    // ESP_LOGI(TAG, "To SLeep time NVS : %ld\n", time);
+
+    // nvs->readKeyU32(sleep_scene_string[ALMOST_GETTING_UP], "time", &time);
+    // set_alarm_start_time(wakeAlarm, (time_t)time);
+    // ESP_LOGI(TAG, "Almost Getting up time NVS : %ld\n", time);
+
+    // nvs->readKeyU32(sleep_scene_string[TO_GET_UP], "time", &time);
+    // set_alarm_end_time(wakeAlarm, (time_t)time);
+    // ESP_LOGI(TAG, "To get up time NVS : %ld\n", time);
+
+    
+}
+void Noozle::readNoOfScenes(int* n){
+    uint32_t number;
+    nvs->readKeyU32("scene_names", "no_scenes", &number);
+    *n = (int)number;
+    ESP_LOGI(TAG, "read no of scenes : %d", *n);
+
 }
 
-void Noozle::bits_to_bool(uint8_t bits){
+void Noozle::readSceneName(char* p_scene_name, uint8_t scene_number){
+    nvs_flash_init();
+    nvs_handle_t handle;
+    size_t required_size = 0;
+    nvs_open("scene_names", NVS_READWRITE, &handle);
+    char array[65] = "scene";
+    snprintf(array, 18,"scene %d",scene_number);
+    nvs_get_str(handle, array,NULL, &required_size);
+    char* scene_name = (char*)malloc(required_size);
+    nvs_get_str(handle, array, p_scene_name,&required_size);
+}
+
+void Noozle::bits_to_bool(uint8_t bits, int scene_no){
     for(int i=0; i<7; i++){
         if((bits & (1 << (6-i))) != 0){
-            weekday[i] = true;
+            *(p_weekday+(i+(scene_no*7))) = true;
         }
         else{
-            weekday[i] = false;
+            *(p_weekday+(i+(scene_no*7))) = false;
         }
     }
 
     for(int j = 0; j<7; j++){
-        printf("WEEKDAY %d = %d\n", j, weekday[j]);
+        printf("WEEKDAY %d = %d\n", j, *(p_weekday+(j+(scene_no*7))));
     }
 
 }
@@ -158,8 +220,12 @@ void Noozle::updateTime(){
 void Noozle::setNearestAlarm(){
     /* CHECK DAY*/
     uint32_t wakeDiff = 0, sleepDiff = 0;
-    wakeDiff = wakeAlarm->start_time - rtc->real_time;
+
     sleepDiff = sleepAlarm->start_time - rtc->real_time;
+    wakeDiff = wakeAlarm->start_time - rtc->real_time;
+
+    // wakeDiff = wakeAlarm->start_time - rtc->real_time;
+    // sleepDiff = sleepAlarm->start_time - rtc->real_time;
     int thisDay = rtc->realtimeinfo.tm_wday;
     int nextDay = (thisDay < 7) ? thisDay+1 : 0;
     if(weekday[thisDay] == 1 && !((wakeDiff & 1 << 31)  && (sleepDiff & 1 << 31))){ //(check current day) && (check if both alarms are not negative)
