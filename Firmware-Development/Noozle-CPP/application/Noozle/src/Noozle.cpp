@@ -5,12 +5,12 @@
 #define BOOT_KEY "Boot"
 #define PROV_STATUS_KEY "Prov_Status"
 #define SLEEP_WAKEUP_OFFSET 15
-
+// #define DEBUG
 
 /* FUNCTION PROTOTYPES*/
 void display_task(void *pv);
 void audio_task(void *pv);
-
+void configureAlarm(alarm_config* alarm);
 
 /* TASK HANDLES*/
 TaskHandle_t displayhandle = NULL;
@@ -118,16 +118,41 @@ void Noozle::setAlarmsFromNvs(){
     readNoOfScenes(&n);
     numberOfScenes = n;
 
+    //Allocate memory to Alarm structures
+    sleepAlarm = (alarm_config*)malloc(n*sizeof(alarm_config));
+    wakeAlarm = (alarm_config*)malloc(n*sizeof(alarm_config));
+    nearestAlarm = (alarm_config*)malloc(n*sizeof(alarm_config));
+    v_nearestAlarm = (alarm_config*)malloc(sizeof(alarm_config));
+
+    // struct my_node *nearest_head;
+    // struct my_node *one = NULL;
+    // struct my_node *two = NULL;
+    // struct my_node *three = NULL;
+
+    // /* Allocate memory */
+    // one = (struct my_node)malloc(sizeof(struct my_node));
+    // two = (struct my_node)malloc(sizeof(struct my_node));
+    // three = (struct my_node)malloc(sizeof(struct my_node));
+
+    // /* Assign Data*/
+    // one->alarm = nearestAlarm[0];
+    // two->alarm = nearestAlarm[1];
+    // three->alarm = nearestAlarm[2];
+
+    // /* Connect Nodes */
+    // one->next = two;
+    // two->next = three;
+    // three->next = NULL;
+    // nearest_head = one;
+
+    // p_weekday = (bool*)malloc(n*sizeof(weekday));
+    p_weekday = (bool*)calloc(n, sizeof(weekday));
+
     //loop for no. of scenes and fetch scenenames for accessing namespces in NVS
     char *scene_name = "something";
     for(int i = 0; i < n; i++){
         readSceneName(scene_name, i);
         ESP_LOGI(TAG, "READFUNC : %s", scene_name);
-
-        //Allocate memory to Alarm structures
-        sleepAlarm = (alarm_config*)malloc(n*sizeof(alarm_config));
-        wakeAlarm = (alarm_config*)malloc(n*sizeof(alarm_config));
-        p_weekday = (bool*)malloc(n*sizeof(weekday));
 
         //Read weekdays of the particular scene first
         nvs->readKeyU8(scene_name, "weekday_bits", &weekday_bits);
@@ -146,14 +171,20 @@ void Noozle::setAlarmsFromNvs(){
 
         //Setting Wake START and END of current scene
         nvs->readKeyU32(scene_name, sleep_scene_string[ALMOST_GETTING_UP], &time);
-        set_alarm_start_time(&(sleepAlarm[i]), (time_t)time);
-        ESP_LOGI(TAG, "Almost Asleep time NVS : %ld\n", time);
+        set_alarm_start_time(&(wakeAlarm[i]), (time_t)time);
+        ESP_LOGI(TAG, "Almost Getting time NVS : %ld\n", time);
 
         nvs->readKeyU32(scene_name, sleep_scene_string[TO_GET_UP], &time);
-        set_alarm_end_time(&(sleepAlarm[i]), (time_t)time);
-        ESP_LOGI(TAG, "To SLeep time NVS : %ld\n", time);
+        set_alarm_end_time(&(wakeAlarm[i]), (time_t)time);
+        ESP_LOGI(TAG, "To Getup time NVS : %ld\n", time);
 
+        //show alarm info
+        ESP_LOGI(TAG,"\nSLEEP ALARM SCENE %d\n", i);
+        show_alarm_info(sleepAlarm+i);
+        ESP_LOGI(TAG,"\nWAKE ALARM SCENE %d\n", i);
+        show_alarm_info(wakeAlarm+i);
     }
+
 
     
 
@@ -197,7 +228,7 @@ void Noozle::readSceneName(char* p_scene_name, uint8_t scene_number){
 }
 
 void Noozle::bits_to_bool(uint8_t bits, int scene_no){
-    for(int i=0; i<7; i++){
+    for(int i=0; i<7; i++){ //i means the day of the week
         if((bits & (1 << (6-i))) != 0){
             *(p_weekday+(i+(scene_no*7))) = true;
         }
@@ -219,96 +250,115 @@ void Noozle::updateTime(){
 
 void Noozle::setNearestAlarm(){
     /* CHECK DAY*/
-    uint32_t wakeDiff = 0, sleepDiff = 0;
-
-    sleepDiff = sleepAlarm->start_time - rtc->real_time;
-    wakeDiff = wakeAlarm->start_time - rtc->real_time;
-
-    // wakeDiff = wakeAlarm->start_time - rtc->real_time;
-    // sleepDiff = sleepAlarm->start_time - rtc->real_time;
+    uint32_t wakeDiff[numberOfScenes] = {0}, sleepDiff[numberOfScenes] = {0}; //set all differences to 0
     int thisDay = rtc->realtimeinfo.tm_wday;
     int nextDay = (thisDay < 7) ? thisDay+1 : 0;
-    if(weekday[thisDay] == 1 && !((wakeDiff & 1 << 31)  && (sleepDiff & 1 << 31))){ //(check current day) && (check if both alarms are not negative)
-        ESP_LOGI(TAG, "TODAY IS ALARM");
+    
+    //get epoch difference from current real time. individual scene
+    for(int i = 0; i<numberOfScenes; i++)
+    {
+        //manually set the month and year and month day to current day so epoch difference is with in a day
+        configureAlarm(sleepAlarm+i, false);
+        configureAlarm(wakeAlarm+i, false);
 
-        sleepAlarm->start_timeinfo.tm_year = rtc->realtimeinfo.tm_year;
-        sleepAlarm->start_timeinfo.tm_mon = rtc->realtimeinfo.tm_mon;
-        sleepAlarm->start_timeinfo.tm_mday = rtc->realtimeinfo.tm_mday;
+        //now set difference in epoch of each alarm
+        sleepDiff[i] = (sleepAlarm+i)->start_time - rtc->real_time;
+        ESP_LOGI(TAG, "Sleep Diff %lu", sleepDiff[i]);
+        wakeDiff[i] = (wakeAlarm+i)->start_time - rtc->real_time;
+        ESP_LOGI(TAG, "Wake Diff %lu", wakeDiff[i]);
 
-        sleepAlarm->end_timeinfo.tm_year = rtc->realtimeinfo.tm_year;
-        sleepAlarm->end_timeinfo.tm_mon = rtc->realtimeinfo.tm_mon;
-        sleepAlarm->end_timeinfo.tm_mday = rtc->realtimeinfo.tm_mday;
+        //(check current day) && (check if both alarms are not passed)
+        if(*(p_weekday+(thisDay+(i * 7))) == 1 && !((wakeDiff[i] & 1 << 31)  & (sleepDiff[i] & 1 << 31))){
+            ESP_LOGI(TAG, "ALARM FOUND at DAY :%d FOR Scene : %d",thisDay, i);
+            if(wakeDiff[i] < sleepDiff[i]){
+                nearestAlarm[i] = wakeAlarm[i];
+                ESP_LOGI(TAG, "NEAREST ALARM = WAKE ALARM");
+            }
+            else if( sleepDiff[i] < wakeDiff[i]){
+                nearestAlarm[i] = sleepAlarm[i];
+                ESP_LOGI(TAG, "NEAREST ALARM = SLEEP ALARM");
+            }
+        }
+        else if(*(p_weekday+(nextDay+(i * 7))) == 1){
+            ESP_LOGI(TAG, "ALARM FOUND at DAY :%d FOR Scene : %d",nextDay, i);
 
-        wakeAlarm->start_timeinfo.tm_year = rtc->realtimeinfo.tm_year;
-        wakeAlarm->start_timeinfo.tm_mon = rtc->realtimeinfo.tm_mon;
-        wakeAlarm->start_timeinfo.tm_mday = rtc->realtimeinfo.tm_mday;
+            //reconfigure for next day
+            configureAlarm(sleepAlarm+i, true);
+            configureAlarm(wakeAlarm+i, true);
+            if(wakeDiff[i] < sleepDiff[i]){
+                nearestAlarm[i] = wakeAlarm[i];
+                ESP_LOGI(TAG, "NEAREST ALARM = WAKE ALARM");
+            }
+            else if( sleepDiff[i] < wakeDiff[i]){
+                nearestAlarm[i] = sleepAlarm[i];
+                ESP_LOGI(TAG, "NEAREST ALARM = SLEEP ALARM");
+            }
+        }
+        else{
+            //nearest alarm of the scene will be garbage
+            ESP_LOGI(TAG, "NO ALARM TODAY OR TOMORROW FOR SCENE %d", i);
+            
+            //change the garbage to 1970 or 0 epoch
+            set_alarm_start_time(nearestAlarm+i, 0);
+            set_alarm_end_time(nearestAlarm+i, 0);
+        }
 
-        wakeAlarm->end_timeinfo.tm_year = rtc->realtimeinfo.tm_year;
-        wakeAlarm->end_timeinfo.tm_mon = rtc->realtimeinfo.tm_mon;
-        wakeAlarm->end_timeinfo.tm_mday = rtc->realtimeinfo.tm_mday;
 
-        set_alarm_start_time(sleepAlarm, mktime(&sleepAlarm->start_timeinfo));
-        set_alarm_end_time(sleepAlarm, mktime(&sleepAlarm->end_timeinfo));
-
-        set_alarm_start_time(wakeAlarm, mktime(&wakeAlarm->start_timeinfo));
-        set_alarm_end_time(wakeAlarm, mktime(&wakeAlarm->end_timeinfo));
-        
-        wakeDiff = wakeAlarm->start_time - rtc->real_time;
-        sleepDiff = sleepAlarm->start_time - rtc->real_time;
     }
-    else if(weekday[nextDay] == 1){ 
-        ESP_LOGI(TAG, "TOMORROW IS ALARM");
-        sleepAlarm->start_timeinfo.tm_year = rtc->realtimeinfo.tm_year;
-        sleepAlarm->start_timeinfo.tm_mon = rtc->realtimeinfo.tm_mon;
-        sleepAlarm->start_timeinfo.tm_mday = rtc->realtimeinfo.tm_mday;
 
-        sleepAlarm->end_timeinfo.tm_year = rtc->realtimeinfo.tm_year;
-        sleepAlarm->end_timeinfo.tm_mon = rtc->realtimeinfo.tm_mon;
-        sleepAlarm->end_timeinfo.tm_mday = rtc->realtimeinfo.tm_mday;
+    //setting very nearest from all multiple scenes
+    v_nearestAlarm->start_time = 4820714998; // set to max year = 2123
+    for(int i = 0; i<numberOfScenes; i++){
+        rtc->printHumanTime(&(nearestAlarm[i].start_time));
 
-        wakeAlarm->start_timeinfo.tm_year = rtc->realtimeinfo.tm_year;
-        wakeAlarm->start_timeinfo.tm_mon = rtc->realtimeinfo.tm_mon;
-        wakeAlarm->start_timeinfo.tm_mday = rtc->realtimeinfo.tm_mday;
-
-        wakeAlarm->end_timeinfo.tm_year = rtc->realtimeinfo.tm_year;
-        wakeAlarm->end_timeinfo.tm_mon = rtc->realtimeinfo.tm_mon;
-        wakeAlarm->end_timeinfo.tm_mday = rtc->realtimeinfo.tm_mday;
-
-        set_alarm_start_time(sleepAlarm, mktime(&sleepAlarm->start_timeinfo)+86400);
-        set_alarm_end_time(sleepAlarm, mktime(&sleepAlarm->end_timeinfo)+86400);
-
-        set_alarm_start_time(wakeAlarm, mktime(&wakeAlarm->start_timeinfo)+86400);
-        set_alarm_end_time(wakeAlarm, mktime(&wakeAlarm->end_timeinfo)+86400);
-        
-        wakeDiff = wakeAlarm->start_time - rtc->real_time;
-        sleepDiff = sleepAlarm->start_time - rtc->real_time;
+        //select the nearest of all alarms
+        if((nearestAlarm[i].start_time > 0)  & (nearestAlarm[i].start_time <= v_nearestAlarm->start_time)){
+            v_nearestAlarm = &(nearestAlarm[i]);
+        }
     }
     
-    
-    if(wakeDiff == sleepDiff){
-        nearestAlarm = NULL;
-        ESP_LOGI(TAG, "NEAREST ALARM = NULL ALARM");
-    }
-    else if((wakeDiff & 1 << 31)  && (sleepDiff & 1 << 31)){
-        nearestAlarm = NULL;
-        ESP_LOGI(TAG, "BOTH ALARMS PASSED\n");
-    }
-    else if(wakeDiff < sleepDiff){
-        nearestAlarm = wakeAlarm;
-        ESP_LOGI(TAG, "NEAREST ALARM = WAKE ALARM");
-    }
-    else if( sleepDiff < wakeDiff){
-        nearestAlarm = sleepAlarm;
-        ESP_LOGI(TAG, "NEAREST ALARM = SLEEP ALARM");
-    }
-    ESP_LOGI(TAG, "DIFFS wake : %ld sleep : %ld", wakeDiff, sleepDiff);
+    ESP_LOGI(TAG, "Most Nearest Alarm from all scenes : ");
+    rtc->printHumanTime(&(v_nearestAlarm->start_time));
+
 }
+
+/**
+ * @brief Configure alarm : change month year and month day to current epoch so comparasion of weekday is easier
+ * 
+ * @param alarm : Pass the alarm of which you want to set the Start Time
+ * 
+ */
+void Noozle::configureAlarm(alarm_config* alarm, bool next_day){
+    
+    ESP_LOGI(TAG, "CONFIGURING ALARM");
+    alarm->start_timeinfo.tm_year = rtc->realtimeinfo.tm_year;
+    alarm->start_timeinfo.tm_mon = rtc->realtimeinfo.tm_mon;
+    alarm->start_timeinfo.tm_mday = rtc->realtimeinfo.tm_mday;
+
+
+    alarm->end_timeinfo.tm_year = rtc->realtimeinfo.tm_year;
+    alarm->end_timeinfo.tm_mon = rtc->realtimeinfo.tm_mon;
+    alarm->end_timeinfo.tm_mday = rtc->realtimeinfo.tm_mday;
+
+    if(next_day){
+        set_alarm_start_time(alarm, mktime(&alarm->start_timeinfo)+86400);
+        set_alarm_end_time(alarm, mktime(&alarm->end_timeinfo)+86400);
+    }
+    else{
+        set_alarm_end_time(alarm, mktime(&alarm->end_timeinfo));
+        set_alarm_start_time(alarm, mktime(&alarm->start_timeinfo));
+    }
+
+
+}
+
+
 
 void Noozle::setDeepSleep(){
     uint64_t calculatedSleepUs;
-    if(nearestAlarm != NULL){
+    if(v_nearestAlarm != NULL){
         // int8_t minuteDifference = rtc->minDifference(nearestAlarm->start_timeinfo, nearestAlarm->start_time);
-        time_t epochDiff = rtc->epochDifference(nearestAlarm->start_time);
+        time_t epochDiff = rtc->epochDifference(v_nearestAlarm->start_time);
         // int8_t secondDifference = rtc->secDifference(nearestAlarm->start_timeinfo);
         ESP_LOGI(TAG, " EPOCH DIFFERNECE B/W Alarm and Current Time= %lld", epochDiff);
                 if( epochDiff >= 3600)  //Alarm after 60 mins or 1 hr
@@ -331,7 +381,7 @@ void Noozle::setDeepSleep(){
                 }
                 else if(epochDiff < 0){  //negative epoch means alarm passed
                     ESP_LOGI(TAG, "Alarm Passed waiting for new alarm");
-                    nearestAlarm = NULL;
+                    v_nearestAlarm = NULL;
                     noozleStatus = FETCH_ALARM;
                     alarmState = false;
                 }
@@ -371,12 +421,12 @@ void Noozle::checkAlarm(){
     if(alarmState == true){
         // ring_alarm(nearestAlarm);
         ESP_LOGI(TAG, "WAITING FOR ALARM ");
-        while(rtc->real_time < nearestAlarm->start_time){
+        while(rtc->real_time < v_nearestAlarm->start_time){
             vTaskDelay(500/portTICK_PERIOD_MS);
             ESP_LOGI(TAG, ".");
             rtc->updateTime();
         }
-        xTaskCreatePinnedToCore(display_task,"Display task", 2*2048, NULL, 10, &displayhandle, 0);
+        // xTaskCreatePinnedToCore(display_task,"Display task", 2*2048, NULL, 10, &displayhandle, 0);
         xTaskCreate(audio_task,"audio task", 2*2048, NULL, 10, &audiohandle);
         // vTaskDelay(10000/portTICK_PERIOD_MS);
 

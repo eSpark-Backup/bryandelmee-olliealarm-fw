@@ -17,6 +17,13 @@
 
 
 void deep_sleep(uint64_t sleepTimeUs);
+
+
+    //Linked List
+    struct my_node{
+        alarm_config alarm;
+        struct node* next;
+    };
         
 
 enum prov_status_t : uint8_t { PROVISIONING_STATUS_FAIL, PROVISIONING_STATUS_OK };
@@ -69,11 +76,13 @@ class Noozle
         alarm_config* wakeAlarm;
         alarm_config* sleepAlarm;
         alarm_config* nearestAlarm;
+        alarm_config* v_nearestAlarm;
         uint8_t weekday_bits;
         int numberOfScenes;
         bool weekday[7];
         bool *p_weekday;
         void readNoOfScenes(int* n);
         void readSceneName(char* p_scene_name, uint8_t scene_number);
+        void configureAlarm(alarm_config* alarm, bool next_day);
 
 };

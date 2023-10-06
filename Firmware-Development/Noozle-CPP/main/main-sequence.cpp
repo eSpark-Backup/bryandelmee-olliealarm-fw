@@ -124,7 +124,11 @@ extern "C" void app_main(void)
             }
 
             case FETCH_ALARM:{
-                noozle_cloud_service(NOOZLE_REPEATED_ALARM_API); 
+                err = noozle_cloud_service(NOOZLE_REPEATED_ALARM_API); 
+                // if(err == ESP_OK)
+                //     noozleStatus = SET_ALARMS;
+                // else    
+                //     noozleStatus = DEEP_SLEEP;
                 noozleStatus = SET_ALARMS;
                 break;
             }

@@ -47,7 +47,7 @@ void set_alarm_start_time(alarm_config* alarm, time_t time){
     localtime_r(&(alarm->start_time), &(alarm->start_timeinfo));
     strftime(alarm->start_strftime_buf, sizeof(alarm->start_strftime_buf), "%c", &(alarm->start_timeinfo));
     ESP_LOGI(ALARM_TAG, "Setting Alarm Start Time to : %llu", alarm->start_time);
-    ESP_LOGI(ALARM_TAG, "Alarm Start Human time is: %s", alarm->start_strftime_buf);
+    ESP_LOGI(ALARM_TAG, "Alarm Start Human time is: %s\n", alarm->start_strftime_buf);
     strcpy(alarm->file_name, WAV_FILE);
 
 }
@@ -57,7 +57,7 @@ void set_alarm_end_time(alarm_config* alarm, time_t time){
     localtime_r(&(alarm->end_time), &(alarm->end_timeinfo));
     strftime(alarm->end_strftime_buf, sizeof(alarm->end_strftime_buf), "%c", &(alarm->end_timeinfo));
     ESP_LOGI(ALARM_TAG, "Setting Alarm End Time to : %llu", alarm->end_time);
-    ESP_LOGI(ALARM_TAG, "Alarm End Human time is: %s", alarm->end_strftime_buf);
+    ESP_LOGI(ALARM_TAG, "Alarm End Human time is: %s\n", alarm->end_strftime_buf);
 }
 
 bool alarm_ring_time(alarm_config* alarm){
@@ -92,7 +92,7 @@ void show_alarm_info(alarm_config* alarm){
     localtime_r(&now, &timeinfo);
     strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
     ESP_LOGI(ALARM_TAG, "The current date/time in Pakistan is: %s", strftime_buf);
-    ESP_LOGI(ALARM_TAG, " The current date/time in Pakistan in epochs: %llu", now);
+    ESP_LOGI(ALARM_TAG, "The current date/time in Pakistan in epochs: %llu", now);
     
     localtime_r(&(alarm->start_time), &(alarm->start_timeinfo));
     strftime(alarm->start_strftime_buf, sizeof(alarm->start_strftime_buf), "%c", &(alarm->start_timeinfo));
@@ -102,7 +102,7 @@ void show_alarm_info(alarm_config* alarm){
     localtime_r(&(alarm->end_time), &timeinfo);
     strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
     ESP_LOGI(ALARM_TAG, "Alarm end time is: %s", strftime_buf);
-    ESP_LOGI(ALARM_TAG, "The alarm end time in epochs: %llu", alarm->end_time);
+    ESP_LOGI(ALARM_TAG, "The alarm end time in epochs: %llu\n", alarm->end_time);
 }
 
 time_t return_current_time(){

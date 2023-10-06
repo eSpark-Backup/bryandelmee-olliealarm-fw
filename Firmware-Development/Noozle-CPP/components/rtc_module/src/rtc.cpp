@@ -44,6 +44,14 @@ time_t* RTC::updateTime(){
     return time_ptr;
 }
 
+void RTC::printHumanTime(time_t *time){
+    struct tm timeinfo;
+    char time_buf[64];
+    localtime_r(time, &timeinfo);
+    strftime(time_buf, sizeof(time_buf), "%c", &timeinfo);
+    ESP_LOGI(TAG, "HUMAN TIME for ALARMS: %s", time_buf);
+}
+
 void RTC::getTime(char * s){
 	struct tm timeinfo = getTimeStruct();
 	strftime(s, sizeof(s), "%H:%M:%S", &timeinfo);

@@ -29,6 +29,7 @@ class RTC{
             int8_t minDifference(tm alramStartTime, time_t currentAlarmEpoch);
             int8_t secDifference(tm alramStartTime);
             time_t epochDifference(time_t currentAlarmEpoch);
+            void printHumanTime(time_t *time);
 
             /* variables */
             time_t real_time; 

@@ -138,7 +138,7 @@ esp_err_t cloud_api_parse_repeated_alarms(const char* jsonString)
 
     ret |= cloud_api_success_status(root);
     ret |= cloud_api_parse_repeated_alarms_epoch(root, alarm_epoch);
-    ret |= save_alarms_in_nvs(alarm_epoch, sizeof(alarm_epoch));
+    // ret |= save_alarms_in_nvs(alarm_epoch, sizeof(alarm_epoch));
     
     cJSON_Delete(root);
     return ret;
@@ -182,7 +182,7 @@ esp_err_t cloud_api_parse_repeated_alarms_epoch(cJSON* root, int64_t* alarm_epoc
         //     ESP_RETURN_ON_ERROR(nvs_commit(handle), TAG, "NVS data reset\n");
         //     nvs_close(handle);
         // }
-        nvs_open("Scene1", NVS_READWRITE, &handle);
+        nvs_open("firstscene", NVS_READWRITE, &handle);
         nvs_erase_all(handle);
         nvs_commit(handle);
         nvs_close(handle);

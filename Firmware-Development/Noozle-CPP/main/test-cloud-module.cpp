@@ -38,8 +38,9 @@ extern "C" void app_main(void)
     NVS alarmNVS;
     alarmNVS.init();
 
-
-    noozle_cloud_service(NOOZLE_GET_ID_API);
+    noozle_cloud_service(NOOZLE_TIME_API); 
+    app->updateTime();
+    noozle_cloud_service(NOOZLE_GET_ID_API);  //Fetches alarm and aslo save in NVS
 
     
     if(noozle_cloud_service(NOOZLE_REPEATED_ALARM_API) == ESP_OK){
@@ -47,6 +48,7 @@ extern "C" void app_main(void)
         vTaskDelay(1000/portTICK_PERIOD_MS);
 
         app->setAlarmsFromNvs();
+        app->setNearestAlarm();
 
         // uint32_t time;
         // alarmNVS.readKeyU32("Scene1", sleep_scene_string[ALMOST_SLEEP], &time);
@@ -75,7 +77,7 @@ extern "C" void app_main(void)
 
     while (1)
     {
-        ESP_LOGI(TAG, "HELLO WORLD!");
+        app->updateTime();
         vTaskDelay(1000/portTICK_PERIOD_MS);
     }
 }
