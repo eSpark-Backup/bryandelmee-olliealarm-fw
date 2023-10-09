@@ -42,7 +42,9 @@ esp_err_t cloud_api_parse_current_time(const char* jsonString, uint64_t* time)
 extern uint32_t noozle_device_id_len;
 esp_err_t cloud_api_parse_ollie_id(const char* jsonString, char** noozle_dev_id, char** noozle_batt_json)
 {
-    esp_err_t ret = ESP_FAIL;
+    char service_name[12];
+    bool device_found = false;
+    esp_err_t ret = ESP_OK;
     // Parse the JSON string
     cJSON* root = cJSON_Parse(jsonString);
     if (root == NULL) {
@@ -50,7 +52,8 @@ esp_err_t cloud_api_parse_ollie_id(const char* jsonString, char** noozle_dev_id,
         return ESP_FAIL;
     }
 
-    ret |= cloud_api_success_status(root);
+    ESP_RETURN_ON_ERROR(cloud_api_success_status(root),TAG, "Parse Ollie ID Status Fail");
+
 
     cJSON *data = cJSON_GetObjectItemCaseSensitive(root, "data");
     if (!cJSON_IsArray(data)) {
@@ -59,8 +62,8 @@ esp_err_t cloud_api_parse_ollie_id(const char* jsonString, char** noozle_dev_id,
         return ESP_FAIL;
     }
 
-    char service_name[12];
 
+    //create device name using mac address
     uint8_t eth_mac[6];
     const char *ssid_prefix = "PROV_";
     ret = esp_wifi_get_mac(WIFI_IF_STA, eth_mac);   /* esp_wifi_init() must be called before, else it'll return an error.  */
@@ -79,6 +82,7 @@ esp_err_t cloud_api_parse_ollie_id(const char* jsonString, char** noozle_dev_id,
     cJSON_ArrayForEach(item, data) {
         cJSON *name = cJSON_GetObjectItemCaseSensitive(item, "name");
         if (cJSON_IsString(name) && (strcmp(name->valuestring, targetName) == 0)) {
+            device_found = true;
             cJSON *id = cJSON_GetObjectItemCaseSensitive(item, "_id");
             if (cJSON_IsString(id)) {  
                     ESP_LOGI(TAG, "device_name: %s" , targetName);
@@ -94,15 +98,35 @@ esp_err_t cloud_api_parse_ollie_id(const char* jsonString, char** noozle_dev_id,
                 snprintf(*noozle_dev_id, noozle_device_id_len+1, "{\"ollie_id\":\"%s\"}", id->valuestring);
                 ESP_LOGI(TAG,"noozle_device_id : %s", *noozle_dev_id);
                 ret = ESP_OK;
+
+                //save id in nvs, later used to update battery
+                ESP_LOGI(TAG,"DEVICE ID SAVED IN NVS\n");
+                nvs_flash_init();
+                nvs_handle_t handle;
+                nvs_open("device_info", NVS_READWRITE, &handle);
+                nvs_set_str(handle, "device_id", *noozle_dev_id );
+                nvs_commit(handle);
+                nvs_close(handle);
+
                 // break;
+
             }
+            break;
         }
-            
+        else{
+            device_found = false;
+            ESP_LOGI(TAG, "DEVIE NOT fOUND");
+        }            
     }
     free(targetName);
     targetName = NULL;
     cJSON_Delete(root);
-    return ret;
+    if(!device_found){
+        return ESP_FAIL;
+    }
+    else{
+        return ret;   
+    }
 }
 
 esp_err_t cloud_api_create_battery_status_json(char** noozle_dev_id, char** noozle_batt_json){
@@ -137,10 +161,19 @@ esp_err_t cloud_api_parse_repeated_alarms(const char* jsonString)
     }
 
     ret |= cloud_api_success_status(root);
+    if(ret == ESP_FAIL){
+        cJSON_Delete(root);
+
+        nvs_flash_init();
+        nvs_handle_t delete_scene_no;
+        nvs_open("scene_names", NVS_READWRITE, &delete_scene_no);
+        nvs_erase_all(delete_scene_no);
+        nvs_commit(delete_scene_no);
+
+        return ret;
+    }
     ret |= cloud_api_parse_repeated_alarms_epoch(root, alarm_epoch);
     // ret |= save_alarms_in_nvs(alarm_epoch, sizeof(alarm_epoch));
-    
-    cJSON_Delete(root);
     return ret;
 }
 
@@ -166,25 +199,38 @@ esp_err_t cloud_api_parse_repeated_alarms_epoch(cJSON* root, int64_t* alarm_epoc
     cJSON *data = cJSON_GetObjectItemCaseSensitive(root, "data");
     nvs_flash_init();
     nvs_handle_t handle;
+    size_t required_size = 0;
+    char* server_name;
     
     if (data == NULL || !cJSON_IsArray(data)) {
-        printf("Data field not found or is not an array.\n");
-        // for(int i = 0; i<4; i++){  //set nvs alarms time to 0 and week days to 0
-        //     nvs_handle_t handle;
-        //     ESP_RETURN_ON_ERROR(nvs_open(sleep_scene_string[i], NVS_READWRITE, &handle), TAG, "opening NVS Namespace of sleep_time");
-        //     ESP_RETURN_ON_ERROR(nvs_set_u32(handle, "time" , 0), TAG, "writing time epoch 0");
-        //     ESP_RETURN_ON_ERROR(nvs_set_u32(handle, "brightness" , 0), TAG, "writing brightness value 0");
+        printf("Data field not found or is not an array.\n DELETING OLD SCENES IF FOUND ANY\n");
 
-        //     ESP_RETURN_ON_ERROR(nvs_open(sleep_scene_string[i], NVS_READWRITE, &handle), TAG, "opening NVS Namespace of weekdays");
-        //     ESP_RETURN_ON_ERROR(nvs_set_u8(handle, "weekday_bits" , 0), TAG, "writing weekday_bits epoch");
-        //     ESP_RETURN_ON_ERROR(nvs_commit(handle), TAG, "Updated NVS\n");
-
-        //     ESP_RETURN_ON_ERROR(nvs_commit(handle), TAG, "NVS data reset\n");
-        //     nvs_close(handle);
-        // }
-        nvs_open("firstscene", NVS_READWRITE, &handle);
-        nvs_erase_all(handle);
+        //first get number of scenes.
+        uint32_t number;
+        nvs_open("scene_names", NVS_READWRITE, &handle);
+        nvs_get_u32(handle, "no_scenes", &number);
         nvs_commit(handle);
+        ESP_LOGI(TAG, "No. Scenes to Delete : %lu", number);
+
+
+        //loop thorught the nvs no. of scene name times
+        for(int a = 0; a<number; a++){
+            char key_array[65] = "scene";
+            snprintf(key_array, 18,"scene %d",a);
+
+            //now get the corresponding keyname of the scene inorder to erase
+            required_size = 0;
+            ESP_RETURN_ON_ERROR(nvs_get_str(handle, key_array,NULL,&required_size), TAG, "nvs_read string size.");
+            server_name = malloc(required_size);
+            ESP_RETURN_ON_ERROR(nvs_get_str(handle, key_array, server_name,&required_size), TAG, "nvs read string");
+            nvs_commit(handle);
+            ESP_LOGI(TAG, "Scene namespce Name read : %s", server_name);
+
+            //erase the corresponding namespace of the scene
+            nvs_open(server_name, NVS_READWRITE, &handle); //open the scene name name spaces and remove the data
+            nvs_erase_all(handle);
+            nvs_commit(handle);
+        }
         nvs_close(handle);
         return ESP_FAIL;
     }
@@ -197,28 +243,29 @@ esp_err_t cloud_api_parse_repeated_alarms_epoch(cJSON* root, int64_t* alarm_epoc
         cJSON *scene_name = cJSON_GetObjectItemCaseSensitive(scene, "scene_name");
         printf("Scene: %s\n", scene_name->valuestring);
 
+        //create unique scene name key for nvs
         char array[65] = "scene";
-        // sprintf(array,"scene %d",i);
         snprintf(array, 18,"scene %d",i);
-        ESP_LOGI(TAG, "sprintf : %s", array);
+        ESP_LOGI(TAG, "unique scene name : %s", array);
 
         //Saving Scene name in NVS with namespace as "scene_name"
         ESP_RETURN_ON_ERROR(nvs_open("scene_names", NVS_READWRITE, &handle), TAG, "opening NVS Namespace of scene_name");
-        ESP_RETURN_ON_ERROR(nvs_set_u32(handle, "no_scenes" , data_size), TAG, "no. of scenes");
         ESP_RETURN_ON_ERROR(nvs_set_str(handle, array, scene_name->valuestring ), TAG, "name of the scene");
+        ESP_RETURN_ON_ERROR(nvs_set_u32(handle, "no_scenes" , data_size), TAG, "no. of scenes");
 
-        //reading from NVS just to check that we are saving correct or not
-        int value;
-        ESP_RETURN_ON_ERROR(nvs_get_u32(handle, "no_scenes", &value), TAG, "readKey32: Read U32 key-value from NVS.");
-        size_t required_size = 0;
-        ESP_RETURN_ON_ERROR(nvs_get_str(handle, array,NULL,&required_size), TAG, "readKey32: Read U32 key-value from NVS.");
-        char* server_name = malloc(required_size);
-        ESP_RETURN_ON_ERROR(nvs_get_str(handle, array, server_name,&required_size), TAG, "readKey32: Read U32 key-value from NVS.");
-        ESP_RETURN_ON_ERROR(nvs_commit(handle), TAG, "readKey32: Update NVS-Storage");
-        nvs_close(handle);
-        ESP_LOGI(TAG, "read no of scenes : %d", value);
-        ESP_LOGI(TAG, "read name of scene : %s", server_name);
+        // //reading from NVS just to check that we are saving correct or not
+        // int value;
+        // ESP_RETURN_ON_ERROR(nvs_get_u32(handle, "no_scenes", &value), TAG, "readKey32: Read U32 key-value from NVS.");
+        // size_t required_size = 0;
+        // ESP_RETURN_ON_ERROR(nvs_get_str(handle, array,NULL,&required_size), TAG, "readKey32: Read U32 key-value from NVS.");
+        // char* server_name = malloc(required_size);
+        // ESP_RETURN_ON_ERROR(nvs_get_str(handle, array, server_name,&required_size), TAG, "readKey32: Read U32 key-value from NVS.");
+        // ESP_RETURN_ON_ERROR(nvs_commit(handle), TAG, "readKey32: Update NVS-Storage");
+        // nvs_close(handle);
+        // ESP_LOGI(TAG, "read no of scenes : %d", value);
+        // ESP_LOGI(TAG, "read name of scene : %s", server_name);
 
+        //get days from json array and map them to 8 bits
         cJSON *days = cJSON_GetObjectItemCaseSensitive(scene, "days");
         cJSON *day = NULL;
         int8_t weekday_bits = 0b00000000;

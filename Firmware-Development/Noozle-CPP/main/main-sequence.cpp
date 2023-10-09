@@ -9,25 +9,13 @@
 
 /*STATUS*/
 RTC_DATA_ATTR app_status_t noozleStatus = FORCED_PROV;
-RTC_DATA_ATTR app_status_t lastStatus;
+RTC_DATA_ATTR app_status_t lastStatus = FORCED_PROV;
 RTC_DATA_ATTR bool wifi_status = false;
-
-
-/* FUNCTION PROTOTYPES*/
-// void display_task(void *pv);
-// void audio_task(void *pv);
 
 #define WAV_FILE "/spiffs/audio/Piano.wav"
 
 const char* TAG = "MAIN_SEQUENCE";
 
-/* TASK HANDLES*/
-// TaskHandle_t audiohandle = NULL;
-// TaskHandle_t displayhandle = NULL;
-
-/*GLOBAL OBJECT*/
-// DISPLAY display;
-// codec audio;
 Noozle *app;
 
 extern "C" void app_main(void)
@@ -35,7 +23,7 @@ extern "C" void app_main(void)
     /* SETUP NOOZLE */
     app = new Noozle();
     app->setup();
-    heap_caps_malloc_extmem_enable(0);
+    heap_caps_malloc_extmem_enable(0);  //to remove BLE INIT malloc error 
     esp_err_t err = ESP_OK;
 
     wifi_status = false;
@@ -60,11 +48,12 @@ extern "C" void app_main(void)
     case ESP_RST_POWERON:
     {
         ESP_LOGI(TAG, "POWER ON");  
-            if(app->getProvStatus() != PROVISIONING_STATUS_OK){
+            if(app->getProvStatus() == PROVISIONING_STATUS_FAIL){
                 ESP_LOGI(TAG, "1 STATUS = %d", app->getProvStatus());
                 noozleStatus = FORCED_PROV;
             }
-            else{
+            else if(app->getProvStatus() == PROVISIONING_STATUS_OK){
+                ESP_LOGI(TAG, "0 STATUS = %d", app->getProvStatus()); 
                 noozleStatus = CONNECT_WIFI;
             }
         break;        
@@ -83,6 +72,9 @@ extern "C" void app_main(void)
         switch (noozleStatus)
         {   
             case FORCED_PROV:{
+                ESP_LOGI(TAG, "FORCED PROVISIONING START");
+
+                app->setProvStatus(PROVISIONING_STATUS_FAIL);
                 app->connectBLE();
                 app->setProvStatus(PROVISIONING_STATUS_OK);
                 noozleStatus = CONNECT_WIFI;
@@ -90,11 +82,11 @@ extern "C" void app_main(void)
             }
 
             case CONNECT_WIFI:{
+                ESP_LOGI(TAG, "CONNECT WIFI START");
                 if(wifi_status != true){
                     app->connectWifi();
                     wifi_status = true;
                 }
-                wifi_status = true;
                     if( err != ESP_OK){
                         noozleStatus = FORCED_PROV;
                         break;
@@ -106,13 +98,21 @@ extern "C" void app_main(void)
             }
 
             case FETCH_TIME:{
-                noozle_cloud_service(NOOZLE_TIME_API);
+                ESP_LOGI(TAG, "FETCH TIME START");
+                err |= noozle_cloud_service(NOOZLE_TIME_API);
                 noozleStatus = FETCH_ID;
                 break;
             }
             
             case FETCH_ID:{
-                noozle_cloud_service(NOOZLE_GET_ID_API);    
+                ESP_LOGI(TAG, "FETCH ID START");
+                err |= noozle_cloud_service(NOOZLE_GET_ID_API);   
+                if(err == ESP_FAIL){
+                    ESP_LOGE(TAG,"Fetch ID failed, starting forced Provisioning");
+                    noozleStatus = FORCED_PROV;
+                    err = ESP_OK;
+                    break;
+                } 
                 if(lastStatus == RING_ALARM){
                         noozleStatus = UPDATE_BATTERY;
                         lastStatus = UPDATE_BATTERY;
@@ -124,53 +124,72 @@ extern "C" void app_main(void)
             }
 
             case FETCH_ALARM:{
+                ESP_LOGI(TAG, "FETCH ALARM START");
+
                 err = noozle_cloud_service(NOOZLE_REPEATED_ALARM_API); 
-                // if(err == ESP_OK)
-                //     noozleStatus = SET_ALARMS;
-                // else    
-                //     noozleStatus = DEEP_SLEEP;
                 noozleStatus = SET_ALARMS;
                 break;
             }
 
             case DEEP_SLEEP:{
+                ESP_LOGI(TAG, "DEEP SLEEP START");
+
                 app->setDeepSleep();
                 break;
             }
 
             case RING_ALARM:{
+                ESP_LOGI(TAG, "RING ALARM START");
+                
                 app->checkAlarm();
+
                 lastStatus = RING_ALARM;
                 noozleStatus = UPDATE_BATTERY;
                 break;
             }
             
             case UPDATE_BATTERY:{
+
                 ESP_LOGI(TAG, "UPDATE BATTERY CASE");
+
                 if(wifi_status != true){
                     app->connectWifi();
                     wifi_status = true;
                 }
-                noozle_cloud_service(NOOZLE_GET_ID_API);
                 app->updateBatteryStatus();
+
                 noozleStatus = DEEP_SLEEP;
                 break;
             }
             
             case SET_ALARMS:{
-                app->setAlarmsFromNvs();
+                ESP_LOGI(TAG, "SET ALARM START");
+
+                err |= (app->setAlarmsFromNvs());
+                if(err == ESP_FAIL){
+                    ESP_LOGE(TAG, "Set alarm Error");
+                }
+
                 noozleStatus = SET_NEAREST;
                 break;
             }
 
             case SET_NEAREST:{
-                app->setNearestAlarm();
+                ESP_LOGI(TAG, "SET NEAREST START");
+
+                //if NVS returns error skip setting nearest alarm
+                if(err == ESP_OK){ 
+                    app->setNearestAlarm();
+                }
+                
                 lastStatus = SET_NEAREST;
                 noozleStatus = RING_ALARM;
                 break;
             }
             
             default:{
+                ESP_LOGI(TAG, "DEFAULT CASE START");
+                
                 noozleStatus = CONNECT_WIFI;
                 break;
             }
@@ -180,23 +199,3 @@ extern "C" void app_main(void)
     }
 
 }
-
- 
-/* xTASK FUNCTIONS*/
-
-// void display_task(void *pv){
-//     while(1){
-//         display.operate();
-//         vTaskDelay(1/portTICK_PERIOD_MS);
-//     }
-// }
-
-// void audio_task(void *pv){
-//     audio.setup();
-//     while(1){
-//         audio.setVol(90);
-//         audio.play(WAV_FILE);   
-//         audio.setVol(0);
-//         vTaskDelay(1000/portTICK_PERIOD_MS);
-//     }
-// }

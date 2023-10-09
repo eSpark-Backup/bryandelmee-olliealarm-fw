@@ -111,18 +111,25 @@ void Noozle::checkProvStatusAndRunBleOrWifi()
     }
 }
 
-void Noozle::setAlarmsFromNvs(){
-
+esp_err_t Noozle::setAlarmsFromNvs(){
+    esp_err_t err = ESP_OK;
     //Check how many scenes are saved in NVS
     int n;
-    readNoOfScenes(&n);
-    numberOfScenes = n;
+    err |= readNoOfScenes(&n);
+    if(err == ESP_OK){
+        numberOfScenes = n;
+    }
+    else{
+        v_nearestAlarm = NULL;
+        return err;
+    }
 
     //Allocate memory to Alarm structures
     sleepAlarm = (alarm_config*)malloc(n*sizeof(alarm_config));
     wakeAlarm = (alarm_config*)malloc(n*sizeof(alarm_config));
     nearestAlarm = (alarm_config*)malloc(n*sizeof(alarm_config));
     v_nearestAlarm = (alarm_config*)malloc(sizeof(alarm_config));
+    p_weekday = (bool*)calloc(n, sizeof(weekday));
 
     // struct my_node *nearest_head;
     // struct my_node *one = NULL;
@@ -146,7 +153,6 @@ void Noozle::setAlarmsFromNvs(){
     // nearest_head = one;
 
     // p_weekday = (bool*)malloc(n*sizeof(weekday));
-    p_weekday = (bool*)calloc(n, sizeof(weekday));
 
     //loop for no. of scenes and fetch scenenames for accessing namespces in NVS
     char *scene_name = "something";
@@ -205,14 +211,16 @@ void Noozle::setAlarmsFromNvs(){
     // set_alarm_end_time(wakeAlarm, (time_t)time);
     // ESP_LOGI(TAG, "To get up time NVS : %ld\n", time);
 
-    
+    return err;
 }
-void Noozle::readNoOfScenes(int* n){
+esp_err_t Noozle::readNoOfScenes(int* n){
+    esp_err_t ret = ESP_OK;
+    ESP_LOGI(TAG, " Reading No Scenes from NVS"); 
     uint32_t number;
-    nvs->readKeyU32("scene_names", "no_scenes", &number);
+    ESP_RETURN_ON_ERROR(nvs->readKeyU32("scene_names", "no_scenes", &number),TAG, "Failed to read no of scenes");
     *n = (int)number;
     ESP_LOGI(TAG, "read no of scenes : %d", *n);
-
+    return ret;
 }
 
 void Noozle::readSceneName(char* p_scene_name, uint8_t scene_number){
@@ -443,9 +451,11 @@ void Noozle::checkAlarm(){
             vTaskDelay(10/portTICK_PERIOD_MS);
             rtc->updateTime();
         }
-        vTaskDelete(displayhandle);
+        // vTaskDelete(displayhandle);
+        ESP_LOGI(TAG, "ALARM ENDED TASK DELETING");
         vTaskDelete(audiohandle);
         // audio.setVol(0);
+        alarmState = false;
     }
     else if(alarmState == false){
         ESP_LOGI(TAG, "ITS NOT ALARM TIME");

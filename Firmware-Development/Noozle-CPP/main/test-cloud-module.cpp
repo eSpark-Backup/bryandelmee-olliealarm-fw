@@ -29,6 +29,7 @@ extern "C" void app_main(void)
 {
     app = new Noozle();
     app->setup();
+    esp_err_t status = ESP_OK;
     // app->setProvStatus(PROVISIONING_STATUS_FAIL);
     // app->connectBLE();
     // app->setProvStatus(PROVISIONING_STATUS_OK);
@@ -38,41 +39,16 @@ extern "C" void app_main(void)
     NVS alarmNVS;
     alarmNVS.init();
 
-    noozle_cloud_service(NOOZLE_TIME_API); 
+    status |= noozle_cloud_service(NOOZLE_TIME_API); 
     app->updateTime();
-    noozle_cloud_service(NOOZLE_GET_ID_API);  //Fetches alarm and aslo save in NVS
+    status |= noozle_cloud_service(NOOZLE_GET_ID_API);  //Fetches alarm and also save in NVS
+    status |= noozle_cloud_service(NOOZLE_REPEATED_ALARM_API);  //Fetches alarm and also save in NVS
 
     
-    if(noozle_cloud_service(NOOZLE_REPEATED_ALARM_API) == ESP_OK){
-        ESP_LOGI(TAG, "ALARMS FETCHED!\n");
-        vTaskDelay(1000/portTICK_PERIOD_MS);
+    if(status == ESP_OK){
 
         app->setAlarmsFromNvs();
         app->setNearestAlarm();
-
-        // uint32_t time;
-        // alarmNVS.readKeyU32("Scene1", sleep_scene_string[ALMOST_SLEEP], &time);
-        // ESP_LOGI(TAG, "Almost Asleep time NVS : %ld\n", time);
-        // vTaskDelay(1000/portTICK_PERIOD_MS);
-
-        // alarmNVS.readKeyU32("Scene1", sleep_scene_string[TO_SLEEP], &time);
-        // ESP_LOGI(TAG, "To SLeep time NVS : %ld\n", time);
-        // vTaskDelay(1000/portTICK_PERIOD_MS);
-
-        // alarmNVS.readKeyU32("Scene1", sleep_scene_string[ALMOST_GETTING_UP], &time);
-        // ESP_LOGI(TAG, "Almost Getting up time NVS : %ld\n", time);
-        // vTaskDelay(1000/portTICK_PERIOD_MS);
-
-        // alarmNVS.readKeyU32("Scene1", sleep_scene_string[TO_GET_UP], &time);
-        // ESP_LOGI(TAG, "To get up time NVS : %ld\n", time);
-        // vTaskDelay(1000/portTICK_PERIOD_MS);
-
-        // uint8_t weekday_bits;
-        // alarmNVS.readKeyU8("Scene1", "weekday_bits", &weekday_bits);
-        // ESP_LOGI(TAG, "Week days in binary: %d\n", weekday_bits);
-        // vTaskDelay(1000/portTICK_PERIOD_MS);
-        
-        // bits_to_bool(weekday_bits);
     }
 
     while (1)

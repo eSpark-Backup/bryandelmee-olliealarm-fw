@@ -33,7 +33,7 @@ esp_err_t noozle_cloud_service(noozle_api_t API)
 
         case NOOZLE_GET_ID_API:
             cloud_free_buf();
-            ret |= cloud_api_request(noozle_get_id_api, HTTP_METHOD_GET, NULL);
+            ESP_RETURN_ON_ERROR(cloud_api_request(noozle_get_id_api, HTTP_METHOD_GET, NULL), TAG, "Repeated Alarms Request");
             ret |= cloud_api_parse_ollie_id(cloud_buffer, &noozle_device_id, &noozle_battery_json);
             break;
 
@@ -41,11 +41,25 @@ esp_err_t noozle_cloud_service(noozle_api_t API)
             cloud_free_buf();
             ret |= cloud_api_request(noozle_repeated_alarm_api, HTTP_METHOD_POST, NULL);
             ret |= cloud_api_parse_repeated_alarms(cloud_buffer);
+
             break;
 
         case NOOZLE_BATTERY_UPDATE_API:
             cloud_free_buf();
-            ret |= cloud_api_create_battery_status_json(&noozle_device_id, &noozle_battery_json);
+            //retrieving id from nvs
+            nvs_flash_init();
+            nvs_handle_t handle;
+            nvs_open("device_info", NVS_READONLY, &handle);
+
+            size_t required_size = 0;
+            ESP_RETURN_ON_ERROR(nvs_get_str(handle, "device_id",NULL,&required_size), TAG, "readKey32: Read U32 key-value from NVS.");
+            char  * device_id = malloc(required_size);
+            ESP_RETURN_ON_ERROR(nvs_get_str(handle, "device_id", device_id,&required_size), TAG, "readKey32: Read U32 key-value from NVS.");
+            // char *device_id = "{\"ollie_id\":\"6523b575a928e0a9e87bfb1f\"}";
+            nvs_commit(handle);
+            nvs_close(handle);
+
+            ret |= cloud_api_create_battery_status_json(&device_id, &noozle_battery_json);
             ret |= cloud_api_request(noozle_update_battery_api, HTTP_METHOD_POST, NULL);
             break;
 
