@@ -38,7 +38,8 @@ typedef enum{
     NOOZLE_TIME_API = 0,
     NOOZLE_GET_ID_API,
     NOOZLE_REPEATED_ALARM_API,
-    NOOZLE_BATTERY_UPDATE_API
+    NOOZLE_BATTERY_UPDATE_API,
+    NOOZLE_NAP_ALARM_API
 }noozle_api_t;
 
 #define CLOUD_DEBUG 1
@@ -73,6 +74,7 @@ esp_err_t cloud_api_success_status(cJSON* root);
 esp_err_t cloud_api_parse_repeated_alarms_epoch(cJSON* root, int64_t* alarm_epoch);
 esp_err_t cloud_api_create_battery_status_json(char** noozle_dev_id, char** noozle_batt_json);
 esp_err_t save_alarms_in_nvs(int64_t* alarm_epoch, size_t size);
+esp_err_t cloud_api_parse_nap_time_alarms(const char* jsonString);
 
 void cloud_free_buf();
 void cloud_copy_response(esp_http_client_event_t *evt);

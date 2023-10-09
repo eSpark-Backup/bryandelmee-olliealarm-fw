@@ -12,6 +12,8 @@ const char* noozle_time_api = "http://dev.noozle.nl:3000/time/current";
 const char* noozle_get_id_api = "http://dev.noozle.nl:3000/ollie/getAll";
 const char* noozle_repeated_alarm_api = "http://dev.noozle.nl:3000/scenes/getRepeatedAlarmsByOllieID";
 const char* noozle_update_battery_api = "http://dev.noozle.nl:3000/ollie/updateChargeStatus";
+const char* noozle_nap_time_api = "http://dev.noozle.nl:3000/scenes/getNapTimeByOllieID";
+
 
 char* noozle_device_id = NULL;
 RTC_DATA_ATTR  char* noozle_battery_json = NULL;
@@ -41,6 +43,12 @@ esp_err_t noozle_cloud_service(noozle_api_t API)
             cloud_free_buf();
             ret |= cloud_api_request(noozle_repeated_alarm_api, HTTP_METHOD_POST, NULL);
             ret |= cloud_api_parse_repeated_alarms(cloud_buffer);
+
+            break;
+        case NOOZLE_NAP_ALARM_API:
+            cloud_free_buf();
+            ret |= cloud_api_request(noozle_nap_time_api, HTTP_METHOD_POST, NULL);
+            ret |= cloud_api_parse_nap_time_alarms(cloud_buffer);
 
             break;
 
@@ -98,7 +106,7 @@ esp_err_t cloud_api_request(const char* api, esp_http_client_method_t http_metho
             int wlen = esp_http_client_write(client, noozle_battery_json, strlen(noozle_battery_json));
             data_read = esp_http_client_read_response(client, output_buffer, MAX_HTTP_OUTPUT_BUFFER);
         }
-        else if(api == noozle_repeated_alarm_api){
+        else if(api == noozle_repeated_alarm_api || api == noozle_nap_time_api){
             ret |= esp_http_client_set_header(client, "Content-Type", "application/json");
             ret |= esp_http_client_open(client, strlen(noozle_device_id));
             int wlen = esp_http_client_write(client, noozle_device_id, strlen(noozle_device_id));

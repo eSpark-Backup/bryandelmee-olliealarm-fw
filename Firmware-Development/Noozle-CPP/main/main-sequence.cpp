@@ -127,6 +127,7 @@ extern "C" void app_main(void)
                 ESP_LOGI(TAG, "FETCH ALARM START");
 
                 err = noozle_cloud_service(NOOZLE_REPEATED_ALARM_API); 
+                err = noozle_cloud_service(NOOZLE_NAP_ALARM_API); 
                 noozleStatus = SET_ALARMS;
                 break;
             }

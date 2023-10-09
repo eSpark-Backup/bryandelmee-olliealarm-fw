@@ -346,3 +346,87 @@ esp_err_t save_alarms_in_nvs(int64_t* alarm_epoch, size_t size)
     nvs_close(handle);
     return ESP_OK;
 }
+
+esp_err_t cloud_api_parse_nap_time_alarms(const char* jsonString){
+    esp_err_t ret = ESP_OK;
+
+    // Parse the JSON string
+    cJSON* root = cJSON_Parse(jsonString);
+    if (root == NULL) {
+        printf("Error: Failed to parse JSON.\n");
+        return ESP_FAIL;
+    }
+
+    //check status of the response (200 = ok) else return with ESP_FAIL
+    ret |= cloud_api_success_status(root);
+    if(ret == ESP_FAIL){
+        cJSON_Delete(root);
+        return ret;
+    }
+
+    //now parse nap time epochs
+    cJSON* data = cJSON_GetObjectItem(root, "data");
+    if(!(cJSON_IsArray(data))){
+        fprintf(stderr, "Error: 'data' is not an array.\n");
+        cJSON_Delete(root);
+        return ESP_FAIL;
+
+        //TODO: Delete naps if the JSON reponse has no nap alarms
+    }
+
+    // Iterate through the 'data' array to find the matching 'name'
+    cJSON *item;
+    int item_index = 0;
+    cJSON_ArrayForEach(item, data) {
+        cJSON *name = cJSON_GetObjectItemCaseSensitive(item, "name");
+        ESP_LOGI(TAG, "Nap Time Name : %s", name->valuestring);
+        cJSON *id = cJSON_GetObjectItemCaseSensitive(item, "_id");
+        ESP_LOGI(TAG, "Nap Time _id : %s", id->valuestring);
+                    
+        //save nap alarm id and name in NVS
+        nvs_flash_init();
+        nvs_handle_t handle;
+
+        char unique_nap_name[65] = "nap";
+        snprintf(unique_nap_name, 18,"nap_%d",item_index);
+        
+        nvs_open(unique_nap_name, NVS_READWRITE, &handle);
+        nvs_set_str(handle, "nap_name", name->valuestring );
+        nvs_set_str(handle, "nap_id", id->valuestring );
+        
+        //TODO: dummy time, later use fetched time from api 
+        nvs_set_u32(handle, "start_time" , 1696862731);
+        nvs_set_u32(handle, "end_time" , 1696862831);
+        nvs_commit(handle);
+        nvs_close(handle);
+        item_index++;
+        
+        nvs_open("nap_info", NVS_READWRITE, &handle);
+        nvs_set_u8(handle, "total_nap", item_index);
+        nvs_commit(handle);
+        nvs_close(handle);
+    }
+
+    //reading nap data
+    nvs_flash_init();
+    nvs_handle_t print_handle;
+    char* unique_nap_name[65];
+    for(int x = 0; x<item_index; x++){
+        unique_nap_name[65] = "something";
+        snprintf(unique_nap_name, 18,"nap_%d",x);
+        nvs_open(unique_nap_name, NVS_READWRITE, &print_handle);
+        size_t nap_required_size = 0;
+        nvs_get_str(print_handle, "nap_name", NULL, &nap_required_size );
+        char* print_nap_name = malloc(nap_required_size);
+        nvs_get_str(print_handle, "nap_name", print_nap_name, &nap_required_size);
+        ESP_LOGI(TAG, "THE NAP NAME READ IS : %s", print_nap_name);
+
+    }
+
+    //TODO: Set the nearest nap of all naps fetched
+
+    //TODO: Then set the nearest from V-nearest of repeated and v-nearest of nap time
+
+    return ret;
+}
+
