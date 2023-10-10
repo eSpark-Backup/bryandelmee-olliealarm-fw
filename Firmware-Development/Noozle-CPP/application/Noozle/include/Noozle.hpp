@@ -32,6 +32,7 @@ enum app_status_t {
     ALARM_RING,
     FETCH_TIME,
     FETCH_ALARM,
+    FETCH_NAP_ALARM,
     FETCH_ID,
     SET_ALARMS,
     SET_NEAREST,
@@ -59,9 +60,10 @@ class Noozle
         esp_err_t bootCountUpdate();
         void checkProvStatusAndRunBleOrWifi();
         esp_err_t setAlarmsFromNvs();
+        esp_err_t fetchRepeated();
         void bits_to_bool(uint8_t bits, int scene_no);
         void updateTime();
-        void setNearestAlarm();
+        esp_err_t setNearestAlarm();
         void updateBatteryStatus();
         void setDeepSleep();
         bool alarmStatus();
@@ -76,13 +78,19 @@ class Noozle
         alarm_config* wakeAlarm;
         alarm_config* sleepAlarm;
         alarm_config* nearestAlarm;
-        alarm_config* v_nearestAlarm;
+        alarm_config* v_nearestAlarm = NULL;
+        alarm_config* napAlarm;
+        alarm_config* nearestNapAlarm;
+        alarm_config* lowest;
         uint8_t weekday_bits;
         int numberOfScenes;
+        int numberOfNaps;
         bool weekday[7];
         bool *p_weekday;
         esp_err_t readNoOfScenes(int* n);
+        esp_err_t readNoOfNaps(int* n);
         void readSceneName(char* p_scene_name, uint8_t scene_number);
+        void readNapName(char* p_nap_name, uint8_t nap_number);
         void configureAlarm(alarm_config* alarm, bool next_day);
 
 };

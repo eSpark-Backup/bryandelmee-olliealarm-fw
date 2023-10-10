@@ -75,6 +75,7 @@ esp_err_t cloud_api_parse_repeated_alarms_epoch(cJSON* root, int64_t* alarm_epoc
 esp_err_t cloud_api_create_battery_status_json(char** noozle_dev_id, char** noozle_batt_json);
 esp_err_t save_alarms_in_nvs(int64_t* alarm_epoch, size_t size);
 esp_err_t cloud_api_parse_nap_time_alarms(const char* jsonString);
+esp_err_t delete_all_nap_from_nvs();
 
 void cloud_free_buf();
 void cloud_copy_response(esp_http_client_event_t *evt);

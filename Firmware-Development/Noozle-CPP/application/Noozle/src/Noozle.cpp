@@ -113,113 +113,120 @@ void Noozle::checkProvStatusAndRunBleOrWifi()
 
 esp_err_t Noozle::setAlarmsFromNvs(){
     esp_err_t err = ESP_OK;
-    //Check how many scenes are saved in NVS
-    int n;
-    err |= readNoOfScenes(&n);
-    if(err == ESP_OK){
-        numberOfScenes = n;
+    //Check how many scenes and naps are saved in NVS
+    int n, total_naps;
+
+    err = readNoOfNaps(&total_naps);
+    if(err != ESP_OK){
+        numberOfNaps = 0;
+        // nearestNapAlarm = 0; //SKIP MALLOC
     }
     else{
-        v_nearestAlarm = NULL;
+        numberOfNaps = total_naps;
+        //allocate memory to  nap alarms
+        napAlarm = (alarm_config*)malloc(numberOfNaps*sizeof(alarm_config));
+        nearestNapAlarm = (alarm_config*)malloc(sizeof(alarm_config));
+    }
+
+    err = readNoOfScenes(&n);
+    if(err != ESP_OK){
+        // v_nearestAlarm = 0; /*SKIP MALLOC*/
+        numberOfScenes = 0;
+    }
+    else{
+        numberOfScenes = n;
+        //Allocate memory to Alarm structures
+        sleepAlarm = (alarm_config*)malloc(n*sizeof(alarm_config));
+        wakeAlarm = (alarm_config*)malloc(n*sizeof(alarm_config));
+        nearestAlarm = (alarm_config*)malloc(n*sizeof(alarm_config));
+        v_nearestAlarm = (alarm_config*)malloc(sizeof(alarm_config));
+        p_weekday = (bool*)calloc(n, sizeof(weekday));
+        // return err;
+    }
+
+    //if both are not in nvs
+    if((nearestAlarm == NULL) & (v_nearestAlarm == NULL)){
         return err;
     }
 
-    //Allocate memory to Alarm structures
-    sleepAlarm = (alarm_config*)malloc(n*sizeof(alarm_config));
-    wakeAlarm = (alarm_config*)malloc(n*sizeof(alarm_config));
-    nearestAlarm = (alarm_config*)malloc(n*sizeof(alarm_config));
-    v_nearestAlarm = (alarm_config*)malloc(sizeof(alarm_config));
-    p_weekday = (bool*)calloc(n, sizeof(weekday));
-
-    // struct my_node *nearest_head;
-    // struct my_node *one = NULL;
-    // struct my_node *two = NULL;
-    // struct my_node *three = NULL;
-
-    // /* Allocate memory */
-    // one = (struct my_node)malloc(sizeof(struct my_node));
-    // two = (struct my_node)malloc(sizeof(struct my_node));
-    // three = (struct my_node)malloc(sizeof(struct my_node));
-
-    // /* Assign Data*/
-    // one->alarm = nearestAlarm[0];
-    // two->alarm = nearestAlarm[1];
-    // three->alarm = nearestAlarm[2];
-
-    // /* Connect Nodes */
-    // one->next = two;
-    // two->next = three;
-    // three->next = NULL;
-    // nearest_head = one;
-
-    // p_weekday = (bool*)malloc(n*sizeof(weekday));
-
     //loop for no. of scenes and fetch scenenames for accessing namespces in NVS
-    char *scene_name = "something";
-    for(int i = 0; i < n; i++){
-        readSceneName(scene_name, i);
-        ESP_LOGI(TAG, "READFUNC : %s", scene_name);
+    if(v_nearestAlarm != NULL){
+        char *scene_name = "repeatedd";
+        for(int i = 0; i < numberOfScenes; i++){
+            readSceneName(scene_name, i);
+            ESP_LOGI(TAG, "REPEATED : %s", scene_name);
 
-        //Read weekdays of the particular scene first
-        nvs->readKeyU8(scene_name, "weekday_bits", &weekday_bits);
-        ESP_LOGI(TAG, "Week days in binary: %d\n", weekday_bits);
-        bits_to_bool(weekday_bits, i);
+            //Read weekdays of the particular scene first
+            nvs->readKeyU8(scene_name, "weekday_bits", &weekday_bits);
+            ESP_LOGI(TAG, "Week days in binary: %d\n", weekday_bits);
+            bits_to_bool(weekday_bits, i);
 
-        //Setting Sleep START and END of current scene
-        uint32_t time;
-        nvs->readKeyU32(scene_name, sleep_scene_string[ALMOST_SLEEP], &time);
-        set_alarm_start_time(&(sleepAlarm[i]), (time_t)time);
-        ESP_LOGI(TAG, "Almost Asleep time NVS : %ld\n", time);
+            //Setting Sleep START and END of current scene
+            uint32_t time;
+            nvs->readKeyU32(scene_name, sleep_scene_string[ALMOST_SLEEP], &time);
+            set_alarm_start_time(&(sleepAlarm[i]), (time_t)time);
+            ESP_LOGI(TAG, "Almost Asleep time NVS : %ld\n", time);
 
-        nvs->readKeyU32(scene_name, sleep_scene_string[TO_SLEEP], &time);
-        set_alarm_end_time(&(sleepAlarm[i]), (time_t)time);
-        ESP_LOGI(TAG, "To SLeep time NVS : %ld\n", time);
+            nvs->readKeyU32(scene_name, sleep_scene_string[TO_SLEEP], &time);
+            set_alarm_end_time(&(sleepAlarm[i]), (time_t)time);
+            ESP_LOGI(TAG, "To SLeep time NVS : %ld\n", time);
 
-        //Setting Wake START and END of current scene
-        nvs->readKeyU32(scene_name, sleep_scene_string[ALMOST_GETTING_UP], &time);
-        set_alarm_start_time(&(wakeAlarm[i]), (time_t)time);
-        ESP_LOGI(TAG, "Almost Getting time NVS : %ld\n", time);
+            //Setting Wake START and END of current scene
+            nvs->readKeyU32(scene_name, sleep_scene_string[ALMOST_GETTING_UP], &time);
+            set_alarm_start_time(&(wakeAlarm[i]), (time_t)time);
+            ESP_LOGI(TAG, "Almost Getting time NVS : %ld\n", time);
 
-        nvs->readKeyU32(scene_name, sleep_scene_string[TO_GET_UP], &time);
-        set_alarm_end_time(&(wakeAlarm[i]), (time_t)time);
-        ESP_LOGI(TAG, "To Getup time NVS : %ld\n", time);
+            nvs->readKeyU32(scene_name, sleep_scene_string[TO_GET_UP], &time);
+            set_alarm_end_time(&(wakeAlarm[i]), (time_t)time);
+            ESP_LOGI(TAG, "To Getup time NVS : %ld\n", time);
 
-        //show alarm info
-        ESP_LOGI(TAG,"\nSLEEP ALARM SCENE %d\n", i);
-        show_alarm_info(sleepAlarm+i);
-        ESP_LOGI(TAG,"\nWAKE ALARM SCENE %d\n", i);
-        show_alarm_info(wakeAlarm+i);
+            //show alarm info
+            ESP_LOGI(TAG,"\nSLEEP ALARM SCENE %d\n", i);
+            show_alarm_info(sleepAlarm+i);
+            ESP_LOGI(TAG,"\nWAKE ALARM SCENE %d\n", i);
+            show_alarm_info(wakeAlarm+i);
+        }
     }
 
+    if(nearestNapAlarm != NULL){
+        char* current_nap_name = "Somenap";
+        for(int k = 0; k < numberOfNaps; k++){
+            readNapName(current_nap_name, k);
+            ESP_LOGI(TAG, "NAP %d : %s", k, current_nap_name);
 
-    
+            //Setting NAP alarm time
+            uint32_t time;
+            nvs->readKeyU32(current_nap_name, "start_time", &time);
+            set_alarm_start_time(&(napAlarm[k]), (time_t)time);
 
-    // uint32_t time;
-    // nvs->readKeyU32(sleep_scene_string[ALMOST_SLEEP], "time", &time);
-    // set_alarm_start_time(sleepAlarm, (time_t)time);
-    // ESP_LOGI(TAG, "Almost Asleep time NVS : %ld\n", time);
+            nvs->readKeyU32(current_nap_name, "end_time", &time);
+            set_alarm_end_time(&(napAlarm[k]), (time_t)time);
 
-    // nvs->readKeyU32(sleep_scene_string[TO_SLEEP], "time", &time);
-    // set_alarm_end_time(sleepAlarm, (time_t)time);
-    // ESP_LOGI(TAG, "To SLeep time NVS : %ld\n", time);
-
-    // nvs->readKeyU32(sleep_scene_string[ALMOST_GETTING_UP], "time", &time);
-    // set_alarm_start_time(wakeAlarm, (time_t)time);
-    // ESP_LOGI(TAG, "Almost Getting up time NVS : %ld\n", time);
-
-    // nvs->readKeyU32(sleep_scene_string[TO_GET_UP], "time", &time);
-    // set_alarm_end_time(wakeAlarm, (time_t)time);
-    // ESP_LOGI(TAG, "To get up time NVS : %ld\n", time);
-
+            ESP_LOGI(TAG, "Nap %d ALarm time Set to : %ld\n", k, time);
+            //show alarm info
+            show_alarm_info(napAlarm+k);
+            
+        }
+    }
     return err;
 }
 esp_err_t Noozle::readNoOfScenes(int* n){
     esp_err_t ret = ESP_OK;
     ESP_LOGI(TAG, " Reading No Scenes from NVS"); 
     uint32_t number;
-    ESP_RETURN_ON_ERROR(nvs->readKeyU32("scene_names", "no_scenes", &number),TAG, "Failed to read no of scenes");
+    ret |= nvs->readKeyU32("scene_names", "no_scenes", &number);
     *n = (int)number;
     ESP_LOGI(TAG, "read no of scenes : %d", *n);
+    return ret;
+}
+
+esp_err_t Noozle::readNoOfNaps(int* n){
+    esp_err_t ret = ESP_OK;
+    ESP_LOGI(TAG, " Reading No Naps from NVS"); 
+    uint8_t number;
+    ret = nvs->readKeyU8("nap_info", "total_nap", &number);
+    *n = (int)number;
+    ESP_LOGI(TAG, "read no of naps : %d", *n);
     return ret;
 }
 
@@ -227,12 +234,19 @@ void Noozle::readSceneName(char* p_scene_name, uint8_t scene_number){
     nvs_flash_init();
     nvs_handle_t handle;
     size_t required_size = 0;
+
     nvs_open("scene_names", NVS_READWRITE, &handle);
     char array[65] = "scene";
     snprintf(array, 18,"scene %d",scene_number);
+
     nvs_get_str(handle, array,NULL, &required_size);
-    char* scene_name = (char*)malloc(required_size);
+    // char* scene_name = (char*)malloc(required_size);
     nvs_get_str(handle, array, p_scene_name,&required_size);
+}
+
+void Noozle::readNapName(char* p_nap_name, uint8_t nap_number){
+    snprintf(p_nap_name, 18,"nap_%d", (int)nap_number);
+
 }
 
 void Noozle::bits_to_bool(uint8_t bits, int scene_no){
@@ -256,77 +270,105 @@ void Noozle::updateTime(){
     rtc->updateTime();
 }
 
-void Noozle::setNearestAlarm(){
+esp_err_t Noozle::setNearestAlarm(){
     /* CHECK DAY*/
     uint32_t wakeDiff[numberOfScenes] = {0}, sleepDiff[numberOfScenes] = {0}; //set all differences to 0
     int thisDay = rtc->realtimeinfo.tm_wday;
     int nextDay = (thisDay < 7) ? thisDay+1 : 0;
     
-    //get epoch difference from current real time. individual scene
-    for(int i = 0; i<numberOfScenes; i++)
+    if(numberOfScenes > 0)
     {
-        //manually set the month and year and month day to current day so epoch difference is with in a day
-        configureAlarm(sleepAlarm+i, false);
-        configureAlarm(wakeAlarm+i, false);
+        //get epoch difference from current real time. individual scene
+        v_nearestAlarm->start_time = 4820714998; // set to max year = 2123
+        for(int i = 0; i<numberOfScenes; i++)
+            {
+                //manually set the month and year and month day to current day so epoch difference is with in a day
+                configureAlarm(sleepAlarm+i, false);
+                configureAlarm(wakeAlarm+i, false);
 
-        //now set difference in epoch of each alarm
-        sleepDiff[i] = (sleepAlarm+i)->start_time - rtc->real_time;
-        ESP_LOGI(TAG, "Sleep Diff %lu", sleepDiff[i]);
-        wakeDiff[i] = (wakeAlarm+i)->start_time - rtc->real_time;
-        ESP_LOGI(TAG, "Wake Diff %lu", wakeDiff[i]);
+                //now set difference in epoch of each alarm
+                sleepDiff[i] = (sleepAlarm+i)->start_time - rtc->real_time;
+                ESP_LOGI(TAG, "Sleep Diff %lu", sleepDiff[i]);
+                wakeDiff[i] = (wakeAlarm+i)->start_time - rtc->real_time;
+                ESP_LOGI(TAG, "Wake Diff %lu", wakeDiff[i]);
 
-        //(check current day) && (check if both alarms are not passed)
-        if(*(p_weekday+(thisDay+(i * 7))) == 1 && !((wakeDiff[i] & 1 << 31)  & (sleepDiff[i] & 1 << 31))){
-            ESP_LOGI(TAG, "ALARM FOUND at DAY :%d FOR Scene : %d",thisDay, i);
-            if(wakeDiff[i] < sleepDiff[i]){
-                nearestAlarm[i] = wakeAlarm[i];
-                ESP_LOGI(TAG, "NEAREST ALARM = WAKE ALARM");
-            }
-            else if( sleepDiff[i] < wakeDiff[i]){
-                nearestAlarm[i] = sleepAlarm[i];
-                ESP_LOGI(TAG, "NEAREST ALARM = SLEEP ALARM");
+                //(check current day) && (check if both alarms are not passed)
+                if(*(p_weekday+(thisDay+(i * 7))) == 1 && !((wakeDiff[i] & 1 << 31)  & (sleepDiff[i] & 1 << 31))){
+                    ESP_LOGI(TAG, "ALARM FOUND at DAY :%d FOR Scene : %d",thisDay, i);
+                    if(wakeDiff[i] < sleepDiff[i]){
+                        nearestAlarm[i] = wakeAlarm[i];
+                        ESP_LOGI(TAG, "NEAREST ALARM = WAKE ALARM");
+                    }
+                    else if( sleepDiff[i] < wakeDiff[i]){
+                        nearestAlarm[i] = sleepAlarm[i];
+                        ESP_LOGI(TAG, "NEAREST ALARM = SLEEP ALARM");
+                    }
+                }
+                else if(*(p_weekday+(nextDay+(i * 7))) == 1){
+                    ESP_LOGI(TAG, "ALARM FOUND at DAY :%d FOR Scene : %d",nextDay, i);
+
+                    //reconfigure for next day
+                    configureAlarm(sleepAlarm+i, true);
+                    configureAlarm(wakeAlarm+i, true);
+                    if(wakeDiff[i] < sleepDiff[i]){
+                        nearestAlarm[i] = wakeAlarm[i];
+                        ESP_LOGI(TAG, "NEAREST ALARM = WAKE ALARM");
+                    }
+                    else if( sleepDiff[i] < wakeDiff[i]){
+                        nearestAlarm[i] = sleepAlarm[i];
+                        ESP_LOGI(TAG, "NEAREST ALARM = SLEEP ALARM");
+                    }
+                }
+                else{
+                    //nearest alarm of the scene will be garbage
+                    ESP_LOGI(TAG, "NO ALARM TODAY OR TOMORROW FOR SCENE %d", i);
+                    
+                    //change the garbage to 1970 or 0 epoch
+                    set_alarm_start_time(nearestAlarm+i, 0);
+                    set_alarm_end_time(nearestAlarm+i, 0);
+                }
+
+            //select the nearest of all alarms
+            if((nearestAlarm[i].start_time > 0)  & (nearestAlarm[i].start_time <= v_nearestAlarm->start_time)){
+                v_nearestAlarm = &(nearestAlarm[i]);
             }
         }
-        else if(*(p_weekday+(nextDay+(i * 7))) == 1){
-            ESP_LOGI(TAG, "ALARM FOUND at DAY :%d FOR Scene : %d",nextDay, i);
-
-            //reconfigure for next day
-            configureAlarm(sleepAlarm+i, true);
-            configureAlarm(wakeAlarm+i, true);
-            if(wakeDiff[i] < sleepDiff[i]){
-                nearestAlarm[i] = wakeAlarm[i];
-                ESP_LOGI(TAG, "NEAREST ALARM = WAKE ALARM");
-            }
-            else if( sleepDiff[i] < wakeDiff[i]){
-                nearestAlarm[i] = sleepAlarm[i];
-                ESP_LOGI(TAG, "NEAREST ALARM = SLEEP ALARM");
-            }
-        }
-        else{
-            //nearest alarm of the scene will be garbage
-            ESP_LOGI(TAG, "NO ALARM TODAY OR TOMORROW FOR SCENE %d", i);
-            
-            //change the garbage to 1970 or 0 epoch
-            set_alarm_start_time(nearestAlarm+i, 0);
-            set_alarm_end_time(nearestAlarm+i, 0);
-        }
-
 
     }
-
-    //setting very nearest from all multiple scenes
-    v_nearestAlarm->start_time = 4820714998; // set to max year = 2123
-    for(int i = 0; i<numberOfScenes; i++){
-        rtc->printHumanTime(&(nearestAlarm[i].start_time));
-
-        //select the nearest of all alarms
-        if((nearestAlarm[i].start_time > 0)  & (nearestAlarm[i].start_time <= v_nearestAlarm->start_time)){
-            v_nearestAlarm = &(nearestAlarm[i]);
+    if(numberOfNaps > 0){
+        ESP_LOGE(TAG, "NAPS ARE AVAILABLE");
+        //TODO: set nearest nap from all available naps
+        lowest = (alarm_config*)malloc(sizeof(alarm_config)); 
+        lowest->start_time = 4820714998; //set it to max to find the nearest
+        for(int j = 0; j < numberOfNaps; j++){
+            if((napAlarm[j].start_time > 0) & (napAlarm[j].start_time <= lowest->start_time)){
+                lowest = &(napAlarm[j]);
+            }
         }
+        // ESP_LOGI(TAG, "NEAREST NAP ALARM EPOCH %lld: ", lowest->start_time);
+        show_alarm_info(lowest);
+    }
+    else{
+        ESP_LOGE(TAG, "NO NAP AND SCENES AVAILABLE");
+        return ESP_FAIL;
+    }
+
+    //setting very nearest from scenes and naps
+    if((lowest->start_time > rtc->real_time) && (v_nearestAlarm->start_time < lowest->start_time)){
+        ESP_LOGI(TAG, "REAPEATED IS THE NEAREST");
+    }
+    else if((lowest->start_time < rtc->real_time)){
+        ESP_LOGI(TAG, "NAP TIME PASSED REPEATED IS NEAREST");
+        // free(lowest);
+    }
+    else{
+        ESP_LOGI(TAG,"NAP TIME IS THE NEAREST");
+        v_nearestAlarm = lowest;
     }
     
-    ESP_LOGI(TAG, "Most Nearest Alarm from all scenes : ");
+    ESP_LOGI(TAG, "Alarm To Ring : ");
     rtc->printHumanTime(&(v_nearestAlarm->start_time));
+    return ESP_OK;
 
 }
 
@@ -360,7 +402,26 @@ void Noozle::configureAlarm(alarm_config* alarm, bool next_day){
 
 }
 
+//TODO:
+// esp_err_t Noozle::fetchTime(){
 
+// }
+
+// esp_err_t Noozle::fetchId(){
+
+// }
+esp_err_t Noozle::fetchRepeated(){
+    esp_err_t err = ESP_OK;
+    err |= noozle_cloud_service(NOOZLE_REPEATED_ALARM_API); 
+    if(err == ESP_ERR_NOT_FOUND){
+        numberOfScenes = 0;
+    }
+    return err;
+}
+//TODO:
+// esp_err_t Noozle::fetchNap(){
+
+// }
 
 void Noozle::setDeepSleep(){
     uint64_t calculatedSleepUs;
@@ -374,7 +435,7 @@ void Noozle::setDeepSleep(){
                     ESP_LOGI(TAG, "ESP CAN GO 1HR DEEP SLEEP");
                     calculatedSleepUs = (unsigned int)(60*60*1000*1000);
                     alarmState = false;
-                    noozleStatus = DEEP_SLEEP;
+                    noozleStatus = DEEP_SLEEP; //FIXME: UPDATE_BATTERY
                     deep_sleep(calculatedSleepUs);
 
                 }

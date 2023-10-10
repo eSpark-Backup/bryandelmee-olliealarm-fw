@@ -55,7 +55,7 @@ esp_err_t cloud_api_parse_ollie_id(const char* jsonString, char** noozle_dev_id,
     ESP_RETURN_ON_ERROR(cloud_api_success_status(root),TAG, "Parse Ollie ID Status Fail");
 
 
-    cJSON *data = cJSON_GetObjectItemCaseSensitive(root, "data");
+    cJSON *data = cJSON_GetObjectItem(root, "data");
     if (!cJSON_IsArray(data)) {
         fprintf(stderr, "Error: 'data' is not an array.\n");
         cJSON_Delete(root);
@@ -170,6 +170,8 @@ esp_err_t cloud_api_parse_repeated_alarms(const char* jsonString)
         nvs_erase_all(delete_scene_no);
         nvs_commit(delete_scene_no);
 
+        ret = ESP_ERR_NOT_FOUND;
+
         return ret;
     }
     ret |= cloud_api_parse_repeated_alarms_epoch(root, alarm_epoch);
@@ -189,8 +191,8 @@ esp_err_t cloud_api_success_status(cJSON* root)
     {
         ESP_LOGI(TAG,"success == FALSE");
         return ESP_FAIL;
+        cJSON_Delete(success);
     }
-    cJSON_Delete(success);
     return ESP_FAIL;
 }
 
@@ -297,6 +299,7 @@ esp_err_t cloud_api_parse_repeated_alarms_epoch(cJSON* root, int64_t* alarm_epoc
 
             nvs_handle_t handle;
             ESP_RETURN_ON_ERROR(nvs_open(scene_name->valuestring, NVS_READWRITE, &handle), TAG, "opening NVS Namespace as sceneName");
+            // ESP_LOGE(TAG, "ERROR CODE %d", nvs_open(scene_name->valuestring, NVS_READWRITE, &handle));
             ESP_RETURN_ON_ERROR(nvs_set_u8(handle, "weekday_bits" , weekday_bits), TAG, "writing weekday_bits epoch");
             ESP_RETURN_ON_ERROR(nvs_commit(handle), TAG, "Updated NVS\n");
             nvs_close(handle);
@@ -349,7 +352,7 @@ esp_err_t save_alarms_in_nvs(int64_t* alarm_epoch, size_t size)
 
 esp_err_t cloud_api_parse_nap_time_alarms(const char* jsonString){
     esp_err_t ret = ESP_OK;
-
+    char unique_nap_name[65] = "something";
     // Parse the JSON string
     cJSON* root = cJSON_Parse(jsonString);
     if (root == NULL) {
@@ -360,7 +363,8 @@ esp_err_t cloud_api_parse_nap_time_alarms(const char* jsonString){
     //check status of the response (200 = ok) else return with ESP_FAIL
     ret |= cloud_api_success_status(root);
     if(ret == ESP_FAIL){
-        cJSON_Delete(root);
+        cJSON_Delete(root);        
+        delete_all_nap_from_nvs();
         return ret;
     }
 
@@ -368,10 +372,9 @@ esp_err_t cloud_api_parse_nap_time_alarms(const char* jsonString){
     cJSON* data = cJSON_GetObjectItem(root, "data");
     if(!(cJSON_IsArray(data))){
         fprintf(stderr, "Error: 'data' is not an array.\n");
+        delete_all_nap_from_nvs();
         cJSON_Delete(root);
         return ESP_FAIL;
-
-        //TODO: Delete naps if the JSON reponse has no nap alarms
     }
 
     // Iterate through the 'data' array to find the matching 'name'
@@ -387,46 +390,75 @@ esp_err_t cloud_api_parse_nap_time_alarms(const char* jsonString){
         nvs_flash_init();
         nvs_handle_t handle;
 
-        char unique_nap_name[65] = "nap";
+        unique_nap_name[65] = "nap";
         snprintf(unique_nap_name, 18,"nap_%d",item_index);
         
         nvs_open(unique_nap_name, NVS_READWRITE, &handle);
         nvs_set_str(handle, "nap_name", name->valuestring );
         nvs_set_str(handle, "nap_id", id->valuestring );
         
-        //TODO: dummy time, later use fetched time from api 
-        nvs_set_u32(handle, "start_time" , 1696862731);
-        nvs_set_u32(handle, "end_time" , 1696862831);
+        //FIXME: dummy time, later use fetched time in epoch from api 
+        nvs_set_u32(handle, "start_time" , 1696952059);
+        nvs_set_u32(handle, "end_time" , 1696952089);
         nvs_commit(handle);
         nvs_close(handle);
         item_index++;
         
+        //save number of naps
         nvs_open("nap_info", NVS_READWRITE, &handle);
         nvs_set_u8(handle, "total_nap", item_index);
         nvs_commit(handle);
         nvs_close(handle);
     }
 
-    //reading nap data
+    //reading nap data for debug
     nvs_flash_init();
     nvs_handle_t print_handle;
-    char* unique_nap_name[65];
     for(int x = 0; x<item_index; x++){
+        //create namespace string to open
         unique_nap_name[65] = "something";
         snprintf(unique_nap_name, 18,"nap_%d",x);
         nvs_open(unique_nap_name, NVS_READWRITE, &print_handle);
+
+        //read nap name saved by the user
         size_t nap_required_size = 0;
         nvs_get_str(print_handle, "nap_name", NULL, &nap_required_size );
         char* print_nap_name = malloc(nap_required_size);
         nvs_get_str(print_handle, "nap_name", print_nap_name, &nap_required_size);
+
         ESP_LOGI(TAG, "THE NAP NAME READ IS : %s", print_nap_name);
 
     }
-
-    //TODO: Set the nearest nap of all naps fetched
 
     //TODO: Then set the nearest from V-nearest of repeated and v-nearest of nap time
 
     return ret;
 }
 
+esp_err_t delete_all_nap_from_nvs(){
+    char* unique_nap_name = "something"; 
+    //Delete naps if the JSON reponse has no nap alarms
+    ESP_LOGI(TAG, "Deleting Naps");
+
+    //first read how many naps are saved
+    nvs_flash_init();
+    nvs_handle_t delete_nap_no_handle;
+    nvs_open("nap_info", NVS_READWRITE, &delete_nap_no_handle);
+    uint8_t nap_to_delete;
+    nvs_get_u8(delete_nap_no_handle, "total_nap", &nap_to_delete);
+    nvs_commit(delete_nap_no_handle);
+    nvs_close(delete_nap_no_handle);
+
+    //iterate thorugh and erase
+    nvs_handle_t delete_nap;
+    for(int nap_no = 0; nap_no < nap_to_delete; nap_no++){
+        unique_nap_name[65] = "nap";
+        snprintf(unique_nap_name, 18,"nap_%d",nap_no);
+        
+        nvs_open(unique_nap_name, NVS_READWRITE, &delete_nap);
+        nvs_erase_all(&delete_nap);
+        nvs_commit(delete_nap);
+    }
+    nvs_close(delete_nap);
+    return ESP_OK; //TODO:
+}

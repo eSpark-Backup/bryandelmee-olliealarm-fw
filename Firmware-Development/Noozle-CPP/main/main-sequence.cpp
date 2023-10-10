@@ -41,7 +41,7 @@ extern "C" void app_main(void)
         }
         else if(wakeup_cause == ESP_SLEEP_WAKEUP_TIMER){
             ESP_LOGI(TAG, "CONTINUE ALARM SEQUENCE");  
-                noozleStatus = noozleStatus;            
+            noozleStatus = noozleStatus; //noozle status set before deep sleep
         }   
         break;
     }        
@@ -126,8 +126,26 @@ extern "C" void app_main(void)
             case FETCH_ALARM:{
                 ESP_LOGI(TAG, "FETCH ALARM START");
 
-                err = noozle_cloud_service(NOOZLE_REPEATED_ALARM_API); 
-                err = noozle_cloud_service(NOOZLE_NAP_ALARM_API); 
+                app->fetchRepeated();
+
+                if(err != ESP_OK){
+                    ESP_LOGE(TAG, "Fetch Repeated alarm Error");
+                }
+
+                noozleStatus = FETCH_NAP_ALARM;
+                break;
+            }
+
+            case FETCH_NAP_ALARM:{
+                ESP_LOGI(TAG, "FETCH NAP ALARM START");
+                
+                err = ESP_OK;
+                err |= noozle_cloud_service(NOOZLE_NAP_ALARM_API); 
+
+                if(err == ESP_FAIL){
+                    ESP_LOGE(TAG, "Fetch Naps alarm Error");
+                }
+
                 noozleStatus = SET_ALARMS;
                 break;
             }
@@ -167,6 +185,7 @@ extern "C" void app_main(void)
                 ESP_LOGI(TAG, "SET ALARM START");
 
                 err |= (app->setAlarmsFromNvs());
+
                 if(err == ESP_FAIL){
                     ESP_LOGE(TAG, "Set alarm Error");
                 }
@@ -179,9 +198,9 @@ extern "C" void app_main(void)
                 ESP_LOGI(TAG, "SET NEAREST START");
 
                 //if NVS returns error skip setting nearest alarm
-                if(err == ESP_OK){ 
+                // if(err == ESP_OK){ 
                     app->setNearestAlarm();
-                }
+                // }
                 
                 lastStatus = SET_NEAREST;
                 noozleStatus = RING_ALARM;
